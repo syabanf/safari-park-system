@@ -65,3 +65,64 @@
     background: hsl(152 36% 8% / 0.7);
   }
 }
+
+/* ─── Table polish across the admin ────────────────────────────────
+   Applies to every <table class="min-w-full">. Keeps rows readable on
+   narrow viewports (compact padding, smaller type, no wrapping so the
+   parent's overflow-x-auto can scroll cleanly) and adds a subtle sticky
+   header + alternating row tint so dense data lists are easier to scan.
+*/
+table.min-w-full {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+table.min-w-full thead tr {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: hsl(var(--muted) / 0.7);
+  backdrop-filter: saturate(180%) blur(8px);
+}
+
+table.min-w-full tbody tr:nth-child(odd) {
+  background: hsl(var(--muted) / 0.25);
+}
+
+table.min-w-full tbody tr:hover {
+  background: hsl(138 40% 92% / 0.6);
+}
+
+/* Tighten + simplify cells on small viewports — the wrapper has
+   overflow-x-auto, so text never wraps; users scroll horizontally to
+   see less-important columns. */
+@media (max-width: 767px) {
+  table.min-w-full {
+    font-size: 11px;
+  }
+  table.min-w-full th,
+  table.min-w-full td {
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+  }
+  /* First column pins so identifiers stay visible while scrolling. */
+  table.min-w-full thead th:first-child,
+  table.min-w-full tbody td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: inherit;
+  }
+  table.min-w-full thead th:first-child {
+    background: hsl(var(--muted));
+  }
+  table.min-w-full tbody tr:nth-child(odd) td:first-child {
+    background: hsl(35 24% 96%);
+  }
+  table.min-w-full tbody tr:nth-child(even) td:first-child {
+    background: hsl(0 0% 100%);
+  }
+  table.min-w-full tbody tr:hover td:first-child {
+    background: hsl(138 40% 94%);
+  }
+}
