@@ -30,7 +30,10 @@ import {
   Workflow,
   XCircle,
 } from 'lucide-react';
-import { BusinessFlow, type FlowStage } from '@/components/integrations/BusinessFlow';
+import {
+  BusinessFlowSelector,
+  type BusinessFlowDef,
+} from '@/components/integrations/BusinessFlowSelector';
 import {
   Bar,
   BarChart,
@@ -116,7 +119,7 @@ interface GlobalTixData {
     webhooksReceived24h: number;
     webhookSignatureFailures24h: number;
   };
-  pipeline: { description: string; stages: FlowStage[] };
+  pipelines: BusinessFlowDef[];
   syncHistory: SyncDay[];
   reconciliationDrift: ReconRow[];
   recentWebhooks: WebhookRow[];
@@ -248,7 +251,7 @@ export function IntegrationsGlobalTixRoute() {
           <TabsTrigger value="overview" icon={<Sparkles className="h-3.5 w-3.5" />}>
             Overview
           </TabsTrigger>
-          <TabsTrigger value="pipeline" icon={<Workflow className="h-3.5 w-3.5" />} count={data.pipeline.stages.length}>
+          <TabsTrigger value="pipeline" icon={<Workflow className="h-3.5 w-3.5" />} count={data.pipelines.length}>
             Business flow
           </TabsTrigger>
           <TabsTrigger value="sync" icon={<Repeat className="h-3.5 w-3.5" />} count={data.syncHistory.length}>
@@ -280,7 +283,7 @@ export function IntegrationsGlobalTixRoute() {
 
         <TabsContent value="overview">
           <div className="space-y-4">
-            <BusinessFlow description={data.pipeline.description} stages={data.pipeline.stages} />
+            <BusinessFlowSelector flows={data.pipelines} />
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Card>
               <CardContent className="p-5">
@@ -336,7 +339,7 @@ export function IntegrationsGlobalTixRoute() {
         </TabsContent>
 
         <TabsContent value="pipeline">
-          <BusinessFlow description={data.pipeline.description} stages={data.pipeline.stages} />
+          <BusinessFlowSelector flows={data.pipelines} />
         </TabsContent>
 
         <TabsContent value="sync">
@@ -393,10 +396,7 @@ export function IntegrationsGlobalTixRoute() {
 
         <TabsContent value="drift">
           <div className="mb-4">
-            <BusinessFlow
-              description="Stages where the drift rows below are currently stuck"
-              stages={data.pipeline.stages}
-            />
+            <BusinessFlowSelector flows={data.pipelines} initialFlowKey="ap-redemption" />
           </div>
           <Card>
             <CardContent className="overflow-x-auto p-0">
@@ -416,9 +416,11 @@ export function IntegrationsGlobalTixRoute() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.reconciliationDrift.map((r, i) => {
-                    const stage = data.pipeline.stages.find((s) => s.key === r.stage);
-                    const stageIndex = data.pipeline.stages.findIndex((s) => s.key === r.stage);
+                  {(() => {
+                    const apFlow = data.pipelines.find((p) => p.key === 'ap-redemption');
+                    return data.reconciliationDrift.map((r, i) => {
+                    const stage = apFlow?.stages.find((s) => s.key === r.stage);
+                    const stageIndex = apFlow?.stages.findIndex((s) => s.key === r.stage) ?? -1;
                     return (
                       <Row key={r.id} index={i}>
                         <td className="px-6 py-3 font-mono text-xs">{r.redemptionId}</td>
@@ -449,7 +451,8 @@ export function IntegrationsGlobalTixRoute() {
                         </td>
                       </Row>
                     );
-                  })}
+                  });
+                  })()}
                 </tbody>
               </table>
             </CardContent>

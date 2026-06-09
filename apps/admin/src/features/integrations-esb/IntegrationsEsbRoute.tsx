@@ -26,7 +26,10 @@ import {
   Utensils,
   Workflow,
 } from 'lucide-react';
-import { BusinessFlow, type FlowStage } from '@/components/integrations/BusinessFlow';
+import {
+  BusinessFlowSelector,
+  type BusinessFlowDef,
+} from '@/components/integrations/BusinessFlowSelector';
 
 interface ProductRow {
   id: string;
@@ -90,7 +93,7 @@ interface EsbData {
     outletsConfigured: number;
     outletsExpected: number;
   };
-  pipeline: { description: string; stages: FlowStage[] };
+  pipelines: BusinessFlowDef[];
   products: ProductRow[];
   perkMapping: PerkMapping[];
   outlets: Outlet[];
@@ -221,7 +224,7 @@ export function IntegrationsEsbRoute() {
           <TabsTrigger value="overview" icon={<Sparkles className="h-3.5 w-3.5" />}>
             Overview
           </TabsTrigger>
-          <TabsTrigger value="pipeline" icon={<Workflow className="h-3.5 w-3.5" />} count={data.pipeline.stages.length}>
+          <TabsTrigger value="pipeline" icon={<Workflow className="h-3.5 w-3.5" />} count={data.pipelines.length}>
             Business flow
           </TabsTrigger>
           <TabsTrigger value="mapping" icon={<GitBranch className="h-3.5 w-3.5" />} count={data.perkMapping.length}>
@@ -243,7 +246,7 @@ export function IntegrationsEsbRoute() {
 
         <TabsContent value="overview">
           <div className="space-y-4">
-            <BusinessFlow description={data.pipeline.description} stages={data.pipeline.stages} />
+            <BusinessFlowSelector flows={data.pipelines} />
           <Card>
             <CardContent className="p-5">
               <p className="text-sm font-semibold">ESB product surfaces</p>
@@ -277,7 +280,7 @@ export function IntegrationsEsbRoute() {
         </TabsContent>
 
         <TabsContent value="pipeline">
-          <BusinessFlow description={data.pipeline.description} stages={data.pipeline.stages} />
+          <BusinessFlowSelector flows={data.pipelines} />
         </TabsContent>
 
         <TabsContent value="mapping">
