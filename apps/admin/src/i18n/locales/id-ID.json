@@ -1,0 +1,171 @@
+{
+  "admin": {
+    "appName": "TSI Admin",
+    "login": {
+      "title": "Masuk Admin Console",
+      "subtitle": "Kelola membership, gerbang, dan analitik",
+      "emailLabel": "Email",
+      "passwordLabel": "Kata sandi",
+      "submit": "Masuk"
+    },
+    "nav": {
+      "overview": "Ikhtisar",
+      "members": "Anggota",
+      "passes": "Annual Pass",
+      "redemptions": "Redemption",
+      "analytics": "Analitik",
+      "gates": "Gerbang",
+      "gapRegister": "Gap Register",
+      "sla": "SLA — Smooth",
+      "reconciliation": "Rekonsiliasi",
+      "audit": "Log Audit",
+      "settings": "Pengaturan",
+      "operations": "Operasional",
+      "directory": "Direktori"
+    },
+    "overview": {
+      "title": "Selamat datang kembali",
+      "subtitle": "Ringkasan performa Annual Pass — {{date}}",
+      "kpi": {
+        "activeMembers": "Anggota aktif",
+        "todaysEntries": "Masuk hari ini",
+        "weekRevenue": "Pendapatan 7 hari",
+        "offlinePending": "Antrian offline"
+      },
+      "trend": "{{value}}% dibanding minggu lalu",
+      "lastSeven": "7 hari terakhir",
+      "byGate": "Distribusi gerbang",
+      "topTier": "Tier terbanyak"
+    },
+    "members": {
+      "title": "Anggota",
+      "subtitle": "Kelola pemegang Annual Pass",
+      "search": "Cari nama, email, atau ID anggota",
+      "filters": {
+        "all": "Semua",
+        "active": "Aktif",
+        "expired": "Kedaluwarsa",
+        "pending": "Menunggu"
+      },
+      "columns": {
+        "name": "Nama",
+        "email": "Email",
+        "tier": "Tier",
+        "status": "Status",
+        "validUntil": "Berlaku sampai",
+        "entries": "Kunjungan"
+      },
+      "empty": "Tidak ada anggota ditemukan",
+      "detail": {
+        "title": "Detail anggota",
+        "profile": "Profil",
+        "passInfo": "Info Pass",
+        "recentRedemptions": "Redemption terkini",
+        "timeline": "Linimasa aktivitas",
+        "backToList": "Kembali ke daftar"
+      }
+    },
+    "passes": {
+      "title": "Annual Pass",
+      "subtitle": "Status dan distribusi pass",
+      "detail": {
+        "title": "Detail Pass",
+        "renewals": "Riwayat perpanjangan",
+        "redemptions": "Riwayat redemption"
+      }
+    },
+    "redemptions": {
+      "title": "Redemption",
+      "subtitle": "Riwayat scan gerbang"
+    },
+    "analytics": {
+      "title": "Analitik",
+      "subtitle": "Aktivasi, masuk, dan utilisasi"
+    },
+    "gates": {
+      "title": "Gerbang",
+      "subtitle": "Status validator dan kesehatan jaringan",
+      "detail": {
+        "title": "Detail gerbang",
+        "todaysVolume": "Scan 24 jam terakhir",
+        "recentScans": "Scan terkini",
+        "incidents": "Insiden",
+        "noIncidents": "Tidak ada insiden dalam 24 jam"
+      }
+    },
+    "gapRegister": {
+      "title": "Gap Register",
+      "subtitle": "Catatan keterbatasan GlobalTix untuk amunisi Fase 2",
+      "columns": {
+        "title": "Gap",
+        "impact": "Dampak",
+        "phase2": "Argumen Fase 2",
+        "status": "Status"
+      }
+    },
+    "sla": {
+      "title": "SLA Operasional",
+      "subtitle": "Definisi 'smooth' di §8 — diukur langsung",
+      "target": "Target",
+      "current": "Saat ini",
+      "latencyTitle": "Latensi validasi — 24 jam",
+      "categories": {
+        "gate": "Gerbang",
+        "security": "Keamanan",
+        "membership": "Membership",
+        "integration": "Integrasi",
+        "support": "Dukungan"
+      },
+      "status": {
+        "on-target": "Tercapai",
+        "at-risk": "Berisiko",
+        "breach": "Tidak tercapai"
+      }
+    },
+    "reconciliation": {
+      "title": "Rekonsiliasi",
+      "subtitle": "Ledger redemption WIT vs GlobalTix",
+      "summary": {
+        "total": "Total hari ini",
+        "matched": "Cocok",
+        "mismatched": "Tidak cocok",
+        "pending": "Menunggu",
+        "accuracy": "Akurasi"
+      },
+      "table": {
+        "title": "Selisih",
+        "pass": "Pass",
+        "gate": "Gerbang",
+        "wit": "WIT",
+        "globaltix": "GlobalTix",
+        "delta": "Selisih",
+        "severity": "Tingkat",
+        "status": "Status"
+      }
+    },
+    "audit": {
+      "title": "Log Audit",
+      "subtitle": "Event operasional dari audit collector",
+      "columns": {
+        "timestamp": "Waktu",
+        "level": "Level",
+        "actor": "Aktor",
+        "event": "Event",
+        "target": "Target"
+      }
+    },
+    "settings": {
+      "title": "Pengaturan",
+      "subtitle": "Tier, harga, dan ambang validitas"
+    },
+    "common": {
+      "loading": "Memuat...",
+      "viewAll": "Lihat semua",
+      "search": "Cari",
+      "filter": "Filter",
+      "today": "Hari ini",
+      "thisWeek": "Minggu ini",
+      "thisMonth": "Bulan ini"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Taman Safari Annual Pass",
+    "tagline": "Unlimited access, a full year"
+  },
+  "actions": {
+    "next": "Next",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "submit": "Submit",
+    "retry": "Retry",
+    "ok": "OK",
+    "allow": "Allow",
+    "deny": "Deny"
+  },
+  "pass": {
+    "status": {
+      "active": "Active",
+      "expired": "Expired",
+      "suspended": "Suspended",
+      "pending": "Pending"
+    },
+    "tier": {
+      "adult": "Adult",
+      "child": "Child",
+      "senior": "Senior",
+      "family": "Family"
+    },
+    "expiresOn": "Valid until {{date}}",
+    "visitsRemaining": "{{count}} visits remaining",
+    "unlimitedVisits": "Unlimited visits"
+  },
+  "qr": {
+    "rotates": "Rotates in {{seconds}}s",
+    "scanAtGate": "Show this code at the gate",
+    "offline": "Offline mode — code still works",
+    "bufferLow": "Reconnect to refresh codes"
+  },
+  "errors": {
+    "network": "Connection lost",
+    "unauthorized": "Session expired. Please sign in again.",
+    "unknown": "Something went wrong",
+    "cameraDenied": "Camera access was denied"
+  },
+  "common": {
+    "loading": "Loading..."
+  }
+}

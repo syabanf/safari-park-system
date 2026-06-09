@@ -1,0 +1,88 @@
+{
+  "member": {
+    "login": {
+      "title": "Masuk ke akun Anda",
+      "subtitle": "Akses kartu Annual Pass Anda di sini",
+      "emailLabel": "Email",
+      "passwordLabel": "Kata sandi",
+      "submit": "Masuk",
+      "noAccount": "Belum punya akun?",
+      "enrol": "Daftar Annual Pass"
+    },
+    "enrolment": {
+      "title": "Pendaftaran Annual Pass",
+      "step1": "Data pribadi",
+      "step2": "Verifikasi identitas",
+      "step3": "Pembayaran",
+      "next": "Lanjut",
+      "back": "Kembali",
+      "submit": "Selesai"
+    },
+    "home": {
+      "greeting": "Halo, {{name}}",
+      "showQr": "Tampilkan QR",
+      "renew": "Perpanjang",
+      "events": "Acara",
+      "perks": "Penawaran",
+      "profile": "Profil",
+      "quickActions": "Aksi cepat",
+      "todayAtPark": "Hari ini di taman",
+      "promotions": "Promosi & info",
+      "memberPerks": "Keuntungan member",
+      "upcomingEvents": "Acara mendatang",
+      "viewAll": "Lihat semua"
+    },
+    "qr": {
+      "title": "Kode QR Anda",
+      "description": "Tunjukkan kode ini di gerbang. Kode berganti setiap beberapa detik."
+    },
+    "profile": {
+      "title": "Profil",
+      "name": "Nama",
+      "email": "Email",
+      "memberId": "ID Anggota",
+      "signOut": "Keluar"
+    },
+    "renewal": {
+      "title": "Perpanjangan",
+      "summary": "Perpanjang Annual Pass untuk satu tahun penuh.",
+      "cta": "Perpanjang sekarang"
+    },
+    "nav": {
+      "home": "Beranda",
+      "pass": "Kartu",
+      "discover": "Jelajah",
+      "profile": "Profil"
+    }
+  },
+  "discover": {
+    "title": "Jelajah",
+    "subtitle": "Acara, perks, dan informasi taman",
+    "events": "Acara",
+    "perks": "Penawaran Member",
+    "map": "Info & Lokasi",
+    "news": "Berita & Tips"
+  },
+  "events": {
+    "title": "Acara",
+    "subtitle": "Acara mendatang di taman",
+    "empty": "Belum ada acara"
+  },
+  "perks": {
+    "title": "Penawaran Member",
+    "subtitle": "Tunjukkan QR Anda untuk klaim",
+    "validUntil": "Berlaku sampai {{date}}"
+  },
+  "map": {
+    "title": "Lokasi Taman",
+    "subtitle": "Info kunjungan & lokasi",
+    "tips": "Tips kunjungan",
+    "openMap": "Buka di Peta"
+  },
+  "notifications": {
+    "title": "Notifikasi",
+    "empty": "Tidak ada notifikasi",
+    "unread": "{{count}} belum dibaca",
+    "markAllRead": "Tandai semua dibaca"
+  }
+}

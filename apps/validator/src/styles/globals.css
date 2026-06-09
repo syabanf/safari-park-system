@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 152 30% 96%;
+    --foreground: 152 40% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 152 40% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 152 40% 8%;
+    --primary: 152 40% 18%;
+    --primary-foreground: 35 30% 98%;
+    --secondary: 152 24% 92%;
+    --secondary-foreground: 152 36% 12%;
+    --muted: 152 16% 94%;
+    --muted-foreground: 152 12% 36%;
+    --accent: 152 24% 92%;
+    --accent-foreground: 152 36% 12%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 152 16% 86%;
+    --input: 152 16% 86%;
+    --ring: 152 36% 22%;
+    --radius: 0.875rem;
+  }
+
+  .dark {
+    --background: 152 36% 6%;
+    --foreground: 35 38% 96%;
+    --card: 152 30% 10%;
+    --card-foreground: 35 38% 96%;
+    --primary: 138 50% 55%;
+    --primary-foreground: 152 36% 8%;
+    --border: 152 20% 22%;
+    --input: 152 20% 22%;
+    --ring: 138 50% 55%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(at 0% 0%, hsl(152 40% 86% / 0.5) 0px, transparent 40%),
+      radial-gradient(at 100% 100%, hsl(138 40% 88% / 0.4) 0px, transparent 40%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: hsl(138 50% 80%);
+    color: hsl(152 36% 8%);
+  }
+}

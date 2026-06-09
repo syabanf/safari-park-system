@@ -1,0 +1,149 @@
+import { api } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from '@tsi/i18n';
+import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { motion } from 'framer-motion';
+import { AlertTriangle, Box, PackageOpen } from 'lucide-react';
+import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+interface InventoryItem {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  stock: number;
+  reorderAt: number;
+  unit: string;
+  lastRestocked: string;
+  needsReorder: boolean;
+}
+
+interface InventorySummary {
+  skuCount: number;
+  valueIdr: number;
+  belowReorder: number;
+  expiringSoon: number;
+  byCategory: { category: string; value: number }[];
+}
+
+async function fetchInventory(): Promise<{ items: InventoryItem[]; summary: InventorySummary }> {
+  return (await api.http.get('admin/inventory').json()) as { items: InventoryItem[]; summary: InventorySummary };
+}
+
+const idr = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
+const idrShort = (v: number) => (Math.abs(v) >= 1_000_000 ? `Rp ${(v / 1_000_000).toFixed(1)}M` : `Rp ${(v / 1_000).toFixed(0)}k`);
+
+const categoryColors = ['#287338', '#5bac6a', '#b08754', '#d4be96', '#9a3a3a'];
+
+export function InventoryRoute() {
+  const { t, i18n } = useTranslation();
+  const { data, isLoading } = useQuery({ queryKey: ['admin', 'inventory'], queryFn: fetchInventory });
+
+  if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
+
+  const fmt = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' });
+
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight">Inventory</h1>
+        <p className="mt-1 text-sm text-muted-foreground">F&B, merchandise, animal feed, parts, medical</p>
+      </header>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <KpiTile label="SKUs" value={data.summary.skuCount} icon={Box} />
+        <KpiTile label="Total value" value={idrShort(data.summary.valueIdr)} icon={PackageOpen} />
+        <KpiTile label="Below reorder" value={data.summary.belowReorder} icon={AlertTriangle} accent="rose" />
+        <KpiTile label="Expiring soon" value={data.summary.expiringSoon} icon={AlertTriangle} accent="earth" />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Stock value by category</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data.summary.byCategory} layout="vertical" margin={{ left: 30 }}>
+              <XAxis type="number" tickFormatter={(v) => idrShort(v)} fontSize={10} stroke="hsl(152 12% 38%)" axisLine={false} tickLine={false} />
+              <YAxis dataKey="category" type="category" stroke="hsl(152 12% 38%)" fontSize={11} tickLine={false} axisLine={false} width={120} />
+              <Tooltip
+                formatter={(v: number) => idr.format(v)}
+                cursor={{ fill: 'hsl(35 30% 94%)' }}
+                contentStyle={{ border: '1px solid hsl(35 22% 88%)', borderRadius: 12, fontSize: 12 }}
+              />
+              <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+                {data.summary.byCategory.map((_, i) => (
+                  <Cell key={i} fill={categoryColors[i % categoryColors.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Stock list</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-3 font-medium">SKU</th>
+                <th className="px-6 py-3 font-medium">Name</th>
+                <th className="px-6 py-3 font-medium">Category</th>
+                <th className="px-6 py-3 text-right font-medium">Stock</th>
+                <th className="px-6 py-3 text-right font-medium">Reorder at</th>
+                <th className="px-6 py-3 font-medium">Last restocked</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.items.map((it, i) => (
+                <motion.tr
+                  key={it.id}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.18, delay: Math.min(i * 0.015, 0.3) }}
+                  className={`border-b last:border-0 hover:bg-muted/30 ${it.needsReorder ? 'bg-rose-50/30' : ''}`}
+                >
+                  <td className="px-6 py-3 font-mono text-xs">{it.sku}</td>
+                  <td className="px-6 py-3">
+                    <div className="font-medium">{it.name}</div>
+                    {it.needsReorder ? (
+                      <Badge variant="destructive" className="mt-1">Reorder now</Badge>
+                    ) : null}
+                  </td>
+                  <td className="px-6 py-3 text-xs text-muted-foreground">{it.category}</td>
+                  <td className="px-6 py-3 text-right font-mono">{it.stock} {it.unit}</td>
+                  <td className="px-6 py-3 text-right font-mono text-xs text-muted-foreground">{it.reorderAt} {it.unit}</td>
+                  <td className="px-6 py-3 text-xs text-muted-foreground">{fmt.format(new Date(it.lastRestocked))}</td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function KpiTile({ label, value, icon: Icon, accent = 'brand' }: { label: string; value: string | number; icon: typeof Box; accent?: 'brand' | 'earth' | 'rose' }) {
+  const map = {
+    brand: 'bg-brand-100 text-brand-800',
+    earth: 'bg-earth-100 text-earth-800',
+    rose: 'bg-rose-100 text-rose-800',
+  };
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
+          <span className={`grid h-7 w-7 place-items-center rounded-lg ${map[accent]}`}>
+            <Icon className="h-3.5 w-3.5" />
+          </span>
+        </div>
+        <p className="mt-2 text-2xl font-bold tracking-tight">{value}</p>
+      </CardContent>
+    </Card>
+  );
+}

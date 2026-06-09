@@ -1,0 +1,171 @@
+{
+  "admin": {
+    "appName": "TSI Admin",
+    "login": {
+      "title": "Sign in to Admin Console",
+      "subtitle": "Manage memberships, gates, and analytics",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Sign in"
+    },
+    "nav": {
+      "overview": "Overview",
+      "members": "Members",
+      "passes": "Annual Passes",
+      "redemptions": "Redemptions",
+      "analytics": "Analytics",
+      "gates": "Gates",
+      "gapRegister": "Gap Register",
+      "sla": "SLA — Smooth",
+      "reconciliation": "Reconciliation",
+      "audit": "Audit log",
+      "settings": "Settings",
+      "operations": "Operations",
+      "directory": "Directory"
+    },
+    "overview": {
+      "title": "Welcome back",
+      "subtitle": "Annual Pass performance — {{date}}",
+      "kpi": {
+        "activeMembers": "Active members",
+        "todaysEntries": "Today's entries",
+        "weekRevenue": "7-day revenue",
+        "offlinePending": "Offline queue"
+      },
+      "trend": "{{value}}% vs last week",
+      "lastSeven": "Last 7 days",
+      "byGate": "Entries by gate",
+      "topTier": "Most-used tier"
+    },
+    "members": {
+      "title": "Members",
+      "subtitle": "Manage Annual Pass holders",
+      "search": "Search name, email, or member ID",
+      "filters": {
+        "all": "All",
+        "active": "Active",
+        "expired": "Expired",
+        "pending": "Pending"
+      },
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "tier": "Tier",
+        "status": "Status",
+        "validUntil": "Valid until",
+        "entries": "Entries"
+      },
+      "empty": "No members found",
+      "detail": {
+        "title": "Member detail",
+        "profile": "Profile",
+        "passInfo": "Pass info",
+        "recentRedemptions": "Recent redemptions",
+        "timeline": "Activity timeline",
+        "backToList": "Back to members"
+      }
+    },
+    "passes": {
+      "title": "Annual Passes",
+      "subtitle": "Status and distribution",
+      "detail": {
+        "title": "Pass detail",
+        "renewals": "Renewal history",
+        "redemptions": "Redemption history"
+      }
+    },
+    "redemptions": {
+      "title": "Redemptions",
+      "subtitle": "Gate scan history"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Activations, entries, and utilization"
+    },
+    "gates": {
+      "title": "Gates",
+      "subtitle": "Validator status and network health",
+      "detail": {
+        "title": "Gate detail",
+        "todaysVolume": "Scans last 24h",
+        "recentScans": "Recent scans",
+        "incidents": "Incidents",
+        "noIncidents": "No incidents in the last 24h"
+      }
+    },
+    "gapRegister": {
+      "title": "Gap Register",
+      "subtitle": "GlobalTix limitations — Phase 2 ammunition",
+      "columns": {
+        "title": "Gap",
+        "impact": "Impact",
+        "phase2": "Phase 2 argument",
+        "status": "Status"
+      }
+    },
+    "sla": {
+      "title": "Operational SLA",
+      "subtitle": "The §8 smooth definition — measured live",
+      "target": "Target",
+      "current": "Current",
+      "latencyTitle": "Validation latency — 24h",
+      "categories": {
+        "gate": "Gate",
+        "security": "Security",
+        "membership": "Membership",
+        "integration": "Integration",
+        "support": "Support"
+      },
+      "status": {
+        "on-target": "On target",
+        "at-risk": "At risk",
+        "breach": "Breached"
+      }
+    },
+    "reconciliation": {
+      "title": "Reconciliation",
+      "subtitle": "WIT redemption ledger vs GlobalTix",
+      "summary": {
+        "total": "Total today",
+        "matched": "Matched",
+        "mismatched": "Mismatched",
+        "pending": "Pending",
+        "accuracy": "Accuracy"
+      },
+      "table": {
+        "title": "Mismatches",
+        "pass": "Pass",
+        "gate": "Gate",
+        "wit": "WIT",
+        "globaltix": "GlobalTix",
+        "delta": "Delta",
+        "severity": "Severity",
+        "status": "Status"
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Operational events captured by the audit collector",
+      "columns": {
+        "timestamp": "Time",
+        "level": "Level",
+        "actor": "Actor",
+        "event": "Event",
+        "target": "Target"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Tiers, pricing, and validity thresholds"
+    },
+    "common": {
+      "loading": "Loading...",
+      "viewAll": "View all",
+      "search": "Search",
+      "filter": "Filter",
+      "today": "Today",
+      "thisWeek": "This week",
+      "thisMonth": "This month"
+    }
+  }
+}

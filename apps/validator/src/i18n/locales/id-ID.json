@@ -1,0 +1,101 @@
+{
+  "validator": {
+    "login": {
+      "title": "Masuk staf gerbang",
+      "usernameLabel": "Nama pengguna",
+      "pinLabel": "PIN",
+      "gateLabel": "ID gerbang",
+      "submit": "Masuk"
+    },
+    "scan": {
+      "title": "Pemindai Kode",
+      "hint": "Arahkan kamera ke kode QR pengunjung",
+      "grantCamera": "Izinkan kamera",
+      "cameraDenied": "Akses kamera ditolak. Aktifkan di pengaturan."
+    },
+    "result": {
+      "allowTitle": "Diizinkan",
+      "denyTitle": "Ditolak",
+      "manualTitle": "Verifikasi Manual",
+      "offlineHint": "Mode offline — konfirmasi tertunda",
+      "allow": "Izinkan",
+      "deny": "Tolak",
+      "next": "Pindai berikutnya"
+    },
+    "manual": {
+      "title": "Entri Manual",
+      "subtitle": "Masukkan ID kartu jika QR rusak",
+      "passIdLabel": "ID Annual Pass",
+      "submit": "Verifikasi"
+    },
+    "recent": {
+      "title": "Pindaian Terkini",
+      "empty": "Belum ada pindaian"
+    },
+    "queue": {
+      "title": "Antrian Offline",
+      "pending": "{{count}} menunggu sinkronisasi",
+      "empty": "Tidak ada antrian",
+      "retry": "Coba sekarang"
+    },
+    "nav": {
+      "scan": "Pindai",
+      "manual": "Manual",
+      "reports": "Laporan",
+      "profile": "Profil"
+    },
+    "reports": {
+      "title": "Laporan",
+      "subtitle": "Performa gerbang Anda",
+      "summary": {
+        "today": "Scan hari ini",
+        "allow": "Diizinkan",
+        "deny": "Ditolak",
+        "manual": "Manual",
+        "latency": "Latensi rata-rata",
+        "offline": "Pemulihan offline"
+      },
+      "trend14d": "14 hari terakhir",
+      "topReasons": "Alasan terbanyak",
+      "yourShift": "Shift Anda",
+      "exportCsv": "Ekspor CSV"
+    },
+    "profile": {
+      "title": "Profil",
+      "shift": "Shift",
+      "thisShift": "Shift ini",
+      "thisWeek": "Minggu ini",
+      "streak": "Streak shift sempurna",
+      "achievements": "Penghargaan",
+      "quickLinks": "Tautan cepat",
+      "signOut": "Keluar",
+      "settings": "Pengaturan"
+    },
+    "attendance": {
+      "title": "Absensi",
+      "subtitle": "Catatan kehadiran",
+      "todayStatus": "Status hari ini",
+      "clockedIn": "Masuk pukul",
+      "clockedOut": "Keluar pukul",
+      "onShift": "Sedang bertugas",
+      "completed": "Selesai",
+      "notStarted": "Belum mulai",
+      "clockIn": "Masuk kerja",
+      "clockOut": "Keluar kerja",
+      "weeklyPattern": "Minggu ini",
+      "monthSummary": "Ringkasan bulan",
+      "present": "Hadir",
+      "absent": "Tidak hadir",
+      "late": "Terlambat",
+      "totalHours": "Total jam",
+      "attendanceRate": "Tingkat kehadiran",
+      "scheduled": "Jadwal",
+      "breaks": "Istirahat"
+    },
+    "visits": {
+      "title": "Kunjungan Terkini",
+      "subtitle": "Pengunjung tervalidasi di gerbang ini",
+      "empty": "Belum ada kunjungan"
+    }
+  }
+}

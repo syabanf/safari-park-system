@@ -1,0 +1,101 @@
+{
+  "validator": {
+    "login": {
+      "title": "Gate staff sign-in",
+      "usernameLabel": "Username",
+      "pinLabel": "PIN",
+      "gateLabel": "Gate ID",
+      "submit": "Sign in"
+    },
+    "scan": {
+      "title": "Scanner",
+      "hint": "Point the camera at the visitor's QR code",
+      "grantCamera": "Allow camera",
+      "cameraDenied": "Camera access denied. Enable it in settings."
+    },
+    "result": {
+      "allowTitle": "Allowed",
+      "denyTitle": "Denied",
+      "manualTitle": "Manual review",
+      "offlineHint": "Offline — confirmation pending",
+      "allow": "Allow",
+      "deny": "Deny",
+      "next": "Next scan"
+    },
+    "manual": {
+      "title": "Manual entry",
+      "subtitle": "Use this if the QR is damaged",
+      "passIdLabel": "Annual Pass ID",
+      "submit": "Verify"
+    },
+    "recent": {
+      "title": "Recent scans",
+      "empty": "No scans yet"
+    },
+    "queue": {
+      "title": "Offline queue",
+      "pending": "{{count}} pending sync",
+      "empty": "No queue",
+      "retry": "Retry now"
+    },
+    "nav": {
+      "scan": "Scan",
+      "manual": "Manual",
+      "reports": "Reports",
+      "profile": "Profile"
+    },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Your gate's performance",
+      "summary": {
+        "today": "Today's scans",
+        "allow": "Allowed",
+        "deny": "Denied",
+        "manual": "Manual",
+        "latency": "Avg latency",
+        "offline": "Offline recoveries"
+      },
+      "trend14d": "Last 14 days",
+      "topReasons": "Top manual/deny reasons",
+      "yourShift": "Your shift",
+      "exportCsv": "Export CSV"
+    },
+    "profile": {
+      "title": "Profile",
+      "shift": "Shift",
+      "thisShift": "This shift",
+      "thisWeek": "This week",
+      "streak": "Flawless shifts streak",
+      "achievements": "Achievements",
+      "quickLinks": "Quick links",
+      "signOut": "Sign out",
+      "settings": "Settings"
+    },
+    "attendance": {
+      "title": "Attendance",
+      "subtitle": "Absensi",
+      "todayStatus": "Today's status",
+      "clockedIn": "Clocked in",
+      "clockedOut": "Clocked out",
+      "onShift": "On shift",
+      "completed": "Completed",
+      "notStarted": "Not started",
+      "clockIn": "Clock in",
+      "clockOut": "Clock out",
+      "weeklyPattern": "This week",
+      "monthSummary": "Month summary",
+      "present": "Present",
+      "absent": "Absent",
+      "late": "Late",
+      "totalHours": "Total hours",
+      "attendanceRate": "Attendance rate",
+      "scheduled": "Scheduled",
+      "breaks": "Breaks"
+    },
+    "visits": {
+      "title": "Recent visits",
+      "subtitle": "Confirmed entries at this gate",
+      "empty": "No visits yet"
+    }
+  }
+}

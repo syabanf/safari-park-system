@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 35 30% 98%;
+    --foreground: 152 36% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 152 36% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 152 36% 10%;
+    --primary: 138 50% 28%;
+    --primary-foreground: 35 30% 98%;
+    --secondary: 35 30% 94%;
+    --secondary-foreground: 152 36% 12%;
+    --muted: 35 24% 95%;
+    --muted-foreground: 152 12% 38%;
+    --accent: 35 32% 92%;
+    --accent-foreground: 152 36% 12%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 35 22% 88%;
+    --input: 35 22% 88%;
+    --ring: 138 50% 30%;
+    --radius: 0.875rem;
+  }
+
+  .dark {
+    --background: 152 36% 8%;
+    --foreground: 35 38% 96%;
+    --card: 152 30% 12%;
+    --card-foreground: 35 38% 96%;
+    --popover: 152 30% 12%;
+    --popover-foreground: 35 38% 96%;
+    --primary: 138 50% 55%;
+    --primary-foreground: 152 36% 8%;
+    --secondary: 152 20% 20%;
+    --secondary-foreground: 35 38% 96%;
+    --muted: 152 20% 18%;
+    --muted-foreground: 35 20% 70%;
+    --accent: 152 20% 22%;
+    --accent-foreground: 35 38% 96%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 152 20% 22%;
+    --input: 152 20% 22%;
+    --ring: 138 50% 55%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(at 0% 0%, hsl(138 50% 88% / 0.5) 0px, transparent 40%),
+      radial-gradient(at 100% 100%, hsl(35 60% 90% / 0.5) 0px, transparent 40%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: hsl(138 50% 80%);
+    color: hsl(152 36% 8%);
+  }
+}
+
+@layer utilities {
+  .glass {
+    backdrop-filter: saturate(180%) blur(12px);
+    background: hsl(0 0% 100% / 0.78);
+  }
+}

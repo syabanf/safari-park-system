@@ -1,0 +1,88 @@
+{
+  "member": {
+    "login": {
+      "title": "Sign in to your account",
+      "subtitle": "Access your Annual Pass",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account?",
+      "enrol": "Sign up for Annual Pass"
+    },
+    "enrolment": {
+      "title": "Annual Pass Enrolment",
+      "step1": "Personal details",
+      "step2": "Identity verification",
+      "step3": "Payment",
+      "next": "Next",
+      "back": "Back",
+      "submit": "Complete"
+    },
+    "home": {
+      "greeting": "Hi, {{name}}",
+      "showQr": "Show QR",
+      "renew": "Renew",
+      "events": "Events",
+      "perks": "Perks",
+      "profile": "Profile",
+      "quickActions": "Quick actions",
+      "todayAtPark": "Today at the park",
+      "promotions": "Promotions & news",
+      "memberPerks": "Member perks",
+      "upcomingEvents": "Upcoming events",
+      "viewAll": "View all"
+    },
+    "qr": {
+      "title": "Your QR code",
+      "description": "Show this code at the gate. The code rotates every few seconds."
+    },
+    "profile": {
+      "title": "Profile",
+      "name": "Name",
+      "email": "Email",
+      "memberId": "Member ID",
+      "signOut": "Sign out"
+    },
+    "renewal": {
+      "title": "Renewal",
+      "summary": "Renew your Annual Pass for another full year.",
+      "cta": "Renew now"
+    },
+    "nav": {
+      "home": "Home",
+      "pass": "Pass",
+      "discover": "Discover",
+      "profile": "Profile"
+    }
+  },
+  "discover": {
+    "title": "Discover",
+    "subtitle": "Events, perks, and park info",
+    "events": "Events",
+    "perks": "Member perks",
+    "map": "Park info & locations",
+    "news": "News & tips"
+  },
+  "events": {
+    "title": "Events",
+    "subtitle": "Upcoming events at the park",
+    "empty": "No events yet"
+  },
+  "perks": {
+    "title": "Member Perks",
+    "subtitle": "Show your QR at checkout to redeem",
+    "validUntil": "Valid until {{date}}"
+  },
+  "map": {
+    "title": "Park Locations",
+    "subtitle": "Visiting info & locations",
+    "tips": "Visiting tips",
+    "openMap": "Open in Maps"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "unread": "{{count}} unread",
+    "markAllRead": "Mark all read"
+  }
+}

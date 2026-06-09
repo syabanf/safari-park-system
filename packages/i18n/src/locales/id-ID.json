@@ -1,0 +1,49 @@
+{
+  "app": {
+    "name": "Annual Pass Taman Safari",
+    "tagline": "Akses tanpa batas, satu tahun penuh"
+  },
+  "actions": {
+    "next": "Lanjut",
+    "back": "Kembali",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "submit": "Kirim",
+    "retry": "Coba lagi",
+    "ok": "OK",
+    "allow": "Izinkan",
+    "deny": "Tolak"
+  },
+  "pass": {
+    "status": {
+      "active": "Aktif",
+      "expired": "Kedaluwarsa",
+      "suspended": "Ditangguhkan",
+      "pending": "Menunggu"
+    },
+    "tier": {
+      "adult": "Dewasa",
+      "child": "Anak",
+      "senior": "Lansia",
+      "family": "Keluarga"
+    },
+    "expiresOn": "Berlaku sampai {{date}}",
+    "visitsRemaining": "{{count}} kunjungan tersisa",
+    "unlimitedVisits": "Kunjungan tak terbatas"
+  },
+  "qr": {
+    "rotates": "Berganti dalam {{seconds}}d",
+    "scanAtGate": "Tunjukkan kode ini di gerbang",
+    "offline": "Mode offline — kode tetap berfungsi",
+    "bufferLow": "Sambungkan internet untuk memperbarui kode"
+  },
+  "errors": {
+    "network": "Sambungan terputus",
+    "unauthorized": "Sesi berakhir. Silakan masuk lagi.",
+    "unknown": "Terjadi kesalahan",
+    "cameraDenied": "Akses kamera ditolak"
+  },
+  "common": {
+    "loading": "Memuat..."
+  }
+}

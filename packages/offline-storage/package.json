@@ -1,0 +1,25 @@
+{
+  "name": "@tsi/offline-storage",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./member": "./src/member-db.ts",
+    "./validator": "./src/validator-db.ts"
+  },
+  "dependencies": {
+    "@tsi/qr-core": "workspace:*",
+    "dexie": "^4.0.8",
+    "dexie-react-hooks": "^1.1.7"
+  },
+  "devDependencies": {
+    "@tsi/tsconfig": "workspace:*",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
