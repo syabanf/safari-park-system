@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm turbo run build && mkdir -p dist && cp tools/landing/index.html dist/index.html",
+  "buildCommand": "bash tools/vercel-build.sh",
   "installCommand": "pnpm install --frozen-lockfile",
   "outputDirectory": "dist",
   "framework": null,
