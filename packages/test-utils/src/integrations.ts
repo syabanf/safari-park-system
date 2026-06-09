@@ -325,6 +325,146 @@ export function makeGlobalTixIntegration() {
       lastConfigChange: pastD(8),
       configChangedBy: 'admin@tamansafari.id',
     },
+    blackbox: makeBlackbox('globaltix'),
+  };
+}
+
+// ─── Blackbox: heartbeat + raw API call log + connection metrics ─
+
+function makeBlackbox(vendor: 'globaltix' | 'esb') {
+  const isProvisional = vendor === 'esb';
+
+  const heartbeatHistory = Array.from({ length: 48 }, (_, i) => {
+    const at = new Date(now - (47 - i) * 30 * 60_000).toISOString(); // every 30 min · 24h
+    const ok = isProvisional ? false : i === 16 || i === 17 ? false : true; // a 1h blip yesterday
+    return {
+      at,
+      ok,
+      latencyMs: ok ? 280 + Math.round(80 * Math.sin(i * 0.7)) + (i % 6) * 4 : null,
+    };
+  });
+  const successesIn24h = heartbeatHistory.filter((h) => h.ok).length;
+  const uptimePct = isProvisional ? 0 : Math.round((successesIn24h / heartbeatHistory.length) * 10_000) / 100;
+
+  const endpoints = isProvisional
+    ? [
+        { method: 'POST', path: '/oms/voucher/apply', purpose: 'apply-discount' },
+        { method: 'POST', path: '/oms/voucher/issue', purpose: 'issue-voucher' },
+        { method: 'GET', path: '/oms/order/{ref}', purpose: 'order-status' },
+        { method: 'POST', path: '/oms/order/{ref}/close', purpose: 'order-closed-cb' },
+      ]
+    : [
+        { method: 'POST', path: '/api/booking/reserve', purpose: 'reserve' },
+        { method: 'POST', path: '/api/booking/confirm', purpose: 'confirm' },
+        { method: 'GET', path: '/api/booking/details', purpose: 'details' },
+        { method: 'GET', path: '/api/transaction/revoke', purpose: 'revoke' },
+        { method: 'GET', path: '/api/ticketType/checkEventAvailability', purpose: 'availability' },
+        { method: 'POST', path: '/api/auth/login', purpose: 'auth' },
+        { method: 'GET', path: '/api/product/info', purpose: 'product-info' },
+      ];
+
+  // ~25 most recent calls, newest first.
+  const calls = Array.from({ length: 25 }, (_, i) => {
+    const ep = endpoints[i % endpoints.length]!;
+    const at = new Date(now - i * (45 + ((i * 17) % 90)) * 1_000).toISOString();
+    // Mostly 2xx; sprinkle a 4xx/5xx/timeout to make the log honest.
+    const statusFlavour = i === 3 ? 503 : i === 7 ? 400 : i === 11 ? 401 : i === 19 ? 0 : 200;
+    const statusCode = isProvisional ? 0 : statusFlavour;
+    const latencyMs = statusCode === 0 ? 30_000 : 120 + ((i * 47) % 320);
+    return {
+      id: `call-${i.toString().padStart(4, '0')}`,
+      at,
+      direction: i % 6 === 0 ? ('inbound' as const) : ('outbound' as const), // mostly outbound
+      method: i % 6 === 0 ? 'POST' : ep.method,
+      endpoint: i % 6 === 0 ? '/api/v1/admin/webhooks/gt' : ep.path,
+      purpose: i % 6 === 0 ? 'webhook-receive' : ep.purpose,
+      statusCode,
+      latencyMs,
+      sizeBytes: 240 + ((i * 113) % 1_800),
+      correlationId: `cid-${Math.random().toString(36).slice(2, 10)}`,
+      retryAttempt: statusCode >= 500 || statusCode === 0 ? Math.min(i % 4, 3) : 0,
+    };
+  });
+
+  const okLatencies = calls.filter((c) => c.statusCode >= 200 && c.statusCode < 300).map((c) => c.latencyMs);
+  const sorted = okLatencies.slice().sort((a, b) => a - b);
+  const pct = (p: number) => (sorted.length ? sorted[Math.min(Math.floor(sorted.length * p), sorted.length - 1)]! : 0);
+
+  return {
+    heartbeat: {
+      lastPingAt: isProvisional ? null : pastH(0.01),
+      lastPingOk: !isProvisional,
+      lastPingLatencyMs: isProvisional ? null : 264,
+      uptime24hPct: uptimePct,
+      consecutiveSuccess: isProvisional ? 0 : 28,
+      consecutiveFailure: isProvisional ? 0 : 0,
+      nextProbeAt: isProvisional ? null : new Date(now + 30_000).toISOString(),
+      probeIntervalSec: 30,
+      history: heartbeatHistory,
+    },
+    connection: {
+      p50LatencyMs: pct(0.5),
+      p95LatencyMs: pct(0.95),
+      p99LatencyMs: pct(0.99),
+      errorRate1hPct: isProvisional ? 100 : 0.97,
+      throughputPerMin: isProvisional ? 0 : 17.3,
+      tlsHandshakeMs: isProvisional ? null : 84,
+      dnsLookupMs: isProvisional ? null : 12,
+    },
+    recentCalls: calls,
+    sample: {
+      // A canonical good-path sample exchange for the field engineer to inspect.
+      // (Headers redacted where they'd be real secrets.)
+      requestHeaders: isProvisional
+        ? '— pending real endpoint —'
+        : [
+            'POST /api/booking/reserve HTTP/1.1',
+            'Host: stg-api.globaltix.com',
+            'Authorization: Bearer eyJhbGc***REDACTED***',
+            'Accept-Version: 1.0',
+            'Content-Type: application/json',
+            'X-Correlation-Id: cid-7y3kq2vp',
+          ].join('\n'),
+      requestBody: isProvisional
+        ? '— pending real endpoint —'
+        : JSON.stringify(
+            {
+              ticketTypes: [{ index: 0, id: 256011, quantity: 1 }],
+              otherInfo: { partnerReference: 'TSI-AP-9821' },
+              customerName: 'TSI Annual Pass',
+              email: 'redemption@tamansafari.id',
+              paymentMethod: 'CREDIT',
+            },
+            null,
+            2,
+          ),
+      responseHeaders: isProvisional
+        ? '— pending real endpoint —'
+        : [
+            'HTTP/1.1 200 OK',
+            'Content-Type: application/json',
+            'X-Correlation-Id: cid-7y3kq2vp',
+            'X-RateLimit-Remaining: 1486',
+          ].join('\n'),
+      responseBody: isProvisional
+        ? '— pending real endpoint —'
+        : JSON.stringify(
+            {
+              data: {
+                referenceNumber: 'LMDOOIGHGT',
+                bookingTime: '2026-06-09T07:44:28Z',
+                customer: 'TSI Annual Pass',
+                email: 'redemption@tamansafari.id',
+                status: 'RESERVED',
+              },
+              error: null,
+              size: null,
+              success: true,
+            },
+            null,
+            2,
+          ),
+    },
   };
 }
 
@@ -523,5 +663,6 @@ export function makeEsbIntegration() {
       { id: 'ns-4', label: 'Build real ESB ACL adapter (replace mock stub)', owner: 'WIT', eta: inD(42) },
       { id: 'ns-5', label: 'Pilot with one Bogor outlet (Savanna Café)', owner: 'TSI + WIT', eta: inD(60) },
     ],
+    blackbox: makeBlackbox('esb'),
   };
 }

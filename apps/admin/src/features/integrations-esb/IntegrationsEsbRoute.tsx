@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Clock,
   GitBranch,
+  Heart,
   HelpCircle,
   ListChecks,
   MapPin,
@@ -30,6 +31,7 @@ import {
   BusinessFlowSelector,
   type BusinessFlowDef,
 } from '@/components/integrations/BusinessFlowSelector';
+import { BlackboxPanel, type BlackboxData } from '@/components/integrations/BlackboxPanel';
 
 interface ProductRow {
   id: string;
@@ -100,6 +102,7 @@ interface EsbData {
   openQuestions: OpenQuestion[];
   recentVoucherActivity: Voucher[];
   nextSteps: NextStep[];
+  blackbox: BlackboxData;
 }
 
 async function fetchData(): Promise<EsbData> {
@@ -235,6 +238,9 @@ export function IntegrationsEsbRoute() {
           </TabsTrigger>
           <TabsTrigger value="vouchers" icon={<Ticket className="h-3.5 w-3.5" />} count={data.recentVoucherActivity.length}>
             Vouchers
+          </TabsTrigger>
+          <TabsTrigger value="blackbox" icon={<Heart className="h-3.5 w-3.5" />} count={data.blackbox.recentCalls.length}>
+            Blackbox
           </TabsTrigger>
           <TabsTrigger value="questions" icon={<HelpCircle className="h-3.5 w-3.5" />} count={data.openQuestions.length}>
             Open questions
@@ -404,6 +410,10 @@ export function IntegrationsEsbRoute() {
               </table>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="blackbox">
+          <BlackboxPanel data={data.blackbox} pending />
         </TabsContent>
 
         <TabsContent value="questions">

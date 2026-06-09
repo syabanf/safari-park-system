@@ -20,6 +20,7 @@ import {
   Clock,
   Database,
   GitBranch,
+  Heart,
   KeyRound,
   Repeat,
   RotateCw,
@@ -34,6 +35,7 @@ import {
   BusinessFlowSelector,
   type BusinessFlowDef,
 } from '@/components/integrations/BusinessFlowSelector';
+import { BlackboxPanel, type BlackboxData } from '@/components/integrations/BlackboxPanel';
 import {
   Bar,
   BarChart,
@@ -133,6 +135,7 @@ interface GlobalTixData {
     lastConfigChange: string;
     configChangedBy: string;
   };
+  blackbox: BlackboxData;
 }
 
 async function fetchData(): Promise<GlobalTixData> {
@@ -266,6 +269,9 @@ export function IntegrationsGlobalTixRoute() {
           </TabsTrigger>
           <TabsTrigger value="webhooks" icon={<Webhook className="h-3.5 w-3.5" />} count={data.recentWebhooks.length}>
             Webhooks
+          </TabsTrigger>
+          <TabsTrigger value="blackbox" icon={<Heart className="h-3.5 w-3.5" />} count={data.blackbox.recentCalls.length}>
+            Blackbox
           </TabsTrigger>
           <TabsTrigger value="mapping" icon={<GitBranch className="h-3.5 w-3.5" />} count={data.fieldMapping.length}>
             Field mapping
@@ -500,6 +506,10 @@ export function IntegrationsGlobalTixRoute() {
               </table>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="blackbox">
+          <BlackboxPanel data={data.blackbox} />
         </TabsContent>
 
         <TabsContent value="mapping">
