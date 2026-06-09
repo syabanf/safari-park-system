@@ -54,19 +54,19 @@ export function OverviewRoute() {
   const today = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' }).format(new Date());
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5 lg:space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <h1 className="text-2xl font-bold tracking-tight">{t('admin.overview.title')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
           {t('admin.overview.subtitle', { date: today })}
         </p>
+        <h1 className="mt-1 text-xl font-bold tracking-tight lg:text-2xl">{t('admin.overview.title')}</h1>
       </motion.div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:gap-4 xl:grid-cols-4">
         <StatCard
           index={0}
           label={t('admin.overview.kpi.activeMembers')}
@@ -103,11 +103,11 @@ export function OverviewRoute() {
 
       <div className="grid gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">{t('admin.overview.lastSeven')}</CardTitle>
+          <CardHeader className="pb-2 lg:pb-4">
+            <CardTitle className="text-sm lg:text-base">{t('admin.overview.lastSeven')}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={260}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={200} className="lg:!h-[260px]">
               <AreaChart data={data.entriesLast7Days} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="entries" x1="0" y1="0" x2="0" y2="1">
@@ -149,11 +149,11 @@ export function OverviewRoute() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t('admin.overview.topTier')}</CardTitle>
+          <CardHeader className="pb-2 lg:pb-4">
+            <CardTitle className="text-sm lg:text-base">{t('admin.overview.topTier')}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={260}>
+          <CardContent className="px-2 lg:px-6">
+            <ResponsiveContainer width="100%" height={200} className="lg:!h-[260px]">
               <BarChart data={data.tierDistribution} layout="vertical" margin={{ left: 30 }}>
                 <XAxis type="number" hide />
                 <YAxis dataKey="tier" type="category" stroke="hsl(152 12% 38%)" fontSize={12} tickLine={false} axisLine={false} />
@@ -177,11 +177,11 @@ export function OverviewRoute() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t('admin.overview.byGate')}</CardTitle>
+        <CardHeader className="pb-2 lg:pb-4">
+          <CardTitle className="text-sm lg:text-base">{t('admin.overview.byGate')}</CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={220}>
+        <CardContent className="px-2 lg:px-6">
+          <ResponsiveContainer width="100%" height={180} className="lg:!h-[220px]">
             <BarChart data={data.gateDistribution} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(35 20% 86%)" vertical={false} />
               <XAxis dataKey="gate" stroke="hsl(152 12% 38%)" fontSize={11} tickLine={false} axisLine={false} />

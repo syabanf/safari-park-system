@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { BottomNav } from './BottomNav';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 
@@ -28,9 +29,11 @@ export function AppShell() {
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
       <div className="flex flex-1 flex-col">
         <TopBar onMenuClick={() => setMenuOpen(true)} />
-        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        {/* pb-20 keeps content above the mobile bottom nav; reset on lg+. */}
+        <main className="flex-1 px-4 pb-20 pt-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 lg:pb-8">
           <Outlet />
         </main>
+        <BottomNav onMoreClick={() => setMenuOpen(true)} />
       </div>
     </div>
   );
