@@ -71,6 +71,7 @@ import {
   makeParkStatus,
   makePerks,
 } from './member-extras';
+import { makeEsbIntegration, makeGlobalTixIntegration } from './integrations';
 
 const API = '*/api/v1';
 
@@ -269,6 +270,20 @@ export const handlers = [
     HttpResponse.json({ coverage: makeShiftCoverage() }),
   ),
   http.get(`${API}/admin/master-data`, () => HttpResponse.json(makeMasterData())),
+
+  // Integrations — vendor surfaces (GlobalTix, ESB)
+  http.get(`${API}/admin/integrations/globaltix`, () =>
+    HttpResponse.json(makeGlobalTixIntegration()),
+  ),
+  http.get(`${API}/admin/integrations/esb`, () =>
+    HttpResponse.json(makeEsbIntegration()),
+  ),
+  http.post(`${API}/admin/integrations/:vendor/test-connection`, async ({ params }) =>
+    HttpResponse.json({ ok: true, vendor: params.vendor, roundTripMs: 312 }),
+  ),
+  http.post(`${API}/admin/integrations/:vendor/retry/:itemId`, async ({ params }) =>
+    HttpResponse.json({ ok: true, vendor: params.vendor, itemId: params.itemId }),
+  ),
 
   // ERP — CMS (membership app content)
   http.get(`${API}/admin/cms`, () => HttpResponse.json(makeCmsContent())),

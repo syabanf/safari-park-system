@@ -16,6 +16,8 @@ import { FinanceRoute } from './features/finance/FinanceRoute';
 import { GapRegisterRoute } from './features/gap-register/GapRegisterRoute';
 import { GateDetailRoute } from './features/gate-detail/GateDetailRoute';
 import { GatesRoute } from './features/gates/GatesRoute';
+import { IntegrationsEsbRoute } from './features/integrations-esb/IntegrationsEsbRoute';
+import { IntegrationsGlobalTixRoute } from './features/integrations-globaltix/IntegrationsGlobalTixRoute';
 import { InventoryDetailRoute } from './features/inventory-detail/InventoryDetailRoute';
 import { InventoryRoute } from './features/inventory/InventoryRoute';
 import { MaintenanceDetailRoute } from './features/maintenance/MaintenanceDetailRoute';
@@ -93,6 +95,8 @@ export const router = createBrowserRouter(
       { path: '/reports', element: <AdminReportsRoute /> },
       { path: '/shifts', element: <ShiftsRoute /> },
       { path: '/cms', element: <CmsRoute /> },
+      { path: '/integrations/globaltix', element: <IntegrationsGlobalTixRoute /> },
+      { path: '/integrations/esb', element: <IntegrationsEsbRoute /> },
       { path: '/master-data', element: <MasterDataRoute /> },
       { path: '/settings', element: <SettingsRoute /> },
     ],

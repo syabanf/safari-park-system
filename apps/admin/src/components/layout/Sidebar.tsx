@@ -15,6 +15,8 @@ import {
   Newspaper,
   PackageSearch,
   PawPrint,
+  Plug,
+  Utensils,
   Settings,
   ShieldAlert,
   ShieldCheck,
@@ -93,6 +95,13 @@ const sections: NavSection[] = [
   {
     title: 'Content',
     items: [{ to: '/cms', label: 'Member app CMS', icon: Newspaper }],
+  },
+  {
+    title: 'Integrations',
+    items: [
+      { to: '/integrations/globaltix', label: 'GlobalTix', icon: Plug },
+      { to: '/integrations/esb', label: 'ESB · F&B POS', icon: Utensils },
+    ],
   },
   {
     title: 'Reporting',
