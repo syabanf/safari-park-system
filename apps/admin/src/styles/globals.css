@@ -95,7 +95,10 @@ table.min-w-full tbody tr:hover {
 
 /* Tighten + simplify cells on small viewports — the wrapper has
    overflow-x-auto, so text never wraps; users scroll horizontally to
-   see less-important columns. */
+   see less-important columns. No sticky first column: it overlapped
+   other cells while scrolling on tables with many narrow columns,
+   making them unreadable. Compact rows + a soft right-edge gradient
+   hint that more columns are available. */
 @media (max-width: 767px) {
   table.min-w-full {
     font-size: 11px;
@@ -105,24 +108,12 @@ table.min-w-full tbody tr:hover {
     padding: 0.5rem 0.75rem;
     white-space: nowrap;
   }
-  /* First column pins so identifiers stay visible while scrolling. */
-  table.min-w-full thead th:first-child,
-  table.min-w-full tbody td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: inherit;
-  }
-  table.min-w-full thead th:first-child {
-    background: hsl(var(--muted));
-  }
-  table.min-w-full tbody tr:nth-child(odd) td:first-child {
-    background: hsl(35 24% 96%);
-  }
-  table.min-w-full tbody tr:nth-child(even) td:first-child {
-    background: hsl(0 0% 100%);
-  }
-  table.min-w-full tbody tr:hover td:first-child {
-    background: hsl(138 40% 94%);
+  /* Subtle right-edge fade on scrollable table cards as an
+     affordance that there's more content off-screen. */
+  .overflow-x-auto {
+    position: relative;
+    background:
+      linear-gradient(to right, transparent calc(100% - 24px), hsl(var(--background) / 0.95)) right center / 24px 100% no-repeat,
+      inherit;
   }
 }
