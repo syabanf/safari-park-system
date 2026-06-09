@@ -29,8 +29,8 @@ export function AppShell() {
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
       <div className="flex flex-1 flex-col">
         <TopBar onMenuClick={() => setMenuOpen(true)} />
-        {/* pb-20 keeps content above the mobile bottom nav; reset on lg+. */}
-        <main className="flex-1 px-4 pb-20 pt-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 lg:pb-8">
+        {/* pb-20 (mobile bottom nav clearance) → reset at md (rail) and lg (full sidebar). */}
+        <main className="flex-1 px-4 pb-20 pt-4 sm:px-6 sm:py-6 md:pb-8 lg:px-8 lg:py-8">
           <Outlet />
         </main>
         <BottomNav onMoreClick={() => setMenuOpen(true)} />

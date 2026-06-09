@@ -27,7 +27,7 @@ export function TopBar({ onMenuClick }: Props) {
           type="button"
           onClick={onMenuClick}
           aria-label="Open menu"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border/60 bg-white/80 text-muted-foreground transition-colors hover:text-foreground lg:hidden"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border/60 bg-white/80 text-muted-foreground transition-colors hover:text-foreground md:hidden"
         >
           <Menu className="h-4 w-4" />
         </button>

@@ -26,7 +26,7 @@ export function BottomNav({ onMoreClick }: Props) {
   return (
     <nav
       aria-label="Primary navigation"
-      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-border/60 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-border/60 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
       {ITEMS.map(({ to, label, icon: Icon, end }) => (
         <NavLink

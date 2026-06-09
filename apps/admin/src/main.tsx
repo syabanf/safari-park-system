@@ -27,6 +27,13 @@ async function bootstrap() {
     await enableMocking(`${import.meta.env.BASE_URL}mockServiceWorker.js`);
   }
 
+  // Only register the PWA service worker when mocks are off — two SWs in the
+  // same scope conflict and the PWA one would shadow MSW's interceptor.
+  if (import.meta.env.PROD && !useMocks) {
+    const { registerSW } = await import('virtual:pwa-register');
+    registerSW({ immediate: false });
+  }
+
   const i18n = await bootstrapI18n();
 
   const root = document.getElementById('root');

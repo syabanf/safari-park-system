@@ -115,6 +115,10 @@ interface Props {
   onClose: () => void;
 }
 
+// Three-tier sidebar:
+//   < md  (phone)       → off-canvas drawer, full width when open
+//   md → lg (tablet)    → persistent icon rail (64px), labels hidden, tooltips
+//   ≥ lg  (desktop)     → persistent full sidebar (256px), labels shown
 export function Sidebar({ open, onClose }: Props) {
   return (
     <>
@@ -123,33 +127,38 @@ export function Sidebar({ open, onClose }: Props) {
         aria-hidden="true"
         onClick={onClose}
         className={cn(
-          'fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity lg:hidden',
+          'fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity md:hidden',
           open ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 flex h-screen w-64 flex-col border-r border-white/5 bg-[hsl(var(--sidebar-bg))] px-4 py-6 text-[hsl(var(--sidebar-fg))] transition-transform',
-          // Off-canvas on mobile, persistent on desktop.
-          'lg:sticky lg:top-0 lg:translate-x-0',
-          open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-40 flex h-screen flex-col border-r border-white/5 bg-[hsl(var(--sidebar-bg))] py-6 text-[hsl(var(--sidebar-fg))] transition-transform',
+          // Mobile drawer width
+          'w-64 px-4',
+          // Tablet rail: take place in the flex layout, narrow, no left/right padding to maximize icon area
+          'md:sticky md:top-0 md:z-0 md:w-16 md:translate-x-0 md:px-2',
+          // Desktop full: back to wide + padded
+          'lg:w-64 lg:px-4',
+          // Off-canvas vs in-flow
+          open ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        <div className="mb-4 flex items-center gap-2 px-2">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-brand-400 to-brand-700 text-base font-bold text-white shadow-md shadow-black/20">
+        <div className="mb-4 flex items-center gap-2 px-2 md:justify-center lg:justify-start">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-brand-400 to-brand-700 text-base font-bold text-white shadow-md shadow-black/20">
             T
           </div>
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col md:hidden lg:flex">
             <span className="text-sm font-semibold tracking-tight">TSI Admin</span>
             <span className="text-[11px] text-[hsl(var(--sidebar-muted))]">Venue ERP</span>
           </div>
-          {/* Close button — mobile only */}
+          {/* Close button — drawer only */}
           <button
             type="button"
             onClick={onClose}
             aria-label="Close menu"
-            className="grid h-8 w-8 place-items-center rounded-lg text-[hsl(var(--sidebar-muted))] transition-colors hover:bg-white/5 hover:text-white lg:hidden"
+            className="grid h-8 w-8 place-items-center rounded-lg text-[hsl(var(--sidebar-muted))] transition-colors hover:bg-white/5 hover:text-white md:hidden"
           >
             <X className="h-4 w-4" />
           </button>
@@ -158,8 +167,9 @@ export function Sidebar({ open, onClose }: Props) {
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1 [scrollbar-width:thin]">
           {sections.map((section, si) => (
             <div key={si} className="mt-2 first:mt-0">
+              {/* Section titles hidden at rail size */}
               {section.title ? (
-                <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-[hsl(var(--sidebar-muted))]">
+                <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-[hsl(var(--sidebar-muted))] md:hidden lg:block">
                   {section.title}
                 </p>
               ) : null}
@@ -170,17 +180,20 @@ export function Sidebar({ open, onClose }: Props) {
                     to={to}
                     end={end}
                     onClick={onClose}
+                    title={label}
                     className={({ isActive }) =>
                       cn(
                         'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                        // Center the icon at rail
+                        'md:justify-center md:px-2 lg:justify-start lg:px-3',
                         isActive
                           ? 'bg-white/10 text-white'
                           : 'text-[hsl(var(--sidebar-muted))] hover:bg-white/5 hover:text-white',
                       )
                     }
                   >
-                    <Icon className="h-4 w-4" />
-                    <span>{label}</span>
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="md:hidden lg:inline">{label}</span>
                   </NavLink>
                 ))}
               </div>
@@ -188,7 +201,7 @@ export function Sidebar({ open, onClose }: Props) {
           ))}
         </nav>
 
-        <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3 text-xs">
+        <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3 text-xs md:hidden lg:block">
           <p className="font-semibold text-white">Phase 1 wedge</p>
           <p className="mt-1 text-[hsl(var(--sidebar-muted))]">
             Strangler-fig path to replace GlobalTix.
