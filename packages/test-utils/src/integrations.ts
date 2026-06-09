@@ -35,6 +35,54 @@ export function makeGlobalTixIntegration() {
       webhooksReceived24h: 412,
       webhookSignatureFailures24h: 0,
     },
+    // Business-flow pipeline: every WIT redemption traverses these stages.
+    // Drop-offs between stages tell us where reconciliation is leaking.
+    pipeline: {
+      description:
+        'Every WIT validation flows through these 5 stages. Stages 2–4 happen inside the ACL; stage 5 closes the loop via GT webhook.',
+      stages: [
+        {
+          key: 'wit-validated',
+          label: 'WIT validated',
+          description: 'Gate scan accepted by WIT (online or offline)',
+          count: 412,
+          system: 'WIT' as const,
+          avgLatencyMs: 12,
+        },
+        {
+          key: 'gt-reserved',
+          label: 'GT reserved',
+          description: 'POST /api/booking/reserve — holds the Duration ticket',
+          count: 412,
+          system: 'GT' as const,
+          avgLatencyMs: 142,
+        },
+        {
+          key: 'gt-confirmed',
+          label: 'GT confirmed',
+          description: 'POST /api/booking/confirm — booking status CONFIRMED',
+          count: 410,
+          system: 'GT' as const,
+          avgLatencyMs: 168,
+        },
+        {
+          key: 'gt-redeemed',
+          label: 'GT redeemed',
+          description: 'IssuedTicketStatus flipped to REDEEMED',
+          count: 408,
+          system: 'GT' as const,
+          avgLatencyMs: 38,
+        },
+        {
+          key: 'webhook-ack',
+          label: 'Webhook ack',
+          description: 'TICKET_REDEEM webhook received + signature verified',
+          count: 408,
+          system: 'WIT' as const,
+          avgLatencyMs: 920,
+        },
+      ],
+    },
     syncHistory: Array.from({ length: 12 }, (_, i) => {
       const offset = 11 - i;
       const total = 280 + Math.round(60 * Math.sin(i * 0.7)) + offset * 6;
@@ -57,6 +105,7 @@ export function makeGlobalTixIntegration() {
         gtConfirmedAt: null,
         ageMinutes: 138,
         attempts: 4,
+        stage: 'gt-reserved' as const,
         lastError: 'GT 503 — Upstream timeout (after 3 retries)',
         severity: 'high' as const,
       },
@@ -69,6 +118,7 @@ export function makeGlobalTixIntegration() {
         gtConfirmedAt: null,
         ageMinutes: 306,
         attempts: 5,
+        stage: 'gt-confirmed' as const,
         lastError: 'GT 400 — Reference number collision',
         severity: 'high' as const,
       },
@@ -81,6 +131,7 @@ export function makeGlobalTixIntegration() {
         gtConfirmedAt: null,
         ageMinutes: 504,
         attempts: 8,
+        stage: 'gt-redeemed' as const,
         lastError: 'GT 401 — Token rotated mid-flight',
         severity: 'medium' as const,
       },
@@ -93,6 +144,7 @@ export function makeGlobalTixIntegration() {
         gtConfirmedAt: null,
         ageMinutes: 1320,
         attempts: 12,
+        stage: 'webhook-ack' as const,
         lastError: 'GT 422 — Product option deactivated',
         severity: 'medium' as const,
       },
@@ -213,6 +265,53 @@ export function makeEsbIntegration() {
       { id: 'esb-prod-o', name: 'ESB OMS', purpose: 'External system → POS module', status: 'target' as const, note: 'This is the integration target for AP perks.' },
       { id: 'esb-prod-l', name: 'ESB Loop', purpose: 'Branded app customisation', status: 'not-applicable' as const, note: 'AP already has its own PWA.' },
     ],
+    // Business-flow pipeline for ESB voucher lifecycle.
+    pipeline: {
+      description:
+        'Every member perk redemption traverses these 5 stages once ESB OMS is live. Currently all stages 2–5 are mocked.',
+      stages: [
+        {
+          key: 'wit-issued',
+          label: 'Voucher issued',
+          description: 'WIT mints a single-use voucher token tied to the perk + member',
+          count: 1_842,
+          system: 'WIT' as const,
+          avgLatencyMs: 8,
+        },
+        {
+          key: 'esb-registered',
+          label: 'ESB registered',
+          description: 'ACL pushes the voucher into ESB OMS (waiting on real endpoint)',
+          count: 1_842,
+          system: 'ESB' as const,
+          avgLatencyMs: null,
+        },
+        {
+          key: 'member-presents',
+          label: 'Member presents',
+          description: 'Member scans/shows QR to cashier — WIT validates token',
+          count: 1_204,
+          system: 'WIT' as const,
+          avgLatencyMs: 22,
+        },
+        {
+          key: 'esb-applied',
+          label: 'ESB applied',
+          description: 'Discount applied at order line — POS confirms',
+          count: 1_204,
+          system: 'ESB' as const,
+          avgLatencyMs: null,
+        },
+        {
+          key: 'reconciled',
+          label: 'Reconciled',
+          description: 'OrderClosed webhook ties redemption to settled receipt',
+          count: 1_198,
+          system: 'WIT' as const,
+          avgLatencyMs: 840,
+        },
+      ],
+    },
     perkMapping: [
       { perkId: 'perk-001', title: '20% off F&B', mapping: 'ESB OMS apply-discount at line item, percent = 20, scope = category=Food', voucherType: 'Recurring', status: 'mapped' as const },
       { perkId: 'perk-002', title: 'Free guided tour', mapping: '— (not F&B; skip ESB)', voucherType: '—', status: 'n/a' as const },

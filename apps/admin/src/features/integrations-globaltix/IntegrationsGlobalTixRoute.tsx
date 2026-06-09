@@ -27,8 +27,10 @@ import {
   ShieldCheck,
   Sparkles,
   Webhook,
+  Workflow,
   XCircle,
 } from 'lucide-react';
+import { BusinessFlow, type FlowStage } from '@/components/integrations/BusinessFlow';
 import {
   Bar,
   BarChart,
@@ -57,6 +59,7 @@ interface ReconRow {
   gtConfirmedAt: string | null;
   ageMinutes: number;
   attempts: number;
+  stage: string;
   lastError: string;
   severity: 'high' | 'medium' | 'low';
 }
@@ -113,6 +116,7 @@ interface GlobalTixData {
     webhooksReceived24h: number;
     webhookSignatureFailures24h: number;
   };
+  pipeline: { description: string; stages: FlowStage[] };
   syncHistory: SyncDay[];
   reconciliationDrift: ReconRow[];
   recentWebhooks: WebhookRow[];
@@ -244,6 +248,9 @@ export function IntegrationsGlobalTixRoute() {
           <TabsTrigger value="overview" icon={<Sparkles className="h-3.5 w-3.5" />}>
             Overview
           </TabsTrigger>
+          <TabsTrigger value="pipeline" icon={<Workflow className="h-3.5 w-3.5" />} count={data.pipeline.stages.length}>
+            Business flow
+          </TabsTrigger>
           <TabsTrigger value="sync" icon={<Repeat className="h-3.5 w-3.5" />} count={data.syncHistory.length}>
             Sync history
           </TabsTrigger>
@@ -272,7 +279,9 @@ export function IntegrationsGlobalTixRoute() {
         </TabsList>
 
         <TabsContent value="overview">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="space-y-4">
+            <BusinessFlow description={data.pipeline.description} stages={data.pipeline.stages} />
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Card>
               <CardContent className="p-5">
                 <p className="text-sm font-semibold">Today's funnel</p>
@@ -322,7 +331,12 @@ export function IntegrationsGlobalTixRoute() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+            </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="pipeline">
+          <BusinessFlow description={data.pipeline.description} stages={data.pipeline.stages} />
         </TabsContent>
 
         <TabsContent value="sync">
@@ -378,12 +392,19 @@ export function IntegrationsGlobalTixRoute() {
         </TabsContent>
 
         <TabsContent value="drift">
+          <div className="mb-4">
+            <BusinessFlow
+              description="Stages where the drift rows below are currently stuck"
+              stages={data.pipeline.stages}
+            />
+          </div>
           <Card>
             <CardContent className="overflow-x-auto p-0">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
                     <th className="px-6 py-3 font-medium">Redemption</th>
+                    <th className="px-6 py-3 font-medium">Stage</th>
                     <th className="px-6 py-3 font-medium">Pass</th>
                     <th className="px-6 py-3 font-medium">Gate</th>
                     <th className="px-6 py-3 font-medium">WIT at</th>
@@ -395,28 +416,40 @@ export function IntegrationsGlobalTixRoute() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.reconciliationDrift.map((r, i) => (
-                    <Row key={r.id} index={i}>
-                      <td className="px-6 py-3 font-mono text-xs">{r.redemptionId}</td>
-                      <td className="px-6 py-3 font-mono text-xs">{r.passId}</td>
-                      <td className="px-6 py-3 font-mono text-xs text-muted-foreground">{r.gateId}</td>
-                      <td className="px-6 py-3 font-mono text-xs text-muted-foreground">{fmtDateTime.format(new Date(r.witAt))}</td>
-                      <td className="px-6 py-3 font-mono text-xs">{r.ageMinutes}m</td>
-                      <td className="px-6 py-3 font-mono">{r.attempts}</td>
-                      <td className="px-6 py-3 text-xs text-rose-700">{r.lastError}</td>
-                      <td className="px-6 py-3">
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${severityTone[r.severity]}`}>
-                          {r.severity}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3 text-right">
-                        <Button size="sm" variant="outline" className="h-8 gap-1.5">
-                          <RotateCw className="h-3 w-3" />
-                          Retry
-                        </Button>
-                      </td>
-                    </Row>
-                  ))}
+                  {data.reconciliationDrift.map((r, i) => {
+                    const stage = data.pipeline.stages.find((s) => s.key === r.stage);
+                    const stageIndex = data.pipeline.stages.findIndex((s) => s.key === r.stage);
+                    return (
+                      <Row key={r.id} index={i}>
+                        <td className="px-6 py-3 font-mono text-xs">{r.redemptionId}</td>
+                        <td className="px-6 py-3">
+                          <div className="flex items-center gap-1.5">
+                            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-100 text-[10px] font-bold text-rose-800">
+                              {stageIndex + 1}
+                            </span>
+                            <span className="whitespace-nowrap text-xs font-medium">{stage?.label ?? r.stage}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3 font-mono text-xs">{r.passId}</td>
+                        <td className="px-6 py-3 font-mono text-xs text-muted-foreground">{r.gateId}</td>
+                        <td className="px-6 py-3 font-mono text-xs text-muted-foreground">{fmtDateTime.format(new Date(r.witAt))}</td>
+                        <td className="px-6 py-3 font-mono text-xs">{r.ageMinutes}m</td>
+                        <td className="px-6 py-3 font-mono">{r.attempts}</td>
+                        <td className="px-6 py-3 text-xs text-rose-700">{r.lastError}</td>
+                        <td className="px-6 py-3">
+                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${severityTone[r.severity]}`}>
+                            {r.severity}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3 text-right">
+                          <Button size="sm" variant="outline" className="h-8 gap-1.5">
+                            <RotateCw className="h-3 w-3" />
+                            Retry
+                          </Button>
+                        </td>
+                      </Row>
+                    );
+                  })}
                 </tbody>
               </table>
             </CardContent>
