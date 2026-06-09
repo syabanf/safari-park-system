@@ -18,7 +18,15 @@ import { NotFoundRoute } from './routes/NotFoundRoute';
 const factory =
   import.meta.env.VITE_PLATFORM === 'capacitor' ? createHashRouter : createBrowserRouter;
 
-export const router = factory([
+// In a single-root deploy each app lives under /<app>/. Strip the trailing
+// slash from Vite's BASE_URL so react-router treats it as a basename.
+const basename =
+  import.meta.env.BASE_URL && import.meta.env.BASE_URL !== '/'
+    ? import.meta.env.BASE_URL.replace(/\/$/, '')
+    : undefined;
+
+export const router = factory(
+  [
   { path: '/', element: <Navigate to="/home" replace /> },
   { path: '/login', element: <LoginRoute /> },
   { path: '/enrol', element: <EnrolmentRoute /> },
@@ -38,5 +46,7 @@ export const router = factory([
       { path: '/renewal', element: <RenewalRoute /> },
     ],
   },
-  { path: '*', element: <NotFoundRoute /> },
-]);
+    { path: '*', element: <NotFoundRoute /> },
+  ],
+  basename ? { basename } : undefined,
+);

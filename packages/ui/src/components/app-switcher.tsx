@@ -40,20 +40,24 @@ const APPS: AppEntry[] = [
   },
 ];
 
-// Env-var override per app, set in each Vercel project:
-//   VITE_MEMBER_URL=https://safari-park-member.vercel.app
-//   VITE_VALIDATOR_URL=https://safari-park-validator.vercel.app
-//   VITE_ADMIN_URL=https://safari-park-admin.vercel.app
-// Falls back to `<protocol>//<hostname>:<port>` so localhost dev keeps working.
+// Resolve each app's URL.
+//   Single-root deploy (prod): same origin, path-prefixed (/member/, /validator/, /admin/).
+//   Dev or per-app deploy: per-app port (localhost:5173 / 5174 / 5175) or
+//   an explicit VITE_<APP>_URL env override.
+type EnvBag = Record<string, string | undefined>;
+const ENV: EnvBag =
+  ((import.meta as ImportMeta & { env?: EnvBag }).env as EnvBag | undefined) ?? {};
 const ENV_OVERRIDES: Record<AppId, string | undefined> = {
-  member: (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_MEMBER_URL,
-  validator: (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_VALIDATOR_URL,
-  admin: (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_ADMIN_URL,
+  member: ENV.VITE_MEMBER_URL,
+  validator: ENV.VITE_VALIDATOR_URL,
+  admin: ENV.VITE_ADMIN_URL,
 };
+const PATH_MODE = typeof ENV.BASE_URL === 'string' && ENV.BASE_URL !== '/';
 
 function urlFor(app: AppEntry): string {
   const override = ENV_OVERRIDES[app.id];
   if (override) return override;
+  if (PATH_MODE) return `/${app.id}/`;
   if (typeof window === 'undefined') return `http://localhost:${app.port}`;
   const { protocol, hostname } = window.location;
   return `${protocol}//${hostname}:${app.port}`;

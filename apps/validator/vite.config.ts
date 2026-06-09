@@ -3,8 +3,10 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const PROD = process.env.NODE_ENV === 'production';
+
 export default defineConfig({
-  base: './',
+  base: PROD ? '/validator/' : '/',
   plugins: [
     react(),
     VitePWA({
@@ -54,7 +56,8 @@ export default defineConfig({
   },
   build: {
     target: 'es2020',
-    outDir: 'dist',
+    outDir: PROD ? '../../dist/validator' : 'dist',
+    emptyOutDir: true,
     sourcemap: true,
   },
 });

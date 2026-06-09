@@ -14,7 +14,13 @@ import { NotFoundRoute } from './routes/NotFoundRoute';
 const factory =
   import.meta.env.VITE_PLATFORM === 'capacitor' ? createHashRouter : createBrowserRouter;
 
-export const router = factory([
+const basename =
+  import.meta.env.BASE_URL && import.meta.env.BASE_URL !== '/'
+    ? import.meta.env.BASE_URL.replace(/\/$/, '')
+    : undefined;
+
+export const router = factory(
+  [
   { path: '/', element: <Navigate to="/scan" replace /> },
   { path: '/login', element: <LoginRoute /> },
   {
@@ -30,5 +36,7 @@ export const router = factory([
       { path: '/queue', element: <OfflineQueueRoute /> },
     ],
   },
-  { path: '*', element: <NotFoundRoute /> },
-]);
+    { path: '*', element: <NotFoundRoute /> },
+  ],
+  basename ? { basename } : undefined,
+);

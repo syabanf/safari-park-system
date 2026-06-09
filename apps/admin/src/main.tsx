@@ -24,7 +24,7 @@ async function bootstrap() {
   const useMocks = import.meta.env.VITE_USE_MOCKS !== 'false';
   if (useMocks) {
     const { enableMocking } = await import('@tsi/test-utils/browser');
-    await enableMocking();
+    await enableMocking(`${import.meta.env.BASE_URL}mockServiceWorker.js`);
   }
 
   const i18n = await bootstrapI18n();

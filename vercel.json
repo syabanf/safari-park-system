@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm turbo run build && mkdir -p dist && cp tools/landing/index.html dist/index.html",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "outputDirectory": "dist",
+  "framework": null,
+  "rewrites": [
+    { "source": "/member/(.*)", "destination": "/member/index.html" },
+    { "source": "/member", "destination": "/member/index.html" },
+    { "source": "/validator/(.*)", "destination": "/validator/index.html" },
+    { "source": "/validator", "destination": "/validator/index.html" },
+    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
+    { "source": "/admin", "destination": "/admin/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(member|validator|admin)/mockServiceWorker.js",
+      "headers": [
+        { "key": "Service-Worker-Allowed", "value": "/" },
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
+}

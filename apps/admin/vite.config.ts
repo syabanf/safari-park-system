@@ -2,8 +2,10 @@ import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+const PROD = process.env.NODE_ENV === 'production';
+
 export default defineConfig({
-  base: './',
+  base: PROD ? '/admin/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -17,7 +19,8 @@ export default defineConfig({
   },
   build: {
     target: 'es2020',
-    outDir: 'dist',
+    outDir: PROD ? '../../dist/admin' : 'dist',
+    emptyOutDir: true,
     sourcemap: true,
   },
 });

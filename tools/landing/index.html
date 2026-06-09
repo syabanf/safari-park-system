@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taman Safari · Annual Pass workspace</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --brand-50: #f0f7f1;
+        --brand-100: #d8ebda;
+        --brand-500: #4f9c5c;
+        --brand-700: #287338;
+        --brand-800: #1c5a2a;
+        --brand-900: #134220;
+        --earth-100: #f1ebd9;
+        --earth-700: #8a6f3a;
+        --bg: #faf9f3;
+        --fg: #1a1a1a;
+        --muted: #4a4a4a;
+        --border: #e1e1d6;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, var(--bg) 0%, var(--brand-50) 100%);
+        color: var(--fg);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+      }
+      .wrap { max-width: 1100px; width: 100%; }
+      header { text-align: center; margin-bottom: 2.5rem; }
+      .logo {
+        display: inline-grid;
+        place-items: center;
+        height: 56px;
+        width: 56px;
+        margin: 0 auto 1rem;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--brand-500), var(--brand-800));
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+        box-shadow: 0 8px 24px rgba(28, 90, 42, 0.2);
+      }
+      .eyebrow {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 0 0 0.5rem;
+      }
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+      }
+      .lede {
+        margin: 0 auto;
+        max-width: 520px;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+      a.card {
+        display: block;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+      }
+      a.card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(28, 90, 42, 0.15);
+        border-color: var(--brand-500);
+      }
+      .icon {
+        height: 44px;
+        width: 44px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, var(--brand-500), var(--brand-800));
+        color: white;
+        margin-bottom: 1rem;
+      }
+      .icon svg { height: 22px; width: 22px; }
+      .icon-earth { background: linear-gradient(135deg, var(--earth-700), #5a4a25); }
+      .icon-slate { background: linear-gradient(135deg, #475569, #1e293b); }
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .card-title::after {
+        content: "→";
+        color: var(--muted);
+        transition: transform 0.18s;
+      }
+      a.card:hover .card-title::after { transform: translateX(4px); color: var(--brand-700); }
+      .card-desc {
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+      .pills { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+      .pill {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        background: var(--brand-50);
+        color: var(--brand-800);
+        font-weight: 500;
+      }
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.75rem;
+      }
+      footer code {
+        background: rgba(0, 0, 0, 0.04);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <header>
+        <div class="logo">T</div>
+        <p class="eyebrow">Taman Safari Indonesia · Annual Pass</p>
+        <h1>Three apps. One workspace.</h1>
+        <p class="lede">
+          A demo of the wedge architecture for TSI's Annual Pass system —
+          all three surfaces backed by MSW mocks so you can click through end-to-end with no backend.
+        </p>
+      </header>
+
+      <div class="grid">
+        <a class="card" href="/member/">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2.5"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <p class="card-title">Member PWA</p>
+          <p class="card-desc">Annual Pass card, rotating QR, perks, events, promotions, profile.</p>
+          <div class="pills">
+            <span class="pill">PWA</span><span class="pill">QR</span><span class="pill">Offline</span><span class="pill">i18n</span>
+          </div>
+        </a>
+
+        <a class="card" href="/validator/">
+          <div class="icon icon-earth">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+          </div>
+          <p class="card-title">Gate Validator</p>
+          <p class="card-desc">Camera scan, manual entry, reports, batch offline queue.</p>
+          <div class="pills">
+            <span class="pill">Scanner</span><span class="pill">Offline-first</span><span class="pill">Batch sync</span>
+          </div>
+        </a>
+
+        <a class="card" href="/admin/">
+          <div class="icon icon-slate">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <p class="card-title">Admin Console</p>
+          <p class="card-desc">Semi-ERP — members, staff, animals, finance, CMS, master data.</p>
+          <div class="pills">
+            <span class="pill">ERP</span><span class="pill">CMS</span><span class="pill">Reports</span><span class="pill">Personas</span>
+          </div>
+        </a>
+      </div>
+
+      <footer>
+        Source: <a href="https://github.com/syabanf/safari-park-system" style="color: inherit;">github.com/syabanf/safari-park-system</a> · Single Vercel root, path-prefixed
+      </footer>
+    </main>
+  </body>
+</html>

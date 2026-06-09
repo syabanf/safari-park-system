@@ -3,8 +3,12 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Production builds run under a path prefix (single-root Vercel deploy);
+// dev keeps the root so each app stays on its own port.
+const PROD = process.env.NODE_ENV === 'production';
+
 export default defineConfig({
-  base: './',
+  base: PROD ? '/member/' : '/',
   plugins: [
     react(),
     VitePWA({
@@ -54,7 +58,9 @@ export default defineConfig({
   },
   build: {
     target: 'es2020',
-    outDir: 'dist',
+    // Single-root deploy: all 3 apps land under one dist/ in the monorepo root.
+    outDir: PROD ? '../../dist/member' : 'dist',
+    emptyOutDir: true,
     sourcemap: true,
   },
 });

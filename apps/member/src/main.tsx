@@ -24,7 +24,9 @@ async function bootstrap() {
   const useMocks = import.meta.env.VITE_USE_MOCKS !== 'false';
   if (useMocks) {
     const { enableMocking } = await import('@tsi/test-utils/browser');
-    await enableMocking();
+    // Service worker must live next to the app under its BASE_URL so its
+    // default scope matches (single-root deploy puts each app under /<app>/).
+    await enableMocking(`${import.meta.env.BASE_URL}mockServiceWorker.js`);
   }
 
   // Only register the PWA service worker when mocks are off — two SWs in the

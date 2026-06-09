@@ -42,7 +42,13 @@ import { VendorDetailRoute } from './features/vendor-detail/VendorDetailRoute';
 import { VendorsRoute } from './features/vendors/VendorsRoute';
 import { NotFoundRoute } from './routes/NotFoundRoute';
 
-export const router = createBrowserRouter([
+const basename =
+  import.meta.env.BASE_URL && import.meta.env.BASE_URL !== '/'
+    ? import.meta.env.BASE_URL.replace(/\/$/, '')
+    : undefined;
+
+export const router = createBrowserRouter(
+  [
   { path: '/login', element: <LoginRoute /> },
   {
     element: (
@@ -91,5 +97,7 @@ export const router = createBrowserRouter([
       { path: '/settings', element: <SettingsRoute /> },
     ],
   },
-  { path: '*', element: <NotFoundRoute /> },
-]);
+    { path: '*', element: <NotFoundRoute /> },
+  ],
+  basename ? { basename } : undefined,
+);
