@@ -169,7 +169,7 @@ export function ShiftsRoute() {
 
         <TabsContent value="swaps">
           <Card>
-            <CardContent className="p-0">
+            <CardContent className="overflow-x-auto p-0">
               {!swapsQ.data ? (
                 <div className="p-6 text-sm text-muted-foreground">{t('admin.common.loading')}</div>
               ) : (
@@ -204,7 +204,7 @@ export function ShiftsRoute() {
 
         <TabsContent value="coverage">
           <Card>
-            <CardContent className="p-0">
+            <CardContent className="overflow-x-auto p-0">
               {!coverageQ.data ? (
                 <div className="p-6 text-sm text-muted-foreground">{t('admin.common.loading')}</div>
               ) : (

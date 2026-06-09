@@ -71,7 +71,7 @@ export function SafetyDetailRoute() {
 
       <Card>
         <CardHeader><CardTitle className="text-base">Actions</CardTitle></CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="overflow-x-auto p-0">
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">

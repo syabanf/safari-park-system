@@ -1,10 +1,14 @@
 import { useTranslation } from '@tsi/i18n';
 import { AppSwitcher, Input } from '@tsi/ui';
-import { Bell, LogOut, Search } from 'lucide-react';
+import { Bell, LogOut, Menu, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 
-export function TopBar() {
+interface Props {
+  onMenuClick: () => void;
+}
+
+export function TopBar({ onMenuClick }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const email = useAuthStore((s) => s.email);
@@ -16,31 +20,47 @@ export function TopBar() {
   const initial = (displayName ?? email ?? 'A').slice(0, 1).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b bg-background/70 px-6 py-4 backdrop-blur-md">
-      <div className="relative w-full max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder={t('admin.common.search') as string}
-          className="h-10 rounded-full border-border/60 bg-white/80 pl-9 shadow-sm focus-visible:ring-brand-400"
-        />
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-2 border-b bg-background/70 px-4 py-3 backdrop-blur-md sm:gap-4 sm:px-6 sm:py-4">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        {/* Hamburger — mobile only */}
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border/60 bg-white/80 text-muted-foreground transition-colors hover:text-foreground lg:hidden"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+        {/* Search — collapses on mobile to keep TopBar tidy */}
+        <div className="relative hidden w-full max-w-md sm:block">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder={t('admin.common.search') as string}
+            className="h-10 rounded-full border-border/60 bg-white/80 pl-9 shadow-sm focus-visible:ring-brand-400"
+          />
+        </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
         <AppSwitcher current="admin" />
         <button
           type="button"
+          aria-label="Notifications"
           className="relative grid h-9 w-9 place-items-center rounded-full border border-border/60 bg-white/80 text-muted-foreground transition-colors hover:text-foreground"
         >
           <Bell className="h-4 w-4" />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-brand-500" />
         </button>
-        <div className="flex items-center gap-2 rounded-full border border-border/60 bg-white/80 py-1 pl-1 pr-2 text-sm shadow-sm">
+        <div className="flex items-center gap-2 rounded-full border border-border/60 bg-white/80 py-1 pl-1 pr-1.5 text-sm shadow-sm sm:pr-2">
           <div className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-xs font-bold text-white">
             {initial}
           </div>
-          <div className="flex flex-col leading-tight pr-1">
-            <span className="text-xs font-semibold">{label}</span>
-            {role ? <span className="text-[9px] uppercase tracking-widest text-muted-foreground">{role}</span> : null}
+          {/* Hide name on small to keep header compact */}
+          <div className="hidden min-w-0 flex-col leading-tight pr-1 sm:flex">
+            <span className="truncate text-xs font-semibold">{label}</span>
+            {role ? (
+              <span className="text-[9px] uppercase tracking-widest text-muted-foreground">{role}</span>
+            ) : null}
           </div>
           <button
             type="button"

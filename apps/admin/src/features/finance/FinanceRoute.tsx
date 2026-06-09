@@ -173,7 +173,7 @@ export function FinanceRoute() {
           <CardHeader>
             <CardTitle className="text-base">Recent transactions</CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="overflow-x-auto p-0">
             {txQ.isLoading || !txQ.data ? (
               <p className="p-4 text-sm text-muted-foreground">{t('admin.common.loading')}</p>
             ) : (

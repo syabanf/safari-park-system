@@ -35,7 +35,7 @@ export function GapRegisterRoute() {
       </div>
 
       <Card>
-        <CardContent className="p-0">
+        <CardContent className="overflow-x-auto p-0">
           {isLoading || !data ? (
             <div className="p-6 text-sm text-muted-foreground">{t('admin.common.loading')}</div>
           ) : (
