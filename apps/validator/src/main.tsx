@@ -20,12 +20,16 @@ const queryClient = new QueryClient({
 });
 
 async function bootstrap() {
-  if (import.meta.env.VITE_USE_MOCKS === 'true') {
+  // Mocks default ON — flip via VITE_USE_MOCKS=false when a real backend is wired.
+  const useMocks = import.meta.env.VITE_USE_MOCKS !== 'false';
+  if (useMocks) {
     const { enableMocking } = await import('@tsi/test-utils/browser');
     await enableMocking();
   }
 
-  if (import.meta.env.PROD) {
+  // Only register the PWA service worker when mocks are off — two SWs in the
+  // same scope conflict and the PWA one would shadow MSW's interceptor.
+  if (import.meta.env.PROD && !useMocks) {
     const { registerSW } = await import('virtual:pwa-register');
     registerSW({ immediate: false });
   }

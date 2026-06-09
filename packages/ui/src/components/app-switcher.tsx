@@ -40,7 +40,20 @@ const APPS: AppEntry[] = [
   },
 ];
 
+// Env-var override per app, set in each Vercel project:
+//   VITE_MEMBER_URL=https://safari-park-member.vercel.app
+//   VITE_VALIDATOR_URL=https://safari-park-validator.vercel.app
+//   VITE_ADMIN_URL=https://safari-park-admin.vercel.app
+// Falls back to `<protocol>//<hostname>:<port>` so localhost dev keeps working.
+const ENV_OVERRIDES: Record<AppId, string | undefined> = {
+  member: (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_MEMBER_URL,
+  validator: (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_VALIDATOR_URL,
+  admin: (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_ADMIN_URL,
+};
+
 function urlFor(app: AppEntry): string {
+  const override = ENV_OVERRIDES[app.id];
+  if (override) return override;
   if (typeof window === 'undefined') return `http://localhost:${app.port}`;
   const { protocol, hostname } = window.location;
   return `${protocol}//${hostname}:${app.port}`;

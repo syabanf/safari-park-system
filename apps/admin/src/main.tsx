@@ -20,7 +20,9 @@ const queryClient = new QueryClient({
 });
 
 async function bootstrap() {
-  if (import.meta.env.VITE_USE_MOCKS === 'true') {
+  // Mocks default ON — flip via VITE_USE_MOCKS=false when a real backend is wired.
+  const useMocks = import.meta.env.VITE_USE_MOCKS !== 'false';
+  if (useMocks) {
     const { enableMocking } = await import('@tsi/test-utils/browser');
     await enableMocking();
   }
