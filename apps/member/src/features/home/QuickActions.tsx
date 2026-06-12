@@ -25,12 +25,14 @@ export function QuickActions() {
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: i * 0.05 }}
-          className="flex flex-col items-center gap-2 rounded-2xl border border-border/50 bg-white p-3 shadow-sm transition-shadow hover:shadow-md"
+          className="flex flex-col items-center gap-2 rounded-2xl border border-border/50 bg-white px-1.5 pb-2.5 pt-3 shadow-sm transition-shadow hover:shadow-md"
         >
-          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand-50 text-brand-700">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand-50 text-brand-700">
             <a.icon className="h-5 w-5" />
           </span>
-          <span className="text-center text-[10px] font-semibold leading-tight text-brand-900">{a.label}</span>
+          <span className="flex h-7 items-center text-center text-[10px] font-semibold leading-[1.15] text-brand-900">
+            {a.label}
+          </span>
         </motion.button>
       ))}
     </div>

@@ -43,11 +43,12 @@ const perkIcon: Record<string, LucideIcon> = {
   camera: Camera,
 };
 
-const idr = new Intl.NumberFormat('id-ID', {
-  style: 'currency',
-  currency: 'IDR',
-  maximumFractionDigits: 0,
-});
+// Compact rupiah for the tight stat column: 652000 → "Rp652K".
+function compactIdr(v: number): string {
+  if (v >= 1_000_000) return `Rp${(v / 1_000_000).toFixed(v % 1_000_000 === 0 ? 0 : 1)}Jt`;
+  if (v >= 1_000) return `Rp${Math.round(v / 1_000)}K`;
+  return `Rp${v}`;
+}
 
 // A friendly demo portrait for the avatar (mock data).
 const AVATAR =
@@ -127,11 +128,11 @@ export function ProfileRoute() {
       {extras ? (
         <section>
           <Card className="border-brand-100 bg-brand-50/70">
-            <CardContent className="grid grid-cols-4 gap-1 p-3">
+            <CardContent className="grid grid-cols-4 divide-x divide-brand-100 p-0">
               <Stat icon={CalendarDays} label={t('member.profile.statVisits')} value={String(extras.stats.visitsThisYear)} unit={t('member.profile.unitTimes')} />
               <Stat icon={UserRound} label={t('member.profile.statRemaining')} value={String(extras.stats.remainingVisits)} unit={t('member.profile.unitTimes')} />
               <Stat icon={Gift} label={t('member.profile.statPerks')} value={String(extras.stats.activePerks)} unit={t('member.profile.unitActive')} />
-              <Stat icon={Ticket} label={t('member.profile.statSaved')} value={idr.format(extras.stats.totalSavedIdr)} />
+              <Stat icon={Ticket} label={t('member.profile.statSaved')} value={compactIdr(extras.stats.totalSavedIdr)} unit="IDR" />
             </CardContent>
           </Card>
         </section>
@@ -187,12 +188,14 @@ export function ProfileRoute() {
               const Icon = perkIcon[p.icon] ?? Gift;
               return (
                 <Card key={p.id} className="border-brand-100 bg-brand-50/60">
-                  <CardContent className="flex flex-col items-center gap-2 p-3 text-center">
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-600 text-white">
+                  <CardContent className="flex flex-col items-center gap-2 px-2 py-3 text-center">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-600 text-white">
                       <Icon className="h-4 w-4" />
                     </span>
-                    <p className="text-[11px] font-semibold leading-tight text-brand-900">{p.title}</p>
-                    <p className="text-[9px] text-muted-foreground">
+                    <p className="flex h-8 items-center text-[11px] font-semibold leading-[1.15] text-brand-900">
+                      {p.title}
+                    </p>
+                    <p className="text-[9px] leading-tight text-muted-foreground">
                       {t('perks.validUntil', { date: fmtDate.format(new Date(p.validUntil)) })}
                     </p>
                   </CardContent>
@@ -261,11 +264,13 @@ function Stat({
   unit?: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 text-center">
-      <Icon className="h-4 w-4 text-brand-700" />
-      <p className="text-[9px] font-medium leading-tight text-brand-800/80">{label}</p>
-      <p className="text-sm font-bold leading-none text-brand-900">{value}</p>
-      {unit ? <p className="text-[9px] text-muted-foreground">{unit}</p> : null}
+    <div className="flex flex-col items-center gap-1.5 px-1 py-3.5 text-center">
+      <Icon className="h-4 w-4 shrink-0 text-brand-700" />
+      <p className="flex h-6 items-start justify-center text-[9px] font-medium leading-[1.1] text-brand-800/80">
+        {label}
+      </p>
+      <p className="text-[13px] font-bold leading-none text-brand-900">{value}</p>
+      {unit ? <p className="text-[9px] leading-none text-muted-foreground">{unit}</p> : null}
     </div>
   );
 }

@@ -67,7 +67,7 @@ export function HomeRoute() {
         initial={{ opacity: 0, y: -4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative -mx-4 -mt-4 overflow-hidden rounded-b-[2rem]"
+        className="relative -mx-4 -mt-6 overflow-hidden rounded-b-[2rem]"
       >
         {parkStatusQuery.data?.heroImage ? (
           <img
@@ -106,26 +106,26 @@ export function HomeRoute() {
         transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
         className="rounded-3xl border border-brand-100 bg-brand-50/70 p-4"
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-bold text-brand-900">{t('member.home.myPass')}</h2>
-            <p className="mt-1 text-xs leading-snug text-brand-800/80">
+            <h2 className="text-lg font-bold leading-tight text-brand-900">{t('member.home.myPass')}</h2>
+            <p className="mt-1 text-xs leading-snug text-brand-800/75">
               {pass.status === 'active'
-                ? `${t(`pass.tier.${pass.tier}`)} · ${t('member.home.myPassActive')}`
+                ? t(`pass.tier.${pass.tier}`)
                 : t('member.home.myPassActive')}
             </p>
             {pass.status === 'active' ? (
-              <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-600 px-2.5 py-1 text-[11px] font-semibold text-white">
+              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-brand-600 px-2.5 py-1 text-[11px] font-semibold text-white">
                 <CheckCircle2 className="h-3 w-3" />
                 {t(`pass.status.${pass.status}`)} · {validUntil}
-              </p>
+              </span>
             ) : null}
           </div>
-          <AnnualPassArt className="w-28 shrink-0" />
+          <AnnualPassArt className="w-[7.5rem] shrink-0" />
         </div>
         <Link
           to="/qr"
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-700 py-3 text-sm font-bold text-white shadow-md shadow-brand-900/15 transition-transform active:scale-[0.98]"
+          className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand-700 text-sm font-bold text-white shadow-md shadow-brand-900/15 transition-transform active:scale-[0.98]"
         >
           <QrCode className="h-4 w-4" />
           {t('member.home.showQr')}
@@ -158,9 +158,7 @@ export function HomeRoute() {
       {/* Promotions */}
       {bannersQuery.data && bannersQuery.data.length > 0 ? (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            {t('member.home.promotions')}
-          </h2>
+          <h2 className="text-base font-bold text-brand-900">{t('member.home.promotions')}</h2>
           <BannerCarousel banners={bannersQuery.data} />
         </section>
       ) : null}

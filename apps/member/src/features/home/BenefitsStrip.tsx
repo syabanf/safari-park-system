@@ -12,14 +12,16 @@ export function BenefitsStrip() {
   ];
 
   return (
-    <div className="rounded-2xl border border-brand-100 bg-brand-50/60 p-3">
+    <div className="rounded-2xl border border-brand-100 bg-brand-50/60 px-2 py-3.5">
       <div className="grid grid-cols-4 gap-1">
         {benefits.map(({ icon: Icon, label }) => (
-          <div key={label} className="flex flex-col items-center gap-1.5 text-center">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-600 text-white shadow-sm">
+          <div key={label} className="flex flex-col items-center gap-2 text-center">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-600 text-white shadow-sm">
               <Icon className="h-4 w-4" />
             </span>
-            <span className="text-[10px] font-medium leading-tight text-brand-900">{label}</span>
+            <span className="flex h-7 items-start justify-center px-0.5 text-[10px] font-medium leading-[1.15] text-brand-900">
+              {label}
+            </span>
           </div>
         ))}
       </div>
