@@ -314,6 +314,24 @@
       "errorTitle": "Gagal memuat data",
       "errorHint": "Kami tidak dapat memuat ini sekarang. Silakan coba lagi.",
       "retry": "Coba lagi"
+    },
+    "filters": {
+      "search": "Cari…",
+      "status": "Status",
+      "type": "Tipe",
+      "category": "Kategori",
+      "severity": "Tingkat",
+      "priority": "Prioritas",
+      "location": "Lokasi",
+      "department": "Departemen",
+      "channel": "Kanal",
+      "role": "Peran",
+      "tier": "Tingkatan",
+      "vendor": "Vendor",
+      "species": "Spesies",
+      "gate": "Gerbang",
+      "date": "Tanggal",
+      "clearAll": "Hapus semua"
     }
   }
 }

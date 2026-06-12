@@ -1,8 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
+import { SearchX } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bar,
@@ -44,10 +46,41 @@ const statusVariant = {
   cancelled: 'destructive',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function BookingsRoute() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'bookings'], queryFn: fetchBookings });
+  const [query, setQuery] = useState('');
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+  const [typeSelected, setTypeSelected] = useState<string[]>([]);
+
+  const counts = useMemo(() => {
+    const c = { status: new Map<string, number>(), type: new Map<string, number>() };
+    for (const b of data?.bookings ?? []) {
+      c.status.set(b.status, (c.status.get(b.status) ?? 0) + 1);
+      c.type.set(b.type, (c.type.get(b.type) ?? 0) + 1);
+    }
+    return c;
+  }, [data]);
+
+  const filtered = useMemo(() => {
+    return (data?.bookings ?? []).filter((b) => {
+      if (statusSelected.length && !statusSelected.includes(b.status)) return false;
+      if (typeSelected.length && !typeSelected.includes(b.type)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !b.customer.toLowerCase().includes(q) &&
+          !b.id.toLowerCase().includes(q) &&
+          !b.type.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [data, query, statusSelected, typeSelected]);
 
   if (isError)
     return (
@@ -98,11 +131,53 @@ export function BookingsRoute() {
         </CardContent>
       </Card>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.status.get(v),
+            })),
+          },
+          {
+            key: 'type',
+            label: t('admin.filters.type') as string,
+            selected: typeSelected,
+            onChange: setTypeSelected,
+            options: [...counts.type.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.type.get(v),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setStatusSelected([]);
+          setTypeSelected([]);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Upcoming bookings</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          ) : (
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -116,7 +191,7 @@ export function BookingsRoute() {
               </tr>
             </thead>
             <tbody>
-              {data.bookings.map((b, i) => (
+              {filtered.map((b, i) => (
                 <motion.tr
                   key={b.id}
                   initial={{ opacity: 0, y: 4 }}
@@ -151,6 +226,7 @@ export function BookingsRoute() {
               ))}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

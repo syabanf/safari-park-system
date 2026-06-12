@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Box, PackageOpen } from 'lucide-react';
+import { AlertTriangle, Box, PackageOpen, SearchX } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
@@ -36,10 +37,47 @@ const idrShort = (v: number) => (Math.abs(v) >= 1_000_000 ? `Rp ${(v / 1_000_000
 
 const categoryColors = ['#287338', '#5bac6a', '#b08754', '#d4be96', '#9a3a3a'];
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+const stockStateOf = (it: InventoryItem) => (it.needsReorder ? 'reorder' : 'in-stock');
+
 export function InventoryRoute() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'inventory'], queryFn: fetchInventory });
+
+  const [query, setQuery] = useState('');
+  const [categorySelected, setCategorySelected] = useState<string[]>([]);
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const items = data?.items ?? [];
+
+  const counts = useMemo(() => {
+    const c = { category: new Map<string, number>(), status: new Map<string, number>() };
+    for (const it of items) {
+      c.category.set(it.category, (c.category.get(it.category) ?? 0) + 1);
+      const st = stockStateOf(it);
+      c.status.set(st, (c.status.get(st) ?? 0) + 1);
+    }
+    return c;
+  }, [items]);
+
+  const filtered = useMemo(() => {
+    return items.filter((it) => {
+      if (categorySelected.length && !categorySelected.includes(it.category)) return false;
+      if (statusSelected.length && !statusSelected.includes(stockStateOf(it))) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !it.name.toLowerCase().includes(q) &&
+          !it.sku.toLowerCase().includes(q) &&
+          !it.id.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [items, query, categorySelected, statusSelected]);
 
   if (isError)
     return (
@@ -92,12 +130,54 @@ export function InventoryRoute() {
         </CardContent>
       </Card>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'category',
+            label: t('admin.filters.category') as string,
+            selected: categorySelected,
+            onChange: setCategorySelected,
+            options: [...counts.category.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.category.get(value),
+            })),
+          },
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.status.get(value),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setCategorySelected([]);
+          setStatusSelected([]);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Stock list</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
-          <table className="min-w-full text-sm">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          ) : (
+            <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="px-6 py-3 font-medium">SKU</th>
@@ -109,7 +189,7 @@ export function InventoryRoute() {
               </tr>
             </thead>
             <tbody>
-              {data.items.map((it, i) => (
+              {filtered.map((it, i) => (
                 <motion.tr
                   key={it.id}
                   initial={{ opacity: 0, y: 4 }}
@@ -141,6 +221,7 @@ export function InventoryRoute() {
               ))}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

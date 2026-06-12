@@ -1,9 +1,9 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState, Input } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Briefcase, Search, UserCheck, UserCog, Users } from 'lucide-react';
+import { Briefcase, SearchX, UserCheck, UserCog, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -40,22 +40,47 @@ const statusVariant = {
   sick: 'destructive',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function StaffRoute() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'staff'], queryFn: fetchStaff });
   const [query, setQuery] = useState('');
-  const [dept, setDept] = useState<'all' | string>('all');
+  const [deptSelected, setDeptSelected] = useState<string[]>([]);
+  const [roleSelected, setRoleSelected] = useState<string[]>([]);
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const counts = useMemo(() => {
+    const c = {
+      department: new Map<string, number>(),
+      role: new Map<string, number>(),
+      status: new Map<string, number>(),
+    };
+    for (const s of data?.staff ?? []) {
+      c.department.set(s.department, (c.department.get(s.department) ?? 0) + 1);
+      c.role.set(s.role, (c.role.get(s.role) ?? 0) + 1);
+      c.status.set(s.status, (c.status.get(s.status) ?? 0) + 1);
+    }
+    return c;
+  }, [data]);
 
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.staff.filter((s) => {
-      if (dept !== 'all' && s.department !== dept) return false;
+      if (deptSelected.length && !deptSelected.includes(s.department)) return false;
+      if (roleSelected.length && !roleSelected.includes(s.role)) return false;
+      if (statusSelected.length && !statusSelected.includes(s.status)) return false;
       if (!query) return true;
       const q = query.toLowerCase();
-      return s.fullName.toLowerCase().includes(q) || s.id.includes(q) || s.role.toLowerCase().includes(q);
+      return (
+        s.fullName.toLowerCase().includes(q) ||
+        s.id.toLowerCase().includes(q) ||
+        s.employeeId.toLowerCase().includes(q) ||
+        s.role.toLowerCase().includes(q)
+      );
     });
-  }, [data, query, dept]);
+  }, [data, query, deptSelected, roleSelected, statusSelected]);
 
   if (isError)
     return (
@@ -116,36 +141,62 @@ export function StaffRoute() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent className="flex flex-col gap-3 p-4 md:flex-row md:items-center">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search name, employee ID, role"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            {(['all', 'Operations', 'Animal Care', 'Commercial'] as const).map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => setDept(d)}
-                className={`rounded-full px-3 py-1.5 font-medium transition-colors ${
-                  dept === d ? 'bg-brand-700 text-white' : 'border border-border bg-white text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'department',
+            label: t('admin.filters.department') as string,
+            selected: deptSelected,
+            onChange: setDeptSelected,
+            options: [...counts.department.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.department.get(v),
+            })),
+          },
+          {
+            key: 'role',
+            label: t('admin.filters.role') as string,
+            selected: roleSelected,
+            onChange: setRoleSelected,
+            options: [...counts.role.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.role.get(v),
+            })),
+          },
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.status.get(v),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setDeptSelected([]);
+          setRoleSelected([]);
+          setStatusSelected([]);
+        }}
+      />
 
       <Card>
         <CardContent className="overflow-x-auto p-0">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          ) : (
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -197,6 +248,7 @@ export function StaffRoute() {
               ))}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

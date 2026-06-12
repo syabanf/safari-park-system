@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { ArrowLeftRight, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { ArrowLeftRight, CheckCircle2, Clock, SearchX, XCircle } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 interface Mismatch {
   id: string;
@@ -44,12 +45,43 @@ const statusVariant = {
   resolved: 'success',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function ReconciliationRoute() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'reconciliation'],
     queryFn: fetchReconciliation,
   });
+  const [query, setQuery] = useState('');
+  const [severitySelected, setSeveritySelected] = useState<string[]>([]);
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const counts = useMemo(() => {
+    const c = { severity: new Map<string, number>(), status: new Map<string, number>() };
+    for (const m of data?.mismatches ?? []) {
+      c.severity.set(m.severity, (c.severity.get(m.severity) ?? 0) + 1);
+      c.status.set(m.status, (c.status.get(m.status) ?? 0) + 1);
+    }
+    return c;
+  }, [data]);
+
+  const filtered = useMemo(() => {
+    return (data?.mismatches ?? []).filter((m) => {
+      if (severitySelected.length && !severitySelected.includes(m.severity)) return false;
+      if (statusSelected.length && !statusSelected.includes(m.status)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !m.passId.toLowerCase().includes(q) &&
+          !m.holderName.toLowerCase().includes(q) &&
+          !m.id.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [data, query, severitySelected, statusSelected]);
 
   if (isLoading || !data) {
     return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
@@ -91,11 +123,53 @@ export function ReconciliationRoute() {
         />
       </div>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'severity',
+            label: t('admin.filters.severity') as string,
+            selected: severitySelected,
+            onChange: setSeveritySelected,
+            options: [...counts.severity.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.severity.get(v),
+            })),
+          },
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.status.get(v),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setSeveritySelected([]);
+          setStatusSelected([]);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t('admin.reconciliation.table.title')}</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          ) : (
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -109,7 +183,7 @@ export function ReconciliationRoute() {
               </tr>
             </thead>
             <tbody>
-              {data.mismatches.map((m, i) => (
+              {filtered.map((m, i) => (
                 <motion.tr
                   key={m.id}
                   initial={{ opacity: 0, y: 4 }}
@@ -139,6 +213,7 @@ export function ReconciliationRoute() {
               ))}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

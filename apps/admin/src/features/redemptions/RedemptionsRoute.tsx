@@ -93,7 +93,7 @@ export function RedemptionsRoute() {
         multiSelect={[
           {
             key: 'verdict',
-            label: 'Verdict',
+            label: t('admin.filters.status') as string,
             selected: verdictSelected,
             onChange: setVerdictSelected,
             options: ['allow', 'deny', 'manual'].map((v) => ({
@@ -104,7 +104,7 @@ export function RedemptionsRoute() {
           },
           {
             key: 'source',
-            label: 'Source',
+            label: t('admin.filters.type') as string,
             selected: sourceSelected,
             onChange: setSourceSelected,
             options: ['online', 'offline', 'manual'].map((v) => ({
@@ -113,9 +113,9 @@ export function RedemptionsRoute() {
               count: counts.source.get(v),
             })),
           },
-          { key: 'gate', label: 'Gate', selected: gateSelected, onChange: setGateSelected, options: gateOptions },
+          { key: 'gate', label: t('admin.filters.gate') as string, selected: gateSelected, onChange: setGateSelected, options: gateOptions },
         ]}
-        dateRange={{ key: 'scannedAt', label: 'Scanned', value: dateRange, onChange: setDateRange }}
+        dateRange={{ key: 'scannedAt', label: t('admin.filters.date') as string, value: dateRange, onChange: setDateRange }}
         onClear={() => {
           setQuery('');
           setGateSelected([]);

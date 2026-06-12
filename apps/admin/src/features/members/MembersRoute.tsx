@@ -82,7 +82,7 @@ export function MembersRoute() {
         multiSelect={[
           {
             key: 'status',
-            label: 'Status',
+            label: t('admin.filters.status') as string,
             selected: statusSelected,
             onChange: setStatusSelected,
             options: (['active', 'expired', 'suspended', 'pending'] as const).map((v) => ({
@@ -93,7 +93,7 @@ export function MembersRoute() {
           },
           {
             key: 'tier',
-            label: 'Tier',
+            label: t('admin.filters.tier') as string,
             selected: tierSelected,
             onChange: setTierSelected,
             options: (['adult', 'child', 'senior', 'family'] as const).map((v) => ({
@@ -105,7 +105,7 @@ export function MembersRoute() {
         ]}
         dateRange={{
           key: 'validUntil',
-          label: 'Valid until',
+          label: t('admin.filters.date') as string,
           value: validRange,
           onChange: setValidRange,
         }}

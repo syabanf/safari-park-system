@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
+import { AdvancedFilters, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { ArrowDownRight, ArrowUpRight, BanknoteIcon, TrendingUp, Wallet, type LucideIcon } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, BanknoteIcon, SearchX, TrendingUp, Wallet, type LucideIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -58,10 +59,44 @@ async function fetchTx(): Promise<Transaction[]> {
   return json.transactions;
 }
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function FinanceRoute() {
   const { t, i18n } = useTranslation();
   const summaryQ = useQuery({ queryKey: ['admin', 'finance-summary'], queryFn: fetchSummary });
   const txQ = useQuery({ queryKey: ['admin', 'finance-tx'], queryFn: fetchTx });
+
+  const [query, setQuery] = useState('');
+  const [channelSelected, setChannelSelected] = useState<string[]>([]);
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const transactions = useMemo(() => txQ.data ?? [], [txQ.data]);
+
+  const txCounts = useMemo(() => {
+    const c = { channel: new Map<string, number>(), status: new Map<string, number>() };
+    for (const tx of transactions) {
+      c.channel.set(tx.channel, (c.channel.get(tx.channel) ?? 0) + 1);
+      c.status.set(tx.status, (c.status.get(tx.status) ?? 0) + 1);
+    }
+    return c;
+  }, [transactions]);
+
+  const filteredTx = useMemo(() => {
+    return transactions.filter((tx) => {
+      if (channelSelected.length && !channelSelected.includes(tx.channel)) return false;
+      if (statusSelected.length && !statusSelected.includes(tx.status)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !tx.id.toLowerCase().includes(q) &&
+          !tx.member.toLowerCase().includes(q) &&
+          !tx.method.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [transactions, query, channelSelected, statusSelected]);
 
   if (summaryQ.isError) {
     return (
@@ -182,7 +217,7 @@ export function FinanceRoute() {
           <CardHeader>
             <CardTitle className="text-base">Recent transactions</CardTitle>
           </CardHeader>
-          <CardContent className="overflow-x-auto p-0">
+          <CardContent className="space-y-3 p-0">
             {txQ.isError ? (
               <ErrorState
                 title={t('admin.common.errorTitle')}
@@ -193,37 +228,85 @@ export function FinanceRoute() {
             ) : txQ.isLoading || !txQ.data ? (
               <p className="p-4 text-sm text-muted-foreground">{t('admin.common.loading')}</p>
             ) : (
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
-                    <th className="px-5 py-3 font-medium">Time</th>
-                    <th className="px-5 py-3 font-medium">Channel</th>
-                    <th className="px-5 py-3 text-right font-medium">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {txQ.data.slice(0, 10).map((tx, i) => (
-                    <motion.tr
-                      key={tx.id}
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: i * 0.03 }}
-                      className="border-b last:border-0 hover:bg-muted/30"
-                    >
-                      <td className="px-5 py-2.5 font-mono text-xs text-muted-foreground">
-                        {formatter.format(new Date(tx.timestamp))}
-                      </td>
-                      <td className="px-5 py-2.5">
-                        <div className="font-medium">{tx.channel}</div>
-                        <div className="text-[11px] text-muted-foreground">{tx.method}</div>
-                      </td>
-                      <td className={`px-5 py-2.5 text-right font-mono text-xs ${tx.amountIdr < 0 ? 'text-rose-700' : ''}`}>
-                        {tx.amountIdr < 0 ? '−' : ''}{idr.format(Math.abs(tx.amountIdr))}
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+              <>
+                <div className="px-3 pt-3">
+                  <AdvancedFilters
+                    searchPlaceholder={t('admin.filters.search') as string}
+                    searchValue={query}
+                    onSearchChange={setQuery}
+                    multiSelect={[
+                      {
+                        key: 'channel',
+                        label: t('admin.filters.channel') as string,
+                        selected: channelSelected,
+                        onChange: setChannelSelected,
+                        options: [...txCounts.channel.keys()].map((value) => ({
+                          value,
+                          label: humanize(value),
+                          count: txCounts.channel.get(value),
+                        })),
+                      },
+                      {
+                        key: 'status',
+                        label: t('admin.filters.status') as string,
+                        selected: statusSelected,
+                        onChange: setStatusSelected,
+                        options: [...txCounts.status.keys()].map((value) => ({
+                          value,
+                          label: humanize(value),
+                          count: txCounts.status.get(value),
+                        })),
+                      },
+                    ]}
+                    onClear={() => {
+                      setQuery('');
+                      setChannelSelected([]);
+                      setStatusSelected([]);
+                    }}
+                  />
+                </div>
+                {filteredTx.length === 0 ? (
+                  <EmptyState
+                    icon={SearchX}
+                    title={t('admin.common.noMatches')}
+                    description={t('admin.common.noMatchesHint')}
+                  />
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
+                          <th className="px-5 py-3 font-medium">Time</th>
+                          <th className="px-5 py-3 font-medium">Channel</th>
+                          <th className="px-5 py-3 text-right font-medium">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredTx.slice(0, 10).map((tx, i) => (
+                          <motion.tr
+                            key={tx.id}
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2, delay: i * 0.03 }}
+                            className="border-b last:border-0 hover:bg-muted/30"
+                          >
+                            <td className="px-5 py-2.5 font-mono text-xs text-muted-foreground">
+                              {formatter.format(new Date(tx.timestamp))}
+                            </td>
+                            <td className="px-5 py-2.5">
+                              <div className="font-medium">{tx.channel}</div>
+                              <div className="text-[11px] text-muted-foreground">{tx.method}</div>
+                            </td>
+                            <td className={`px-5 py-2.5 text-right font-mono text-xs ${tx.amountIdr < 0 ? 'text-rose-700' : ''}`}>
+                              {tx.amountIdr < 0 ? '−' : ''}{idr.format(Math.abs(tx.amountIdr))}
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>

@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Activity, AlertTriangle, Calendar, Clock, ShieldCheck } from 'lucide-react';
+import { Activity, AlertTriangle, Calendar, Clock, SearchX, ShieldCheck } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Incident {
@@ -43,10 +44,43 @@ const statusVariant = {
   closed: 'success',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function SafetyRoute() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'safety'], queryFn: fetchSafety });
+  const [query, setQuery] = useState('');
+  const [severitySelected, setSeveritySelected] = useState<string[]>([]);
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+  const [typeSelected, setTypeSelected] = useState<string[]>([]);
+
+  const counts = useMemo(() => {
+    const c = {
+      severity: new Map<string, number>(),
+      status: new Map<string, number>(),
+      type: new Map<string, number>(),
+    };
+    for (const inc of data?.incidents ?? []) {
+      c.severity.set(inc.severity, (c.severity.get(inc.severity) ?? 0) + 1);
+      c.status.set(inc.status, (c.status.get(inc.status) ?? 0) + 1);
+      c.type.set(inc.type, (c.type.get(inc.type) ?? 0) + 1);
+    }
+    return c;
+  }, [data]);
+
+  const filtered = useMemo(() => {
+    return (data?.incidents ?? []).filter((inc) => {
+      if (severitySelected.length && !severitySelected.includes(inc.severity)) return false;
+      if (statusSelected.length && !statusSelected.includes(inc.status)) return false;
+      if (typeSelected.length && !typeSelected.includes(inc.type)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (!inc.title.toLowerCase().includes(q) && !inc.id.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+  }, [data, query, severitySelected, statusSelected, typeSelected]);
 
   if (isError)
     return (
@@ -75,11 +109,65 @@ export function SafetyRoute() {
         <KpiTile label="Avg response" value={`${data.summary.avgResponseMin}m`} icon={Clock} accent="brand" />
       </div>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'severity',
+            label: t('admin.filters.severity') as string,
+            selected: severitySelected,
+            onChange: setSeveritySelected,
+            options: [...counts.severity.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.severity.get(v),
+            })),
+          },
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.status.get(v),
+            })),
+          },
+          {
+            key: 'type',
+            label: t('admin.filters.type') as string,
+            selected: typeSelected,
+            onChange: setTypeSelected,
+            options: [...counts.type.keys()].map((v) => ({
+              value: v,
+              label: humanize(v),
+              count: counts.type.get(v),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setSeveritySelected([]);
+          setStatusSelected([]);
+          setTypeSelected([]);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Incident log</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          ) : (
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -92,7 +180,7 @@ export function SafetyRoute() {
               </tr>
             </thead>
             <tbody>
-              {data.incidents.map((inc, i) => (
+              {filtered.map((inc, i) => (
                 <motion.tr
                   key={inc.id}
                   initial={{ opacity: 0, y: 4 }}
@@ -130,6 +218,7 @@ export function SafetyRoute() {
               ))}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
 

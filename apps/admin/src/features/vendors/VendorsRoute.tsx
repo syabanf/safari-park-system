@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Star, Truck } from 'lucide-react';
+import { SearchX, Star, Truck } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface Vendor {
@@ -41,10 +42,42 @@ const statusVariant = {
   closed: 'success',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+const onTimeTierOf = (v: Vendor) => (v.onTimePct >= 95 ? 'excellent' : v.onTimePct >= 85 ? 'on-track' : 'at-risk');
+
 export function VendorsRoute() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'vendors'], queryFn: fetchVendors });
+
+  const [query, setQuery] = useState('');
+  const [categorySelected, setCategorySelected] = useState<string[]>([]);
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const vendors = data?.vendors ?? [];
+
+  const counts = useMemo(() => {
+    const c = { category: new Map<string, number>(), status: new Map<string, number>() };
+    for (const v of vendors) {
+      c.category.set(v.category, (c.category.get(v.category) ?? 0) + 1);
+      const st = onTimeTierOf(v);
+      c.status.set(st, (c.status.get(st) ?? 0) + 1);
+    }
+    return c;
+  }, [vendors]);
+
+  const filteredVendors = useMemo(() => {
+    return vendors.filter((v) => {
+      if (categorySelected.length && !categorySelected.includes(v.category)) return false;
+      if (statusSelected.length && !statusSelected.includes(onTimeTierOf(v))) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (!v.name.toLowerCase().includes(q) && !v.id.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+  }, [vendors, query, categorySelected, statusSelected]);
 
   if (isError)
     return (
@@ -77,12 +110,56 @@ export function VendorsRoute() {
         <KpiTile label="Avg on-time" value={`${Math.round(data.vendors.reduce((s, v) => s + v.onTimePct, 0) / data.vendors.length)}%`} />
       </div>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'category',
+            label: t('admin.filters.category') as string,
+            selected: categorySelected,
+            onChange: setCategorySelected,
+            options: [...counts.category.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.category.get(value),
+            })),
+          },
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.status.get(value),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setCategorySelected([]);
+          setStatusSelected([]);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Supplier directory</CardTitle>
         </CardHeader>
+        {filteredVendors.length === 0 ? (
+          <CardContent>
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          </CardContent>
+        ) : (
         <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {data.vendors.map((v, i) => (
+          {filteredVendors.map((v, i) => (
             <motion.div
               key={v.id}
               initial={{ opacity: 0, y: 6 }}
@@ -117,6 +194,7 @@ export function VendorsRoute() {
             </motion.div>
           ))}
         </CardContent>
+        )}
       </Card>
 
       <Card>

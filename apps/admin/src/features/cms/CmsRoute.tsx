@@ -2,10 +2,12 @@ import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import {
+  AdvancedFilters,
   Badge,
   Button,
   Card,
   CardContent,
+  EmptyState,
   Input,
   Tabs,
   TabsContent,
@@ -22,7 +24,7 @@ import {
   MapPin,
   Megaphone,
   Plus,
-  Search,
+  SearchX,
   Sparkles,
   Ticket,
   Trash2,
@@ -149,24 +151,34 @@ export function CmsRoute() {
   const filterFn = <T extends { title?: string }>(items: T[]) =>
     search ? items.filter((it) => (it.title ?? '').toLowerCase().includes(search.toLowerCase())) : items;
 
+  const noMatch = (
+    <EmptyState
+      icon={SearchX}
+      title={t('admin.common.noMatches')}
+      description={t('admin.common.noMatchesHint')}
+    />
+  );
+
+  const grid = <T,>(items: T[], render: (item: T, index: number) => React.ReactNode) =>
+    items.length === 0 ? (
+      noMatch
+    ) : (
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">{items.map(render)}</div>
+    );
+
   return (
     <div className="space-y-6">
-      <header className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t('admin.cms.title')}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t('admin.cms.subtitle')}</p>
-        </div>
-        <div className="relative w-full sm:w-auto">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search content…"
-            className="h-9 w-full rounded-full bg-white pl-9 text-sm sm:w-64"
-          />
-        </div>
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.cms.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.cms.subtitle')}</p>
       </header>
+
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={search}
+        onSearchChange={setSearch}
+        onClear={() => setSearch('')}
+      />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <StatTile icon={<ImageIcon className="h-4 w-4" />} label="Banners" primary={`${data.summary.activeBanners}/${data.summary.totalBanners}`} hint="active" />
@@ -188,98 +200,91 @@ export function CmsRoute() {
 
         <TabsContent value="banners">
           <ContentToolbar createLabel="New banner" />
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {filterFn(data.banners).map((b, i) => (
-              <CmsTile
-                key={b.id}
-                index={i}
-                image={b.image}
-                tag={b.tag}
-                title={b.title}
-                subtitle={b.subtitle}
-                status={b.status}
-                metaLines={[
-                  `Valid until ${fmtDate.format(new Date(b.validUntil))}`,
-                  `${num.format(b.impressions)} impressions · ${num.format(b.clicks)} clicks (${b.impressions > 0 ? Math.round((b.clicks / b.impressions) * 1000) / 10 : 0}% CTR)`,
-                  `CTA: ${b.ctaLabel} → ${b.ctaTarget}`,
-                ]}
-              />
-            ))}
-          </div>
+          {grid(filterFn(data.banners), (b, i) => (
+            <CmsTile
+              key={b.id}
+              index={i}
+              image={b.image}
+              tag={b.tag}
+              title={b.title}
+              subtitle={b.subtitle}
+              status={b.status}
+              metaLines={[
+                `Valid until ${fmtDate.format(new Date(b.validUntil))}`,
+                `${num.format(b.impressions)} impressions · ${num.format(b.clicks)} clicks (${b.impressions > 0 ? Math.round((b.clicks / b.impressions) * 1000) / 10 : 0}% CTR)`,
+                `CTA: ${b.ctaLabel} → ${b.ctaTarget}`,
+              ]}
+            />
+          ))}
         </TabsContent>
 
         <TabsContent value="promotions">
           <ContentToolbar createLabel="New promotion" />
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {filterFn(data.promotions).map((p, i) => (
-              <CmsTile
-                key={p.id}
-                index={i}
-                image={p.image}
-                tag={p.tag}
-                emoji={p.heroEmoji}
-                title={p.title}
-                subtitle={p.subtitle}
-                status={p.status}
-                metaLines={[
-                  `Valid until ${fmtDate.format(new Date(p.validUntil))}`,
-                  `${num.format(p.claims)} claims`,
-                ]}
-              />
-            ))}
-          </div>
+          {grid(filterFn(data.promotions), (p, i) => (
+            <CmsTile
+              key={p.id}
+              index={i}
+              image={p.image}
+              tag={p.tag}
+              emoji={p.heroEmoji}
+              title={p.title}
+              subtitle={p.subtitle}
+              status={p.status}
+              metaLines={[
+                `Valid until ${fmtDate.format(new Date(p.validUntil))}`,
+                `${num.format(p.claims)} claims`,
+              ]}
+            />
+          ))}
         </TabsContent>
 
         <TabsContent value="events">
           <ContentToolbar createLabel="New event" />
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {filterFn(data.events).map((e, i) => {
-              const pct = Math.round((e.booked / e.capacity) * 100);
-              return (
-                <CmsTile
-                  key={e.id}
-                  index={i}
-                  image={e.image}
-                  tag={e.tag}
-                  title={e.title}
-                  subtitle={e.location}
-                  status={e.status}
-                  metaLines={[
-                    fmtDateTime.format(new Date(e.datetime)),
-                    `${num.format(e.booked)} / ${num.format(e.capacity)} booked (${pct}%)`,
-                  ]}
-                  progressPct={pct}
-                />
-              );
-            })}
-          </div>
+          {grid(filterFn(data.events), (e, i) => {
+            const pct = Math.round((e.booked / e.capacity) * 100);
+            return (
+              <CmsTile
+                key={e.id}
+                index={i}
+                image={e.image}
+                tag={e.tag}
+                title={e.title}
+                subtitle={e.location}
+                status={e.status}
+                metaLines={[
+                  fmtDateTime.format(new Date(e.datetime)),
+                  `${num.format(e.booked)} / ${num.format(e.capacity)} booked (${pct}%)`,
+                ]}
+                progressPct={pct}
+              />
+            );
+          })}
         </TabsContent>
 
         <TabsContent value="perks">
           <ContentToolbar createLabel="New perk" />
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {filterFn(data.perks).map((p, i) => (
-              <CmsTile
-                key={p.id}
-                index={i}
-                image={p.image}
-                tag={p.category}
-                title={p.title}
-                subtitle={p.summary}
-                status={p.status}
-                metaLines={[
-                  `Valid until ${fmtDate.format(new Date(p.validUntil))}`,
-                  `${num.format(p.redeemed)} redemptions`,
-                ]}
-              />
-            ))}
-          </div>
+          {grid(filterFn(data.perks), (p, i) => (
+            <CmsTile
+              key={p.id}
+              index={i}
+              image={p.image}
+              tag={p.category}
+              title={p.title}
+              subtitle={p.summary}
+              status={p.status}
+              metaLines={[
+                `Valid until ${fmtDate.format(new Date(p.validUntil))}`,
+                `${num.format(p.redeemed)} redemptions`,
+              ]}
+            />
+          ))}
         </TabsContent>
 
         <TabsContent value="notifications">
           <NotificationsPanel
             items={filterFn(data.notifications)}
             fmtDateTime={fmtDateTime}
+            empty={noMatch}
           />
         </TabsContent>
 
@@ -422,9 +427,11 @@ function CmsTile({
 function NotificationsPanel({
   items,
   fmtDateTime,
+  empty,
 }: {
   items: NotificationItem[];
   fmtDateTime: Intl.DateTimeFormat;
+  empty: React.ReactNode;
 }) {
   const { t } = useTranslation();
   return (
@@ -432,6 +439,9 @@ function NotificationsPanel({
       <ContentToolbar createLabel="Compose push" />
       <Card>
         <CardContent className="overflow-x-auto p-0">
+          {items.length === 0 ? (
+            empty
+          ) : (
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -509,6 +519,7 @@ function NotificationsPanel({
               })}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

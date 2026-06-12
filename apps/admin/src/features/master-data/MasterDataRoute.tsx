@@ -1,7 +1,17 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, Tabs, TabsContent, TabsList, TabsTrigger } from '@tsi/ui';
+import {
+  AdvancedFilters,
+  Badge,
+  Card,
+  CardContent,
+  EmptyState,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@tsi/ui';
 import { motion } from 'framer-motion';
 import {
   Bell,
@@ -12,9 +22,11 @@ import {
   MapPin,
   PawPrint,
   Percent,
+  SearchX,
   Ticket,
   UserCog,
 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 interface Department { id: string; code: string; name: string; headcount: number; manager: string }
 interface Role { id: string; code: string; name: string; department: string; baseSalary: number }
@@ -46,13 +58,39 @@ async function fetchMasterData(): Promise<MasterData> {
 
 const idr = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
 
+// Filters a tab's rows by a free-text query against every string/number field,
+// so one shared search box works across all the heterogeneous tables.
+function searchRows<T>(items: T[], query: string): T[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return items;
+  return items.filter((row) =>
+    Object.values(row as Record<string, unknown>).some(
+      (v) => (typeof v === 'string' || typeof v === 'number') && String(v).toLowerCase().includes(q),
+    ),
+  );
+}
+
 export function MasterDataRoute() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'master-data'], queryFn: fetchMasterData });
+  const [tab, setTab] = useState('departments');
+  const [query, setQuery] = useState('');
+
+  const noMatch = useMemo(
+    () => (
+      <EmptyState
+        icon={SearchX}
+        title={t('admin.common.noMatches')}
+        description={t('admin.common.noMatchesHint')}
+      />
+    ),
+    [t],
+  );
 
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   const fmt = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' });
+  const rows = <T,>(items: T[]) => searchRows(items, query);
 
   return (
     <div className="space-y-6">
@@ -61,7 +99,21 @@ export function MasterDataRoute() {
         <p className="mt-1 text-sm text-muted-foreground">{t('admin.masterData.subtitle')}</p>
       </header>
 
-      <Tabs defaultValue="departments">
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        onClear={() => setQuery('')}
+      />
+
+      <Tabs
+        value={tab}
+        defaultValue="departments"
+        onValueChange={(v) => {
+          setTab(v);
+          setQuery('');
+        }}
+      >
         <TabsList className="flex-wrap">
           <TabsTrigger value="departments" icon={<Building2 className="h-3.5 w-3.5" />} count={data.departments.length}>Departments</TabsTrigger>
           <TabsTrigger value="roles" icon={<UserCog className="h-3.5 w-3.5" />} count={data.roles.length}>Roles</TabsTrigger>
@@ -76,8 +128,12 @@ export function MasterDataRoute() {
         </TabsList>
 
         <TabsContent value="departments">
-          <Table headers={['Code', 'Name', 'Manager', 'Headcount']}>
-            {data.departments.map((d, i) => (
+          <Table
+            headers={['Code', 'Name', 'Manager', 'Headcount']}
+            empty={noMatch}
+            isEmpty={rows(data.departments).length === 0}
+          >
+            {rows(data.departments).map((d, i) => (
               <Row key={d.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{d.code}</td>
                 <td className="px-6 py-3 font-medium">{d.name}</td>
@@ -89,8 +145,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="roles">
-          <Table headers={['Code', 'Role', 'Department', 'Base salary']}>
-            {data.roles.map((r, i) => (
+          <Table
+            headers={['Code', 'Role', 'Department', 'Base salary']}
+            empty={noMatch}
+            isEmpty={rows(data.roles).length === 0}
+          >
+            {rows(data.roles).map((r, i) => (
               <Row key={r.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{r.code}</td>
                 <td className="px-6 py-3 font-medium">{r.name}</td>
@@ -102,8 +162,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="tiers">
-          <Table headers={['Code', 'Tier', 'Price', 'Visits', 'Validity']}>
-            {data.tiers.map((tier, i) => (
+          <Table
+            headers={['Code', 'Tier', 'Price', 'Visits', 'Validity']}
+            empty={noMatch}
+            isEmpty={rows(data.tiers).length === 0}
+          >
+            {rows(data.tiers).map((tier, i) => (
               <Row key={tier.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{tier.code}</td>
                 <td className="px-6 py-3 font-medium">{tier.name}</td>
@@ -116,8 +180,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="enclosures">
-          <Table headers={['Code', 'Enclosure', 'Capacity', 'Occupants', 'Last inspection']}>
-            {data.enclosures.map((e, i) => (
+          <Table
+            headers={['Code', 'Enclosure', 'Capacity', 'Occupants', 'Last inspection']}
+            empty={noMatch}
+            isEmpty={rows(data.enclosures).length === 0}
+          >
+            {rows(data.enclosures).map((e, i) => (
               <Row key={e.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{e.code}</td>
                 <td className="px-6 py-3 font-medium">{e.name}</td>
@@ -134,8 +202,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="locations">
-          <Table headers={['Code', 'Park', 'Address', 'Timezone', 'Active gates', 'Manager']}>
-            {data.locations.map((l, i) => (
+          <Table
+            headers={['Code', 'Park', 'Address', 'Timezone', 'Active gates', 'Manager']}
+            empty={noMatch}
+            isEmpty={rows(data.locations).length === 0}
+          >
+            {rows(data.locations).map((l, i) => (
               <Row key={l.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{l.code}</td>
                 <td className="px-6 py-3 font-medium">{l.name}</td>
@@ -149,8 +221,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="species">
-          <Table headers={['Code', 'Common name', 'Scientific name', 'IUCN', 'Count']}>
-            {data.species.map((s, i) => (
+          <Table
+            headers={['Code', 'Common name', 'Scientific name', 'IUCN', 'Count']}
+            empty={noMatch}
+            isEmpty={rows(data.species).length === 0}
+          >
+            {rows(data.species).map((s, i) => (
               <Row key={s.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{s.code}</td>
                 <td className="px-6 py-3 font-medium">{s.name}</td>
@@ -169,8 +245,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="sponsors">
-          <Table headers={['Code', 'Sponsor', 'Category', 'Tier', 'Contract ends']}>
-            {data.sponsors.map((s, i) => (
+          <Table
+            headers={['Code', 'Sponsor', 'Category', 'Tier', 'Contract ends']}
+            empty={noMatch}
+            isEmpty={rows(data.sponsors).length === 0}
+          >
+            {rows(data.sponsors).map((s, i) => (
               <Row key={s.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{s.code}</td>
                 <td className="px-6 py-3 font-medium">{s.name}</td>
@@ -185,8 +265,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="taxes">
-          <Table headers={['Code', 'Name', 'Rate', 'Applies to']}>
-            {data.taxes.map((tax, i) => (
+          <Table
+            headers={['Code', 'Name', 'Rate', 'Applies to']}
+            empty={noMatch}
+            isEmpty={rows(data.taxes).length === 0}
+          >
+            {rows(data.taxes).map((tax, i) => (
               <Row key={tax.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{tax.code}</td>
                 <td className="px-6 py-3 font-medium">{tax.name}</td>
@@ -198,8 +282,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="payment">
-          <Table headers={['Code', 'Method', 'Fee', 'Settlement']}>
-            {data.paymentMethods.map((p, i) => (
+          <Table
+            headers={['Code', 'Method', 'Fee', 'Settlement']}
+            empty={noMatch}
+            isEmpty={rows(data.paymentMethods).length === 0}
+          >
+            {rows(data.paymentMethods).map((p, i) => (
               <Row key={p.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{p.code}</td>
                 <td className="px-6 py-3 font-medium">{p.name}</td>
@@ -211,8 +299,12 @@ export function MasterDataRoute() {
         </TabsContent>
 
         <TabsContent value="templates">
-          <Table headers={['Code', 'Name', 'Channel', 'Last edited']}>
-            {data.notificationTemplates.map((tpl, i) => (
+          <Table
+            headers={['Code', 'Name', 'Channel', 'Last edited']}
+            empty={noMatch}
+            isEmpty={rows(data.notificationTemplates).length === 0}
+          >
+            {rows(data.notificationTemplates).map((tpl, i) => (
               <Row key={tpl.id} index={i}>
                 <td className="px-6 py-3 font-mono text-xs">{tpl.code}</td>
                 <td className="px-6 py-3 font-medium">{tpl.name}</td>
@@ -229,20 +321,34 @@ export function MasterDataRoute() {
   );
 }
 
-function Table({ headers, children }: { headers: string[]; children: React.ReactNode }) {
+function Table({
+  headers,
+  empty,
+  isEmpty,
+  children,
+}: {
+  headers: string[];
+  empty: React.ReactNode;
+  isEmpty: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <Card>
       <CardContent className="overflow-x-auto p-0">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
-              {headers.map((h) => (
-                <th key={h} className="px-6 py-3 font-medium">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>{children}</tbody>
-        </table>
+        {isEmpty ? (
+          empty
+        ) : (
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
+                {headers.map((h) => (
+                  <th key={h} className="px-6 py-3 font-medium">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>{children}</tbody>
+          </table>
+        )}
       </CardContent>
     </Card>
   );

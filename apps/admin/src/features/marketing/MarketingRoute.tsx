@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { MailOpen, MousePointer, Send, Target } from 'lucide-react';
+import { MailOpen, MousePointer, SearchX, Send, Target } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Area,
@@ -52,10 +53,44 @@ const statusVariant = {
   completed: 'secondary',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function MarketingRoute() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'marketing'], queryFn: fetchMarketing });
+
+  const [query, setQuery] = useState('');
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+  const [channelSelected, setChannelSelected] = useState<string[]>([]);
+
+  const campaigns = data?.campaigns ?? [];
+
+  const counts = useMemo(() => {
+    const c = { status: new Map<string, number>(), channel: new Map<string, number>() };
+    for (const cm of campaigns) {
+      c.status.set(cm.status, (c.status.get(cm.status) ?? 0) + 1);
+      c.channel.set(cm.channel, (c.channel.get(cm.channel) ?? 0) + 1);
+    }
+    return c;
+  }, [campaigns]);
+
+  const filtered = useMemo(() => {
+    return campaigns.filter((cm) => {
+      if (statusSelected.length && !statusSelected.includes(cm.status)) return false;
+      if (channelSelected.length && !channelSelected.includes(cm.channel)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !cm.name.toLowerCase().includes(q) &&
+          !cm.id.toLowerCase().includes(q) &&
+          !cm.audience.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [campaigns, query, statusSelected, channelSelected]);
 
   if (isError)
     return (
@@ -113,11 +148,53 @@ export function MarketingRoute() {
         </CardContent>
       </Card>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.status.get(value),
+            })),
+          },
+          {
+            key: 'channel',
+            label: t('admin.filters.channel') as string,
+            selected: channelSelected,
+            onChange: setChannelSelected,
+            options: [...counts.channel.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.channel.get(value),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setStatusSelected([]);
+          setChannelSelected([]);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Campaigns</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          ) : (
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -133,7 +210,7 @@ export function MarketingRoute() {
               </tr>
             </thead>
             <tbody>
-              {data.campaigns.map((c, i) => (
+              {filtered.map((c, i) => (
                 <motion.tr
                   key={c.id}
                   initial={{ opacity: 0, y: 4 }}
@@ -170,6 +247,7 @@ export function MarketingRoute() {
               ))}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

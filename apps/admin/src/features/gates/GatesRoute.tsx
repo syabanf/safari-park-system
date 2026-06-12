@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, EmptyState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Activity, DoorOpen, Wifi, WifiOff } from 'lucide-react';
+import { Activity, DoorOpen, SearchX, Wifi, WifiOff } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GateMap } from '@/features/gate-map/GateMap';
 import { api } from '@/lib/api';
@@ -33,9 +34,35 @@ const statusVariant = {
   degraded: 'warning',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function GatesRoute() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'gates'], queryFn: fetchGates });
+
+  const [query, setQuery] = useState('');
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const counts = useMemo(() => {
+    const c = { status: new Map<string, number>() };
+    for (const g of data ?? []) {
+      c.status.set(g.status, (c.status.get(g.status) ?? 0) + 1);
+    }
+    return c;
+  }, [data]);
+
+  const filtered = useMemo(
+    () =>
+      (data ?? []).filter((g) => {
+        if (statusSelected.length && !statusSelected.includes(g.status)) return false;
+        if (query) {
+          const q = query.toLowerCase();
+          if (!g.location.toLowerCase().includes(q) && !g.id.toLowerCase().includes(q)) return false;
+        }
+        return true;
+      }),
+    [data, query, statusSelected],
+  );
 
   return (
     <div className="space-y-6">
@@ -46,11 +73,36 @@ export function GatesRoute() {
 
       <GateMap />
 
-      {isLoading || !data ? (
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: Array.from(counts.status.entries()).map(([value, count]) => ({
+              value,
+              label: humanize(value),
+              count,
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setStatusSelected([]);
+        }}
+      />
+
+      {isLoading ? (
         <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>
+      ) : filtered.length === 0 ? (
+        <EmptyState icon={SearchX} title={t('admin.common.noMatches')} description={t('admin.common.noMatchesHint')} />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {data.map((gate, idx) => {
+          {filtered.map((gate, idx) => {
             const Icon = statusIcon[gate.status];
             return (
               <motion.div

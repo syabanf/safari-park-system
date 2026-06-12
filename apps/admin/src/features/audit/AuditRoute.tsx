@@ -88,7 +88,7 @@ export function AuditRoute() {
         multiSelect={[
           {
             key: 'level',
-            label: 'Level',
+            label: t('admin.filters.severity') as string,
             selected: levelSelected,
             onChange: setLevelSelected,
             options: ['info', 'warn', 'error'].map((v) => ({
@@ -97,9 +97,9 @@ export function AuditRoute() {
               count: counts.level.get(v),
             })),
           },
-          { key: 'actor', label: 'Actor', selected: actorSelected, onChange: setActorSelected, options: actorOptions },
+          { key: 'actor', label: t('admin.filters.role') as string, selected: actorSelected, onChange: setActorSelected, options: actorOptions },
         ]}
-        dateRange={{ key: 'timestamp', label: 'When', value: dateRange, onChange: setDateRange }}
+        dateRange={{ key: 'timestamp', label: t('admin.filters.date') as string, value: dateRange, onChange: setDateRange }}
         onClear={() => {
           setQuery('');
           setLevelSelected([]);

@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, EmptyState } from '@tsi/ui';
 import { motion } from 'framer-motion';
+import { SearchX } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 
 interface GapEntry {
@@ -23,9 +25,36 @@ const statusVariant = {
   mitigated: 'success',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function GapRegisterRoute() {
   const { t } = useTranslation();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'gap-register'], queryFn: fetchGaps });
+  const [query, setQuery] = useState('');
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const statusCounts = useMemo(() => {
+    const c = new Map<string, number>();
+    for (const g of data ?? []) c.set(g.status, (c.get(g.status) ?? 0) + 1);
+    return c;
+  }, [data]);
+
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    return data.filter((g) => {
+      if (statusSelected.length && !statusSelected.includes(g.status)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !g.gap.toLowerCase().includes(q) &&
+          !g.impact.toLowerCase().includes(q) &&
+          !g.id.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [data, query, statusSelected]);
 
   return (
     <div className="space-y-6">
@@ -34,10 +63,39 @@ export function GapRegisterRoute() {
         <p className="mt-1 text-sm text-muted-foreground">{t('admin.gapRegister.subtitle')}</p>
       </div>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...statusCounts.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: statusCounts.get(value),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setStatusSelected([]);
+        }}
+      />
+
       <Card>
         <CardContent className="overflow-x-auto p-0">
           {isLoading || !data ? (
             <div className="p-6 text-sm text-muted-foreground">{t('admin.common.loading')}</div>
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
           ) : (
             <table className="min-w-full text-sm">
               <thead>
@@ -50,7 +108,7 @@ export function GapRegisterRoute() {
                 </tr>
               </thead>
               <tbody>
-                {data.map((gap, idx) => (
+                {filtered.map((gap, idx) => (
                   <motion.tr
                     key={gap.id}
                     initial={{ opacity: 0, y: 4 }}

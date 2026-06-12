@@ -314,6 +314,24 @@
       "errorTitle": "Couldn't load data",
       "errorHint": "We couldn't load this just now. Please try again.",
       "retry": "Try again"
+    },
+    "filters": {
+      "search": "Search…",
+      "status": "Status",
+      "type": "Type",
+      "category": "Category",
+      "severity": "Severity",
+      "priority": "Priority",
+      "location": "Location",
+      "department": "Department",
+      "channel": "Channel",
+      "role": "Role",
+      "tier": "Tier",
+      "vendor": "Vendor",
+      "species": "Species",
+      "gate": "Gate",
+      "date": "Date",
+      "clearAll": "Clear all"
     }
   }
 }

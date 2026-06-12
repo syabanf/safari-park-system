@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Clock, Wrench } from 'lucide-react';
+import { CheckCircle2, Clock, SearchX, Wrench } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface MaintenanceTicket {
@@ -37,12 +38,46 @@ const statusVariant: Record<MaintenanceTicket['status'], 'secondary' | 'warning'
   resolved: 'success',
 };
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function MaintenanceRoute() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'maintenance'],
     queryFn: fetchTickets,
   });
+
+  const [query, setQuery] = useState('');
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+  const [severitySelected, setSeveritySelected] = useState<string[]>([]);
+
+  const tickets = useMemo(() => data ?? [], [data]);
+
+  const counts = useMemo(() => {
+    const c = { status: new Map<string, number>(), severity: new Map<string, number>() };
+    for (const ticket of tickets) {
+      c.status.set(ticket.status, (c.status.get(ticket.status) ?? 0) + 1);
+      c.severity.set(ticket.severity, (c.severity.get(ticket.severity) ?? 0) + 1);
+    }
+    return c;
+  }, [tickets]);
+
+  const filtered = useMemo(() => {
+    return tickets.filter((ticket) => {
+      if (statusSelected.length && !statusSelected.includes(ticket.status)) return false;
+      if (severitySelected.length && !severitySelected.includes(ticket.severity)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !ticket.title.toLowerCase().includes(q) &&
+          !ticket.id.toLowerCase().includes(q) &&
+          !ticket.gateLabel.toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [tickets, query, statusSelected, severitySelected]);
 
   const formatter = new Intl.DateTimeFormat(i18n.language, {
     dateStyle: 'medium',
@@ -71,11 +106,53 @@ export function MaintenanceRoute() {
         <TileCard label="MTTR" value="6h 12m" />
       </div>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.filters.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: [...counts.status.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.status.get(value),
+            })),
+          },
+          {
+            key: 'severity',
+            label: t('admin.filters.severity') as string,
+            selected: severitySelected,
+            onChange: setSeveritySelected,
+            options: [...counts.severity.keys()].map((value) => ({
+              value,
+              label: humanize(value),
+              count: counts.severity.get(value),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setStatusSelected([]);
+          setSeveritySelected([]);
+        }}
+      />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Tickets</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
+          ) : (
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -88,7 +165,7 @@ export function MaintenanceRoute() {
               </tr>
             </thead>
             <tbody>
-              {data.map((ticket, i) => (
+              {filtered.map((ticket, i) => (
                 <motion.tr
                   key={ticket.id}
                   initial={{ opacity: 0, y: 4 }}
@@ -121,6 +198,7 @@ export function MaintenanceRoute() {
               ))}
             </tbody>
           </table>
+          )}
         </CardContent>
       </Card>
     </div>

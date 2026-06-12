@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState, Input } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Search, SearchX } from 'lucide-react';
+import { SearchX } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
@@ -59,18 +59,35 @@ export function PassesRoute() {
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'passes'], queryFn: fetchPasses });
   const membersQ = useQuery({ queryKey: ['admin', 'members'], queryFn: fetchMembers });
   const [query, setQuery] = useState('');
+  const [tierSelected, setTierSelected] = useState<string[]>([]);
+  const [statusSelected, setStatusSelected] = useState<string[]>([]);
+
+  const counts = useMemo(() => {
+    const c = { tier: new Map<string, number>(), status: new Map<string, number>() };
+    for (const m of membersQ.data ?? []) {
+      c.tier.set(m.tier, (c.tier.get(m.tier) ?? 0) + 1);
+      c.status.set(m.status, (c.status.get(m.status) ?? 0) + 1);
+    }
+    return c;
+  }, [membersQ.data]);
 
   const filtered = useMemo(() => {
     const members = membersQ.data ?? [];
-    if (!query) return members;
-    const q = query.toLowerCase();
-    return members.filter(
-      (m) =>
-        m.fullName.toLowerCase().includes(q) ||
-        m.email.toLowerCase().includes(q) ||
-        passIdFor(m.id).toLowerCase().includes(q),
-    );
-  }, [membersQ.data, query]);
+    return members.filter((m) => {
+      if (tierSelected.length && !tierSelected.includes(m.tier)) return false;
+      if (statusSelected.length && !statusSelected.includes(m.status)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (
+          !m.fullName.toLowerCase().includes(q) &&
+          !m.email.toLowerCase().includes(q) &&
+          !passIdFor(m.id).toLowerCase().includes(q)
+        )
+          return false;
+      }
+      return true;
+    });
+  }, [membersQ.data, query, tierSelected, statusSelected]);
 
   if (isError) {
     return (
@@ -162,18 +179,44 @@ export function PassesRoute() {
         </Card>
       </div>
 
+      <AdvancedFilters
+        searchPlaceholder={t('admin.passes.search') as string}
+        searchValue={query}
+        onSearchChange={setQuery}
+        multiSelect={[
+          {
+            key: 'tier',
+            label: t('admin.filters.tier') as string,
+            selected: tierSelected,
+            onChange: setTierSelected,
+            options: (['adult', 'child', 'senior', 'family'] as const).map((v) => ({
+              value: v,
+              label: t(`pass.tier.${v}`),
+              count: counts.tier.get(v),
+            })),
+          },
+          {
+            key: 'status',
+            label: t('admin.filters.status') as string,
+            selected: statusSelected,
+            onChange: setStatusSelected,
+            options: (['active', 'expired', 'suspended', 'pending'] as const).map((v) => ({
+              value: v,
+              label: t(`pass.status.${v}`),
+              count: counts.status.get(v),
+            })),
+          },
+        ]}
+        onClear={() => {
+          setQuery('');
+          setTierSelected([]);
+          setStatusSelected([]);
+        }}
+      />
+
       <Card>
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <CardHeader>
           <CardTitle className="text-base">{t('admin.passes.listTitle')}</CardTitle>
-          <div className="relative w-full sm:w-72">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('admin.passes.search') as string}
-              className="pl-9"
-            />
-          </div>
         </CardHeader>
         <CardContent className="overflow-x-auto p-0">
           {membersQ.isLoading ? (

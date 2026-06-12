@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, Tabs, TabsContent, TabsList, TabsTrigger } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, Tabs, TabsContent, TabsList, TabsTrigger } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { CalendarClock, ChevronLeft, ChevronRight, Clock, Repeat, Users, type LucideIcon } from 'lucide-react';
+import { CalendarClock, ChevronLeft, ChevronRight, Clock, Repeat, SearchX, Users, type LucideIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 interface Roster {
   weekStart: string;
@@ -64,11 +65,37 @@ const swapVariant = {
   completed: 'secondary',
 } as const;
 
+const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
 export function ShiftsRoute() {
   const { t, i18n } = useTranslation();
   const rosterQ = useQuery({ queryKey: ['admin', 'shifts', 'roster'], queryFn: fetchRoster });
   const swapsQ = useQuery({ queryKey: ['admin', 'shifts', 'swaps'], queryFn: fetchSwaps });
   const coverageQ = useQuery({ queryKey: ['admin', 'shifts', 'coverage'], queryFn: fetchCoverage });
+  const [query, setQuery] = useState('');
+  const [roleSelected, setRoleSelected] = useState<string[]>([]);
+  const [gateSelected, setGateSelected] = useState<string[]>([]);
+
+  const counts = useMemo(() => {
+    const c = { role: new Map<string, number>(), gate: new Map<string, number>() };
+    for (const row of rosterQ.data?.rows ?? []) {
+      c.role.set(row.role, (c.role.get(row.role) ?? 0) + 1);
+      c.gate.set(row.gate, (c.gate.get(row.gate) ?? 0) + 1);
+    }
+    return c;
+  }, [rosterQ.data]);
+
+  const filteredRows = useMemo(() => {
+    return (rosterQ.data?.rows ?? []).filter((row) => {
+      if (roleSelected.length && !roleSelected.includes(row.role)) return false;
+      if (gateSelected.length && !gateSelected.includes(row.gate)) return false;
+      if (query) {
+        const q = query.toLowerCase();
+        if (!row.name.toLowerCase().includes(q) && !row.role.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+  }, [rosterQ.data, query, roleSelected, gateSelected]);
 
   if (rosterQ.isLoading || !rosterQ.data) {
     return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
@@ -127,7 +154,49 @@ export function ShiftsRoute() {
                 </button>
               </div>
             </CardHeader>
-            <CardContent className="overflow-x-auto p-0">
+            <CardContent className="space-y-3 p-3">
+              <AdvancedFilters
+                searchPlaceholder={t('admin.filters.search') as string}
+                searchValue={query}
+                onSearchChange={setQuery}
+                multiSelect={[
+                  {
+                    key: 'role',
+                    label: t('admin.filters.role') as string,
+                    selected: roleSelected,
+                    onChange: setRoleSelected,
+                    options: [...counts.role.keys()].map((v) => ({
+                      value: v,
+                      label: humanize(v),
+                      count: counts.role.get(v),
+                    })),
+                  },
+                  {
+                    key: 'gate',
+                    label: t('admin.filters.gate') as string,
+                    selected: gateSelected,
+                    onChange: setGateSelected,
+                    options: [...counts.gate.keys()].map((v) => ({
+                      value: v,
+                      label: humanize(v),
+                      count: counts.gate.get(v),
+                    })),
+                  },
+                ]}
+                onClear={() => {
+                  setQuery('');
+                  setRoleSelected([]);
+                  setGateSelected([]);
+                }}
+              />
+              {filteredRows.length === 0 ? (
+                <EmptyState
+                  icon={SearchX}
+                  title={t('admin.common.noMatches')}
+                  description={t('admin.common.noMatchesHint')}
+                />
+              ) : (
+              <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -139,7 +208,7 @@ export function ShiftsRoute() {
                   </tr>
                 </thead>
                 <tbody>
-                  {r.rows.map((row, i) => (
+                  {filteredRows.map((row, i) => (
                     <motion.tr
                       key={row.name}
                       initial={{ opacity: 0, y: 4 }}
@@ -163,6 +232,8 @@ export function ShiftsRoute() {
                   ))}
                 </tbody>
               </table>
+              </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
