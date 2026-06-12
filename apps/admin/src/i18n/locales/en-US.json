@@ -156,7 +156,40 @@
     "reports": {
       "title": "Reports",
       "subtitle": "Scheduled, on-demand, and archived operational reports",
-      "demoBuild": "Demo build"
+      "demoBuild": "Demo build",
+      "tabs": {
+        "scheduled": "Scheduled",
+        "quick": "Quick reports",
+        "archive": "Archive"
+      },
+      "lastRun": "Last run",
+      "nextRun": "Next run",
+      "recipients": "To",
+      "latest": "Latest",
+      "configure": "Configure",
+      "generate": "Generate now",
+      "generated": "Generated",
+      "download": "Download",
+      "minutes": "~{{n}} min",
+      "cols": {
+        "report": "Report",
+        "category": "Category",
+        "format": "Format",
+        "size": "Size",
+        "generated": "Generated",
+        "action": "Action"
+      },
+      "status": {
+        "healthy": "Healthy",
+        "atRisk": "At risk",
+        "failing": "Failing"
+      },
+      "categories": {
+        "operational": "Operational",
+        "finance": "Finance",
+        "marketing": "Marketing",
+        "compliance": "Compliance"
+      }
     },
     "analytics": {
       "title": "Analytics",

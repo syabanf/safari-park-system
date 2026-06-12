@@ -156,7 +156,40 @@
     "reports": {
       "title": "Laporan",
       "subtitle": "Laporan operasional terjadwal, sesuai permintaan, dan arsip",
-      "demoBuild": "Build demo"
+      "demoBuild": "Build demo",
+      "tabs": {
+        "scheduled": "Terjadwal",
+        "quick": "Cepat",
+        "archive": "Arsip"
+      },
+      "lastRun": "Terakhir dijalankan",
+      "nextRun": "Jadwal berikutnya",
+      "recipients": "Ke",
+      "latest": "Terbaru",
+      "configure": "Atur",
+      "generate": "Buat sekarang",
+      "generated": "Selesai dibuat",
+      "download": "Unduh",
+      "minutes": "~{{n}} mnt",
+      "cols": {
+        "report": "Laporan",
+        "category": "Kategori",
+        "format": "Format",
+        "size": "Ukuran",
+        "generated": "Dibuat",
+        "action": "Aksi"
+      },
+      "status": {
+        "healthy": "Sehat",
+        "atRisk": "Berisiko",
+        "failing": "Bermasalah"
+      },
+      "categories": {
+        "operational": "Operasional",
+        "finance": "Keuangan",
+        "marketing": "Pemasaran",
+        "compliance": "Kepatuhan"
+      }
     },
     "analytics": {
       "title": "Analitik",
