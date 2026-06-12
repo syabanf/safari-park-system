@@ -1,7 +1,7 @@
 import { api } from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Button, Card, CardContent, Skeleton } from '@tsi/ui';
+import { Badge, Button, Card, CardContent, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { Coffee, LogIn, LogOut } from 'lucide-react';
 
@@ -41,7 +41,7 @@ async function fetchAttendance(): Promise<AttendanceData> {
 export function AttendanceRoute() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ['attendance'], queryFn: fetchAttendance });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['attendance'], queryFn: fetchAttendance });
 
   const clockIn = useMutation({
     mutationFn: () => api.http.post('validator/attendance/clock-in').json(),
@@ -52,6 +52,17 @@ export function AttendanceRoute() {
     mutationFn: () => api.http.post('validator/attendance/clock-out').json(),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['attendance'] }),
   });
+
+  if (isError) {
+    return (
+      <ErrorState
+        title={t('validator.common.error')}
+        description={t('validator.common.errorHint')}
+        retryLabel={t('validator.common.retry')}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
 
   if (isLoading || !data) {
     return (

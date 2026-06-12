@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { Activity, AlertCircle, DollarSign, Users } from 'lucide-react';
 import {
@@ -46,8 +46,19 @@ const tierColors = ['#287338', '#5bac6a', '#b08754', '#d4be96'];
 
 export function OverviewRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'overview'], queryFn: fetchOverview });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'overview'], queryFn: fetchOverview });
   const displayName = useAuthStore((s) => s.displayName);
+
+  if (isError) {
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
+  }
 
   if (isLoading || !data) {
     return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;

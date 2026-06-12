@@ -60,10 +60,8 @@ export function MaintenanceRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Maintenance</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Field tickets, preventive schedule, and gate hardware health
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.maintenance.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.maintenance.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">

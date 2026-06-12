@@ -51,8 +51,8 @@ export function AnimalsRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Animals</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Welfare records, conservation status, enclosures</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.animals.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.animals.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">

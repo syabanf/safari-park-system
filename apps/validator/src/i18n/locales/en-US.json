@@ -1,11 +1,24 @@
 {
   "validator": {
+    "common": {
+      "online": "Online",
+      "offline": "Offline",
+      "error": "Couldn't load",
+      "errorHint": "We couldn't load this just now. Please try again.",
+      "retry": "Try again"
+    },
+    "topbar": {
+      "title": "Gate Console"
+    },
     "login": {
       "title": "Gate staff sign-in",
       "usernameLabel": "Username",
       "pinLabel": "PIN",
       "gateLabel": "Gate ID",
-      "submit": "Sign in"
+      "submit": "Sign in",
+      "personas": "Demo personas",
+      "personasHint": "One-tap sign-in for shift demos",
+      "switchApp": "Switch to another app"
     },
     "scan": {
       "title": "Scanner",
@@ -16,6 +29,7 @@
       "console": "Gate Console",
       "shift": "Shift",
       "today": "Today",
+      "manual": "Manual",
       "gate": "Gate"
     },
     "result": {
@@ -25,13 +39,29 @@
       "offlineHint": "Offline — confirmation pending",
       "allow": "Allow",
       "deny": "Deny",
-      "next": "Next scan"
+      "next": "Next scan",
+      "passId": "Pass ID",
+      "reason": {
+        "malformed": "QR code is damaged or invalid",
+        "unknown-kid": "Unknown signing key",
+        "not-yet-valid": "Code is not valid yet",
+        "expired": "Code has expired",
+        "jti-replay": "Code has already been used",
+        "signature-invalid": "Signature is invalid",
+        "keys-not-loaded": "Keys not loaded yet",
+        "suspended": "Pass is suspended",
+        "visits-exhausted": "Visit quota exhausted",
+        "wrong-gate": "Pass not valid at this gate",
+        "unknown": "Verification denied"
+      }
     },
     "manual": {
       "title": "Manual entry",
       "subtitle": "Use this if the QR is damaged",
       "passIdLabel": "Annual Pass ID",
-      "submit": "Verify"
+      "submit": "Verify",
+      "error": "Couldn't submit entry. Please try again.",
+      "buffered": "No network — entry buffered to sync later."
     },
     "recent": {
       "title": "Recent scans",
@@ -40,9 +70,53 @@
     },
     "queue": {
       "title": "Offline queue",
+      "subtitle": "Buffered scans sync automatically when online — process in batches if backlog grows",
       "pending": "{{count}} pending sync",
       "empty": "No queue",
-      "retry": "Retry now"
+      "emptyView": "No items in this view",
+      "emptyHintPending": "Scans buffered offline will appear here",
+      "emptyHintOther": "Try a different filter or seed demo data",
+      "retry": "Retry now",
+      "stat": {
+        "pending": "Pending",
+        "failed": "Failed",
+        "synced": "Synced",
+        "total": "Total"
+      },
+      "filter": {
+        "pending": "Pending",
+        "failed": "Failed",
+        "synced": "Synced",
+        "all": "All"
+      },
+      "status": {
+        "pending": "pending",
+        "syncing": "syncing",
+        "synced": "synced",
+        "failed": "failed"
+      },
+      "processing": "Processing",
+      "paused": "Paused",
+      "okCount": "{{count}} ok",
+      "failedCount": "{{count}} failed",
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel",
+      "chunkedNote": "Chunked {{size}} at a time · {{batches}} batches left",
+      "chunk": "Chunk",
+      "selectVisible": "Select all visible ({{count}})",
+      "selectFailed": "Select failed ({{count}})",
+      "clearSelection": "Clear ({{count}})",
+      "autoRetry": "Auto-retry when online",
+      "simulateFailures": "Simulate failures",
+      "processAll": "Process all ({{count}})",
+      "processSelected": "Process selected ({{count}})",
+      "retryFailed": "Retry failed ({{count}})",
+      "seedDemo": "Seed 20 demo rows",
+      "clearSynced": "Clear synced",
+      "attempts": "{{count}} attempts",
+      "rowRetry": "Retry",
+      "showingFirst": "Showing first 200 of {{total}} — narrow the filter or process some"
     },
     "nav": {
       "scan": "Scan",
@@ -74,6 +148,7 @@
       "shift": "Shift",
       "thisShift": "This shift",
       "thisWeek": "This week",
+      "avgHour": "Avg / hour",
       "streak": "Flawless shifts streak",
       "achievements": "Achievements",
       "quickLinks": "Quick links",

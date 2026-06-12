@@ -14,7 +14,7 @@ interface DiscoverItem {
 
 const items: DiscoverItem[] = [
   { to: '/events', labelKey: 'discover.events', icon: CalendarDays, accent: 'brand' },
-  { to: '/promotions', labelKey: 'Promotions', icon: Gift, accent: 'rose' },
+  { to: '/promotions', labelKey: 'discover.promotions', icon: Gift, accent: 'rose' },
   { to: '/perks', labelKey: 'discover.perks', icon: Sparkles, accent: 'earth' },
   { to: '/map', labelKey: 'discover.map', icon: MapPin, accent: 'brand' },
   { to: '/notifications', labelKey: 'notifications.title', icon: Newspaper, accent: 'slate' },
@@ -60,7 +60,7 @@ export function DiscoverRoute() {
                     </div>
                     <p className="mt-3 text-sm font-semibold">{t(item.labelKey)}</p>
                     <div className="mt-2 flex items-center gap-0.5 text-xs text-brand-700">
-                      Explore
+                      {t('discover.explore')}
                       <ArrowRight className="h-3 w-3" />
                     </div>
                   </CardContent>

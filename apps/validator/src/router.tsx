@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter, createHashRouter } from 'react-router-do
 import { AppShell } from './components/layout/AppShell';
 import { AttendanceRoute } from './features/attendance/AttendanceRoute';
 import { LoginRoute } from './features/auth/LoginRoute';
+import { RequireAuth } from './features/auth/RequireAuth';
 import { ManualEntryRoute } from './features/manual-entry/ManualEntryRoute';
 import { OfflineQueueRoute } from './features/offline-queue/OfflineQueueRoute';
 import { ProfileRoute } from './features/profile/ProfileRoute';
@@ -24,7 +25,11 @@ export const router = factory(
   { path: '/', element: <Navigate to="/scan" replace /> },
   { path: '/login', element: <LoginRoute /> },
   {
-    element: <AppShell />,
+    element: (
+      <RequireAuth>
+        <AppShell />
+      </RequireAuth>
+    ),
     children: [
       { path: '/scan', element: <ScanRoute /> },
       { path: '/manual', element: <ManualEntryRoute /> },

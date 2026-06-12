@@ -2,7 +2,7 @@ import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { endpoints, queryKeys } from '@tsi/api-client';
 import { useTranslation } from '@tsi/i18n';
-import { AnnualPassArt, Card, CardContent, Skeleton } from '@tsi/ui';
+import { AnnualPassArt, Card, CardContent, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import {
   Camera,
@@ -67,13 +67,27 @@ export function ProfileRoute() {
   const pass = passQuery.data;
   const extras = extrasQuery.data;
 
-  if (memberQuery.isLoading || passQuery.isLoading || !member) {
+  if (memberQuery.isLoading || passQuery.isLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-44 w-full rounded-3xl" />
         <Skeleton className="h-24 w-full rounded-2xl" />
         <Skeleton className="h-40 w-full rounded-2xl" />
       </div>
+    );
+  }
+
+  if (memberQuery.isError || passQuery.isError || !member) {
+    return (
+      <ErrorState
+        title={t('common.errorTitle')}
+        description={t('common.errorHint')}
+        onRetry={() => {
+          memberQuery.refetch();
+          passQuery.refetch();
+        }}
+        retryLabel={t('common.retry')}
+      />
     );
   }
 
@@ -164,7 +178,6 @@ export function ProfileRoute() {
                       <p className="truncate text-xs text-muted-foreground">{v.activity}</p>
                     </div>
                     <span className="shrink-0 text-xs text-muted-foreground">{fmtDate.format(new Date(v.date))}</span>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                   </CardContent>
                 </Card>
               </motion.div>

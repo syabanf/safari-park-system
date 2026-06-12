@@ -93,24 +93,50 @@
       "profile": "Profile"
     }
   },
+  "common": {
+    "errorTitle": "Couldn't load",
+    "errorHint": "We couldn't load this just now. Please try again.",
+    "retry": "Try again"
+  },
   "discover": {
     "title": "Discover",
     "subtitle": "Events, perks, and park info",
     "events": "Events",
+    "promotions": "Promotions",
     "perks": "Member perks",
     "map": "Park info & locations",
-    "news": "News & tips"
+    "news": "News & tips",
+    "explore": "Explore"
   },
   "events": {
     "title": "Events",
     "subtitle": "Upcoming events at the park",
     "empty": "No events yet",
-    "emptyHint": "Exciting events are on the way — stay tuned! 🦁"
+    "emptyHint": "Exciting events are on the way — stay tuned! 🦁",
+    "detail": {
+      "back": "Back to events",
+      "schedule": "Schedule",
+      "requirements": "Requirements",
+      "hostedBy": "Hosted by {{host}}",
+      "booked": "{{booked}} / {{capacity}} booked",
+      "durationMin": "{{minutes}} min",
+      "rsvp": "RSVP — {{count}} spots left",
+      "soldOut": "Sold out",
+      "going": "You're going 🎉"
+    }
   },
   "perks": {
     "title": "Member Perks",
     "subtitle": "Show your QR at checkout to redeem",
-    "validUntil": "Valid until {{date}}"
+    "validUntil": "Valid until {{date}}",
+    "empty": "No perks available"
+  },
+  "promotions": {
+    "back": "Back",
+    "title": "Promotions",
+    "subtitle": "Member-only offers and seasonal deals",
+    "until": "Until {{date}}",
+    "claimed": "Saved ✓"
   },
   "map": {
     "title": "Park Locations",

@@ -66,6 +66,22 @@
   }
 }
 
+/* ─── Reduced motion ───────────────────────────────────────────────
+   Honour the OS "reduce motion" setting. framer-motion's MotionConfig
+   (reducedMotion="user") covers JS-driven animations; this guard
+   neutralises CSS transitions/animations (hovers, recharts, etc.) so
+   the whole console stays calm for users who ask for it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ─── Table polish across the admin ────────────────────────────────
    Applies to every <table class="min-w-full">. Keeps rows readable on
    narrow viewports (compact padding, smaller type, no wrapping so the

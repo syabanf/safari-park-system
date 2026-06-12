@@ -3,7 +3,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useQuery } from '@tanstack/react-query';
 import { endpoints, queryKeys } from '@tsi/api-client';
 import { useTranslation } from '@tsi/i18n';
-import { AnnualPassArt, Skeleton } from '@tsi/ui';
+import { AnnualPassArt, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, QrCode } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -51,7 +51,19 @@ export function HomeRoute() {
 
   const pass = passQuery.data;
   const member = memberQuery.data;
-  if (!pass || !member) return null;
+  if (passQuery.isError || memberQuery.isError || !pass || !member) {
+    return (
+      <ErrorState
+        title={t('common.errorTitle')}
+        description={t('common.errorHint')}
+        onRetry={() => {
+          passQuery.refetch();
+          memberQuery.refetch();
+        }}
+        retryLabel={t('common.retry')}
+      />
+    );
+  }
 
   const validUntil = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' }).format(
     new Date(pass.validUntil),

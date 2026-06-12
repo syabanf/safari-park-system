@@ -1,11 +1,24 @@
 {
   "validator": {
+    "common": {
+      "online": "Online",
+      "offline": "Offline",
+      "error": "Gagal memuat",
+      "errorHint": "Data tidak dapat dimuat saat ini. Coba lagi.",
+      "retry": "Coba lagi"
+    },
+    "topbar": {
+      "title": "Konsol Gerbang"
+    },
     "login": {
       "title": "Masuk staf gerbang",
       "usernameLabel": "Nama pengguna",
       "pinLabel": "PIN",
       "gateLabel": "ID gerbang",
-      "submit": "Masuk"
+      "submit": "Masuk",
+      "personas": "Persona demo",
+      "personasHint": "Masuk satu ketuk untuk demo shift",
+      "switchApp": "Beralih ke aplikasi lain"
     },
     "scan": {
       "title": "Pemindai Kode",
@@ -16,6 +29,7 @@
       "console": "Konsol Gerbang",
       "shift": "Shift",
       "today": "Hari ini",
+      "manual": "Manual",
       "gate": "Gerbang"
     },
     "result": {
@@ -25,13 +39,29 @@
       "offlineHint": "Mode offline — konfirmasi tertunda",
       "allow": "Izinkan",
       "deny": "Tolak",
-      "next": "Pindai berikutnya"
+      "next": "Pindai berikutnya",
+      "passId": "ID Kartu",
+      "reason": {
+        "malformed": "Kode QR rusak atau tidak valid",
+        "unknown-kid": "Kunci penanda tidak dikenal",
+        "not-yet-valid": "Kode belum berlaku",
+        "expired": "Kode sudah kedaluwarsa",
+        "jti-replay": "Kode sudah pernah dipakai",
+        "signature-invalid": "Tanda tangan tidak sah",
+        "keys-not-loaded": "Kunci belum dimuat",
+        "suspended": "Kartu ditangguhkan",
+        "visits-exhausted": "Kuota kunjungan habis",
+        "wrong-gate": "Kartu tidak berlaku di gerbang ini",
+        "unknown": "Verifikasi ditolak"
+      }
     },
     "manual": {
       "title": "Entri Manual",
       "subtitle": "Masukkan ID kartu jika QR rusak",
       "passIdLabel": "ID Annual Pass",
-      "submit": "Verifikasi"
+      "submit": "Verifikasi",
+      "error": "Gagal mengirim entri. Coba lagi.",
+      "buffered": "Tidak ada jaringan — entri disimpan untuk sinkronisasi nanti."
     },
     "recent": {
       "title": "Pindaian Terkini",
@@ -40,9 +70,53 @@
     },
     "queue": {
       "title": "Antrian Offline",
+      "subtitle": "Pindaian buffer tersinkron otomatis saat online — proses per batch jika antrian menumpuk",
       "pending": "{{count}} menunggu sinkronisasi",
       "empty": "Tidak ada antrian",
-      "retry": "Coba sekarang"
+      "emptyView": "Tidak ada item di tampilan ini",
+      "emptyHintPending": "Pindaian yang dibuffer offline akan muncul di sini",
+      "emptyHintOther": "Coba filter lain atau muat data demo",
+      "retry": "Coba sekarang",
+      "stat": {
+        "pending": "Menunggu",
+        "failed": "Gagal",
+        "synced": "Tersinkron",
+        "total": "Total"
+      },
+      "filter": {
+        "pending": "Menunggu",
+        "failed": "Gagal",
+        "synced": "Tersinkron",
+        "all": "Semua"
+      },
+      "status": {
+        "pending": "menunggu",
+        "syncing": "sinkron",
+        "synced": "tersinkron",
+        "failed": "gagal"
+      },
+      "processing": "Memproses",
+      "paused": "Dijeda",
+      "okCount": "{{count}} ok",
+      "failedCount": "{{count}} gagal",
+      "pause": "Jeda",
+      "resume": "Lanjutkan",
+      "cancel": "Batalkan",
+      "chunkedNote": "Diproses {{size}} sekaligus · sisa {{batches}} batch",
+      "chunk": "Batch",
+      "selectVisible": "Pilih yang terlihat ({{count}})",
+      "selectFailed": "Pilih yang gagal ({{count}})",
+      "clearSelection": "Bersihkan ({{count}})",
+      "autoRetry": "Coba ulang otomatis saat online",
+      "simulateFailures": "Simulasikan kegagalan",
+      "processAll": "Proses semua ({{count}})",
+      "processSelected": "Proses terpilih ({{count}})",
+      "retryFailed": "Coba ulang yang gagal ({{count}})",
+      "seedDemo": "Muat 20 baris demo",
+      "clearSynced": "Hapus yang tersinkron",
+      "attempts": "{{count}} percobaan",
+      "rowRetry": "Ulangi",
+      "showingFirst": "Menampilkan 200 pertama dari {{total}} — persempit filter atau proses sebagian"
     },
     "nav": {
       "scan": "Pindai",
@@ -74,6 +148,7 @@
       "shift": "Shift",
       "thisShift": "Shift ini",
       "thisWeek": "Minggu ini",
+      "avgHour": "Rata-rata / jam",
       "streak": "Streak shift sempurna",
       "achievements": "Penghargaan",
       "quickLinks": "Tautan cepat",

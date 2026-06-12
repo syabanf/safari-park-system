@@ -1,10 +1,11 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { AdvancedFilters, Badge, Card, CardContent, EmptyState } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, EmptyState, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { SearchX } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminRedemption {
   id: string;
@@ -29,7 +30,8 @@ const verdictVariant: Record<AdminRedemption['verdict'], 'success' | 'destructiv
 
 export function RedemptionsRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'redemptions'], queryFn: fetchRedemptions });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'redemptions'], queryFn: fetchRedemptions });
 
   const [query, setQuery] = useState('');
   const [gateSelected, setGateSelected] = useState<string[]>([]);
@@ -125,7 +127,14 @@ export function RedemptionsRoute() {
 
       <Card>
         <CardContent className="overflow-x-auto p-0">
-          {isLoading || !data ? (
+          {isError ? (
+            <ErrorState
+              title={t('admin.common.errorTitle')}
+              description={t('admin.common.errorHint')}
+              retryLabel={t('admin.common.retry')}
+              onRetry={() => refetch()}
+            />
+          ) : isLoading || !data ? (
             <div className="p-6 text-sm text-muted-foreground">{t('admin.common.loading')}</div>
           ) : filtered.length === 0 ? (
             <EmptyState
@@ -152,7 +161,16 @@ export function RedemptionsRoute() {
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2, delay: Math.min(idx * 0.015, 0.4) }}
-                    className="border-b last:border-0 hover:bg-muted/30"
+                    onClick={() => navigate(`/redemptions/${r.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate(`/redemptions/${r.id}`);
+                      }
+                    }}
+                    className="cursor-pointer border-b last:border-0 transition-colors hover:bg-muted/30 focus:outline-none focus-visible:bg-muted/40"
                   >
                     <td className="px-6 py-3 font-mono text-xs text-muted-foreground">
                       {new Intl.DateTimeFormat(i18n.language, { dateStyle: 'short', timeStyle: 'short' }).format(new Date(r.scannedAt))}

@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent } from '@tsi/ui';
+import { Badge, Card, CardContent, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { CalendarClock, ShieldCheck, ShieldX, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ComplianceDoc {
   id: string;
@@ -36,8 +37,18 @@ function daysUntil(date: string) {
 
 export function ComplianceRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'compliance'], queryFn: fetchCompliance });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'compliance'], queryFn: fetchCompliance });
 
+  if (isError)
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   const valid = data.filter((d) => d.status === 'valid').length;
@@ -49,8 +60,8 @@ export function ComplianceRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Compliance</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Permits, licences, and document expiry tracking</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.compliance.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.compliance.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-3">
@@ -69,9 +80,19 @@ export function ComplianceRoute() {
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: i * 0.04 }}
+              onClick={() => navigate(`/compliance/${doc.id}`)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(`/compliance/${doc.id}`);
+                }
+              }}
+              className="cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Card
-                className={`overflow-hidden border-border/60 ${
+                className={`overflow-hidden border-border/60 transition-shadow hover:shadow-md ${
                   doc.status === 'expired'
                     ? 'bg-rose-50/50'
                     : doc.status === 'expiring-soon'

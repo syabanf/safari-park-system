@@ -1,14 +1,14 @@
 import { fetchEvents } from '@/features/home/queries';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, EmptyState, Skeleton } from '@tsi/ui';
+import { Card, CardContent, EmptyState, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { CalendarDays, CalendarX, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function EventsRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['events'], queryFn: fetchEvents });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['events'], queryFn: fetchEvents });
 
   const formatter = new Intl.DateTimeFormat(i18n.language, {
     weekday: 'long',
@@ -36,6 +36,13 @@ export function EventsRoute() {
             <Skeleton key={i} className="h-44 w-full rounded-2xl" />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          title={t('common.errorTitle')}
+          description={t('common.errorHint')}
+          onRetry={() => refetch()}
+          retryLabel={t('common.retry')}
+        />
       ) : !data || data.length === 0 ? (
         <EmptyState icon={CalendarX} title={t('events.empty')} description={t('events.emptyHint')} />
       ) : (

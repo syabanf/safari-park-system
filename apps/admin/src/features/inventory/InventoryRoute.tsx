@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Box, PackageOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface InventoryItem {
@@ -37,8 +38,18 @@ const categoryColors = ['#287338', '#5bac6a', '#b08754', '#d4be96', '#9a3a3a'];
 
 export function InventoryRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'inventory'], queryFn: fetchInventory });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'inventory'], queryFn: fetchInventory });
 
+  if (isError)
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   const fmt = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' });
@@ -46,8 +57,8 @@ export function InventoryRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Inventory</h1>
-        <p className="mt-1 text-sm text-muted-foreground">F&B, merchandise, animal feed, parts, medical</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.inventory.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.inventory.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -104,7 +115,16 @@ export function InventoryRoute() {
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.18, delay: Math.min(i * 0.015, 0.3) }}
-                  className={`border-b last:border-0 hover:bg-muted/30 ${it.needsReorder ? 'bg-rose-50/30' : ''}`}
+                  onClick={() => navigate(`/inventory/${it.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/inventory/${it.id}`);
+                    }
+                  }}
+                  className={`cursor-pointer border-b last:border-0 transition-colors hover:bg-muted/30 focus:outline-none focus-visible:bg-muted/40 ${it.needsReorder ? 'bg-rose-50/30' : ''}`}
                 >
                   <td className="px-6 py-3 font-mono text-xs">{it.sku}</td>
                   <td className="px-6 py-3">

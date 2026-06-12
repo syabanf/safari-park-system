@@ -2,7 +2,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, Skeleton } from '@tsi/ui';
+import { Card, CardContent, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { Award, ChevronRight, Clock, History, Inbox, LogOut, type LucideIcon, Settings, Trophy } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -42,7 +42,18 @@ export function ProfileRoute() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const clearAuth = useAuthStore((s) => s.clear);
-  const { data, isLoading } = useQuery({ queryKey: ['staff-me'], queryFn: fetchStaffProfile });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['staff-me'], queryFn: fetchStaffProfile });
+
+  if (isError) {
+    return (
+      <ErrorState
+        title={t('validator.common.error')}
+        description={t('validator.common.errorHint')}
+        retryLabel={t('validator.common.retry')}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
 
   if (isLoading || !data) {
     return (
@@ -89,7 +100,7 @@ export function ProfileRoute() {
       <section className="grid grid-cols-2 gap-3">
         <StatTile label={t('validator.profile.thisShift')} value={data.stats.scansThisShift} unit="scans" />
         <StatTile label={t('validator.profile.thisWeek')} value={data.stats.scansThisWeek} unit="scans" />
-        <StatTile label="Avg / hour" value={data.stats.avgPerHour} unit="" />
+        <StatTile label={t('validator.profile.avgHour')} value={data.stats.avgPerHour} unit="" />
         <StatTile label={t('validator.profile.streak')} value={data.stats.flawlessShiftsStreak} unit="shifts" highlight />
       </section>
 
@@ -143,9 +154,13 @@ export function ProfileRoute() {
       <section className="space-y-2 pb-6">
         <Card className="border-border/60 bg-white/85">
           <CardContent className="p-1.5">
+            {/* Settings has no destination yet — render disabled rather than a
+                dead link, so the control is honest about being unavailable. */}
             <button
               type="button"
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-muted/50"
+              disabled
+              aria-disabled
+              className="flex w-full cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-sm opacity-50"
             >
               <Settings className="h-4 w-4 text-muted-foreground" />
               <span className="flex-1 text-left">{t('validator.profile.settings')}</span>

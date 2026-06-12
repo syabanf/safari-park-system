@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Button, Card, CardContent, CardHeader, CardTitle, Skeleton } from '@tsi/ui';
+import { Button, Card, CardContent, CardHeader, CardTitle, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CalendarDays, MapPin, Users } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CheckCircle2, MapPin, Users } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 interface EventDetail {
@@ -29,14 +30,15 @@ async function fetchEventDetail(id: string): Promise<EventDetail> {
 
 export function EventDetailRoute() {
   const { id = '' } = useParams();
-  const { i18n } = useTranslation();
-  const { data, isLoading } = useQuery({
+  const { t, i18n } = useTranslation();
+  const [going, setGoing] = useState(false);
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['event', id],
     queryFn: () => fetchEventDetail(id),
     enabled: !!id,
   });
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-5 w-24" />
@@ -44,6 +46,17 @@ export function EventDetailRoute() {
         <Skeleton className="h-24 w-full rounded-2xl" />
         <Skeleton className="h-44 w-full rounded-2xl" />
       </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <ErrorState
+        title={t('common.errorTitle')}
+        description={t('common.errorHint')}
+        onRetry={() => refetch()}
+        retryLabel={t('common.retry')}
+      />
     );
   }
 
@@ -55,7 +68,9 @@ export function EventDetailRoute() {
     minute: '2-digit',
   });
 
-  const spotsLeft = data.capacity - data.booked;
+  // Optimistic local RSVP: reserving one seat decrements the live "spots left".
+  const booked = data.booked + (going ? 1 : 0);
+  const spotsLeft = data.capacity - booked;
 
   return (
     <motion.div
@@ -69,7 +84,7 @@ export function EventDetailRoute() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3 w-3" />
-        Back to events
+        {t('events.detail.back')}
       </Link>
 
       <Card className="overflow-hidden border-border/60 text-white">
@@ -94,7 +109,10 @@ export function EventDetailRoute() {
           <div className="space-y-1.5 text-xs">
             <div className="flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" />
-              <span>{formatter.format(new Date(data.datetime))} · {data.durationMin} min</span>
+              <span>
+                {formatter.format(new Date(data.datetime))} ·{' '}
+                {t('events.detail.durationMin', { minutes: data.durationMin })}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5" />
@@ -102,14 +120,26 @@ export function EventDetailRoute() {
             </div>
             <div className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
-              <span>
-                {data.booked} / {data.capacity} booked
-              </span>
+              <span>{t('events.detail.booked', { booked, capacity: data.capacity })}</span>
             </div>
           </div>
 
-          <Button className="mt-4 w-full bg-white text-brand-900 hover:bg-white/90" size="lg" disabled={spotsLeft <= 0}>
-            {spotsLeft > 0 ? `RSVP — ${spotsLeft} spots left` : 'Sold out'}
+          <Button
+            className="mt-4 w-full bg-white text-brand-900 hover:bg-white/90"
+            size="lg"
+            disabled={going || spotsLeft <= 0}
+            onClick={() => setGoing(true)}
+          >
+            {going ? (
+              <span className="inline-flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4" />
+                {t('events.detail.going')}
+              </span>
+            ) : spotsLeft > 0 ? (
+              t('events.detail.rsvp', { count: spotsLeft })
+            ) : (
+              t('events.detail.soldOut')
+            )}
           </Button>
         </CardContent>
       </Card>
@@ -117,7 +147,7 @@ export function EventDetailRoute() {
       <section>
         <Card className="border-border/60 bg-white/85">
           <CardHeader>
-            <CardTitle className="text-base">Schedule</CardTitle>
+            <CardTitle className="text-base">{t('events.detail.schedule')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="relative space-y-3 border-l-2 border-brand-200 pl-4">
@@ -141,7 +171,7 @@ export function EventDetailRoute() {
       <section>
         <Card className="border-border/60 bg-white/85">
           <CardHeader>
-            <CardTitle className="text-base">Requirements</CardTitle>
+            <CardTitle className="text-base">{t('events.detail.requirements')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -152,7 +182,9 @@ export function EventDetailRoute() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-xs text-muted-foreground">Hosted by {data.host}</p>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {t('events.detail.hostedBy', { host: data.host })}
+            </p>
           </CardContent>
         </Card>
       </section>

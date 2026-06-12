@@ -218,7 +218,7 @@ export function OfflineQueueRoute() {
         <div>
           <h1 className="text-xl font-bold tracking-tight">{t('validator.queue.title')}</h1>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Buffered scans sync automatically when online — process in batches if backlog grows
+            {t('validator.queue.subtitle')}
           </p>
         </div>
         <div
@@ -227,15 +227,15 @@ export function OfflineQueueRoute() {
           }`}
         >
           {online ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
-          {online ? 'Online' : 'Offline'}
+          {online ? t('validator.common.online') : t('validator.common.offline')}
         </div>
       </header>
 
       <div className="grid grid-cols-4 gap-2">
-        <Stat icon={<Clock className="h-4 w-4" />} label="Pending" value={stats.pending} tone="default" />
-        <Stat icon={<AlertCircle className="h-4 w-4" />} label="Failed" value={stats.failed} tone={stats.failed > 0 ? 'warn' : 'default'} />
-        <Stat icon={<CheckCircle2 className="h-4 w-4" />} label="Synced" value={stats.synced} tone="ok" />
-        <Stat icon={<Sparkles className="h-4 w-4" />} label="Total" value={stats.total} tone="default" />
+        <Stat icon={<Clock className="h-4 w-4" />} label={t('validator.queue.stat.pending')} value={stats.pending} tone="default" />
+        <Stat icon={<AlertCircle className="h-4 w-4" />} label={t('validator.queue.stat.failed')} value={stats.failed} tone={stats.failed > 0 ? 'warn' : 'default'} />
+        <Stat icon={<CheckCircle2 className="h-4 w-4" />} label={t('validator.queue.stat.synced')} value={stats.synced} tone="ok" />
+        <Stat icon={<Sparkles className="h-4 w-4" />} label={t('validator.queue.stat.total')} value={stats.total} tone="default" />
       </div>
 
       <AnimatePresence>
@@ -251,10 +251,10 @@ export function OfflineQueueRoute() {
                   <div className="flex items-center gap-2">
                     <RotateCw className={`h-3.5 w-3.5 ${paused ? '' : 'animate-spin'} text-brand-700`} />
                     <span className="font-semibold">
-                      {paused ? 'Paused' : 'Processing'} {progress.done}/{progress.total}
+                      {paused ? t('validator.queue.paused') : t('validator.queue.processing')} {progress.done}/{progress.total}
                     </span>
                     <span className="text-muted-foreground">
-                      · {progress.succeeded} ok · {progress.failed} failed
+                      · {t('validator.queue.okCount', { count: progress.succeeded })} · {t('validator.queue.failedCount', { count: progress.failed })}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -268,7 +268,7 @@ export function OfflineQueueRoute() {
                       }}
                     >
                       {paused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
-                      {paused ? 'Resume' : 'Pause'}
+                      {paused ? t('validator.queue.resume') : t('validator.queue.pause')}
                     </Button>
                     <Button
                       size="sm"
@@ -279,7 +279,7 @@ export function OfflineQueueRoute() {
                       }}
                     >
                       <Square className="h-3 w-3" />
-                      Cancel
+                      {t('validator.queue.cancel')}
                     </Button>
                   </div>
                 </div>
@@ -292,7 +292,10 @@ export function OfflineQueueRoute() {
                   />
                 </div>
                 <p className="mt-1 text-[10px] text-muted-foreground">
-                  Chunked {chunkSize} at a time · {Math.ceil((progress.total - progress.done) / chunkSize)} batches left
+                  {t('validator.queue.chunkedNote', {
+                    size: chunkSize,
+                    batches: Math.ceil((progress.total - progress.done) / chunkSize),
+                  })}
                 </p>
               </CardContent>
             </Card>
@@ -311,9 +314,9 @@ export function OfflineQueueRoute() {
                   size="sm"
                   variant={filter === f ? 'default' : 'outline'}
                   onClick={() => setFilter(f)}
-                  className="h-7 capitalize"
+                  className="h-7"
                 >
-                  {f}
+                  {t(`validator.queue.filter.${f}`)}
                   <span className="ml-1.5 rounded-full bg-white/30 px-1.5 text-[10px] font-semibold">
                     {f === 'pending' ? stats.pending : f === 'failed' ? stats.failed : f === 'synced' ? stats.synced : stats.total}
                   </span>
@@ -321,7 +324,7 @@ export function OfflineQueueRoute() {
               ))}
             </div>
             <div className="ml-auto flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              Chunk
+              {t('validator.queue.chunk')}
               {CHUNK_SIZES.map((n) => (
                 <Button
                   key={n}
@@ -339,22 +342,22 @@ export function OfflineQueueRoute() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" variant="outline" className="h-8" onClick={selectVisible} disabled={running}>
-              Select all visible ({filtered.filter((r) => r.syncedAt === null).length})
+              {t('validator.queue.selectVisible', { count: filtered.filter((r) => r.syncedAt === null).length })}
             </Button>
             <Button size="sm" variant="outline" className="h-8" onClick={selectFailedOnly} disabled={running || stats.failed === 0}>
-              Select failed ({stats.failed})
+              {t('validator.queue.selectFailed', { count: stats.failed })}
             </Button>
             <Button size="sm" variant="outline" className="h-8" onClick={clearSelection} disabled={running || selected.size === 0}>
-              Clear ({selected.size})
+              {t('validator.queue.clearSelection', { count: selected.size })}
             </Button>
             <div className="ml-auto flex items-center gap-2">
               <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-muted-foreground">
                 <input type="checkbox" checked={autoRetry} onChange={(e) => setAutoRetry(e.target.checked)} className="h-3.5 w-3.5" />
-                Auto-retry when online
+                {t('validator.queue.autoRetry')}
               </label>
               <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-muted-foreground">
                 <input type="checkbox" checked={simulateFailure} onChange={(e) => setSimulateFailure(e.target.checked)} className="h-3.5 w-3.5" />
-                Simulate failures
+                {t('validator.queue.simulateFailures')}
               </label>
             </div>
           </div>
@@ -367,7 +370,7 @@ export function OfflineQueueRoute() {
               onClick={() => runBatch(queueable)}
             >
               <RotateCw className="h-3.5 w-3.5" />
-              Process all ({queueable.length})
+              {t('validator.queue.processAll', { count: queueable.length })}
             </Button>
             <Button
               size="sm"
@@ -376,7 +379,7 @@ export function OfflineQueueRoute() {
               disabled={!online || running || selectedQueueable.length === 0}
               onClick={() => runBatch(selectedQueueable)}
             >
-              Process selected ({selectedQueueable.length})
+              {t('validator.queue.processSelected', { count: selectedQueueable.length })}
             </Button>
             <Button
               size="sm"
@@ -385,14 +388,14 @@ export function OfflineQueueRoute() {
               disabled={running || stats.failed === 0 || !online}
               onClick={() => runBatch(rows.filter((r) => r.syncedAt === null && r.attemptCount > 0).map((r) => r.id))}
             >
-              Retry failed ({stats.failed})
+              {t('validator.queue.retryFailed', { count: stats.failed })}
             </Button>
             <div className="ml-auto flex items-center gap-1.5">
               <Button size="sm" variant="outline" className="h-9 gap-1.5" onClick={() => void seed(20)} disabled={running}>
-                Seed 20 demo rows
+                {t('validator.queue.seedDemo')}
               </Button>
               <Button size="sm" variant="outline" className="h-9 gap-1.5" onClick={clearSynced} disabled={running || stats.synced === 0}>
-                Clear synced
+                {t('validator.queue.clearSynced')}
               </Button>
             </div>
           </div>
@@ -404,12 +407,12 @@ export function OfflineQueueRoute() {
           <CardContent className="py-10 text-center">
             <CloudOff className="mx-auto h-8 w-8 text-muted-foreground/50" />
             <p className="mt-3 text-sm font-medium">
-              {filter === 'pending' ? t('validator.queue.empty') : 'No items in this view'}
+              {filter === 'pending' ? t('validator.queue.empty') : t('validator.queue.emptyView')}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {filter === 'pending'
-                ? 'Scans buffered offline will appear here'
-                : 'Try a different filter or seed demo data'}
+                ? t('validator.queue.emptyHintPending')
+                : t('validator.queue.emptyHintOther')}
             </p>
           </CardContent>
         </Card>
@@ -438,7 +441,7 @@ export function OfflineQueueRoute() {
                         onChange={() => toggleSelect(row.id)}
                         className="h-4 w-4 shrink-0"
                       />
-                      <StatusChip status={status} />
+                      <StatusChip status={status} label={t(`validator.queue.status.${status}`)} />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-semibold">{row.passId}</span>
@@ -450,7 +453,7 @@ export function OfflineQueueRoute() {
                         <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
                           <span>{fmt.format(new Date(row.scannedAt * 1000))}</span>
                           {row.attemptCount > 0 ? (
-                            <span className="text-amber-700">· {row.attemptCount} attempts</span>
+                            <span className="text-amber-700">· {t('validator.queue.attempts', { count: row.attemptCount })}</span>
                           ) : null}
                           {row.reason ? <span>· {row.reason}</span> : null}
                         </div>
@@ -467,7 +470,7 @@ export function OfflineQueueRoute() {
                           onClick={() => void runBatch([row.id])}
                         >
                           <RotateCw className="h-3 w-3" />
-                          Retry
+                          {t('validator.queue.rowRetry')}
                         </Button>
                       ) : null}
                     </motion.li>
@@ -477,7 +480,7 @@ export function OfflineQueueRoute() {
             </ul>
             {filtered.length > 200 ? (
               <p className="px-3 py-2 text-center text-[11px] text-muted-foreground">
-                Showing first 200 of {filtered.length} — narrow the filter or process some
+                {t('validator.queue.showingFirst', { total: filtered.length })}
               </p>
             ) : null}
           </CardContent>
@@ -516,12 +519,12 @@ function Stat({
   );
 }
 
-function StatusChip({ status }: { status: RowStatus }) {
-  const map: Record<RowStatus, { label: string; cls: string; icon: React.ReactNode }> = {
-    pending: { label: 'pending', cls: 'bg-muted text-muted-foreground', icon: <Clock className="h-3 w-3" /> },
-    syncing: { label: 'syncing', cls: 'bg-blue-100 text-blue-800', icon: <RotateCw className="h-3 w-3 animate-spin" /> },
-    synced: { label: 'synced', cls: 'bg-brand-100 text-brand-800', icon: <CheckCircle2 className="h-3 w-3" /> },
-    failed: { label: 'failed', cls: 'bg-rose-100 text-rose-800', icon: <XCircle className="h-3 w-3" /> },
+function StatusChip({ status, label }: { status: RowStatus; label: string }) {
+  const map: Record<RowStatus, { cls: string; icon: React.ReactNode }> = {
+    pending: { cls: 'bg-muted text-muted-foreground', icon: <Clock className="h-3 w-3" /> },
+    syncing: { cls: 'bg-blue-100 text-blue-800', icon: <RotateCw className="h-3 w-3 animate-spin" /> },
+    synced: { cls: 'bg-brand-100 text-brand-800', icon: <CheckCircle2 className="h-3 w-3" /> },
+    failed: { cls: 'bg-rose-100 text-rose-800', icon: <XCircle className="h-3 w-3" /> },
   };
   const v = map[status];
   return (
@@ -529,7 +532,7 @@ function StatusChip({ status }: { status: RowStatus }) {
       className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${v.cls}`}
     >
       {v.icon}
-      {v.label}
+      {label}
     </span>
   );
 }

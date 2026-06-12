@@ -100,8 +100,8 @@ export function LoginRoute() {
       >
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Demo personas</CardTitle>
-            <p className="text-xs text-muted-foreground">One-tap sign-in for shift demos</p>
+            <CardTitle className="text-base">{t('validator.login.personas')}</CardTitle>
+            <p className="text-xs text-muted-foreground">{t('validator.login.personasHint')}</p>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2">
@@ -139,7 +139,7 @@ export function LoginRoute() {
             </div>
             <div className="mt-4 border-t pt-4">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                Switch to another app
+                {t('validator.login.switchApp')}
               </p>
               <AppSwitcher current="validator" variant="inline" />
             </div>

@@ -79,6 +79,16 @@
     "passes": {
       "title": "Annual Passes",
       "subtitle": "Status and distribution",
+      "search": "Search holder, pass ID, or email",
+      "listTitle": "All passes",
+      "columns": {
+        "holder": "Holder",
+        "passId": "Pass ID",
+        "tier": "Tier",
+        "status": "Status",
+        "validUntil": "Valid until",
+        "entries": "Entries"
+      },
       "detail": {
         "title": "Pass detail",
         "renewals": "Renewal history",
@@ -88,6 +98,65 @@
     "redemptions": {
       "title": "Redemptions",
       "subtitle": "Gate scan history"
+    },
+    "staff": {
+      "title": "Staff",
+      "subtitle": "Directory, roster, and gate coverage"
+    },
+    "bookings": {
+      "title": "Bookings",
+      "subtitle": "Group tours, private events, school visits"
+    },
+    "vendors": {
+      "title": "Vendors & Procurement",
+      "subtitle": "Supplier directory and purchase orders"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "subtitle": "Campaigns, push, email, perks performance"
+    },
+    "compliance": {
+      "title": "Compliance",
+      "subtitle": "Permits, licences, and document expiry tracking"
+    },
+    "safety": {
+      "title": "Safety",
+      "subtitle": "Incident reports, near-miss logs, drills"
+    },
+    "inventory": {
+      "title": "Inventory",
+      "subtitle": "F&B, merchandise, animal feed, parts, medical"
+    },
+    "animals": {
+      "title": "Animals",
+      "subtitle": "Welfare records, conservation status, enclosures"
+    },
+    "maintenance": {
+      "title": "Maintenance",
+      "subtitle": "Field tickets, preventive schedule, and gate hardware health"
+    },
+    "shifts": {
+      "title": "Shift management",
+      "subtitle": "Weekly roster, swap requests, coverage health"
+    },
+    "masterData": {
+      "title": "Master data",
+      "subtitle": "Reference data — referenced by every other module"
+    },
+    "finance": {
+      "title": "Finance",
+      "subtitle": "Revenue, payouts, and refunds — last 30 days"
+    },
+    "cms": {
+      "title": "Content (CMS)",
+      "subtitle": "Manage everything shown in the Member app — banners, promotions, events, perks, push notifications, today's park status",
+      "toolbarHint": "Click a card to preview · editing is disabled in this demo build",
+      "demoBuild": "Demo build"
+    },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Scheduled, on-demand, and archived operational reports",
+      "demoBuild": "Demo build"
     },
     "analytics": {
       "title": "Analytics",
@@ -178,7 +247,10 @@
       "thisWeek": "This week",
       "thisMonth": "This month",
       "noMatches": "Nothing matches yet",
-      "noMatchesHint": "Try clearing a filter or two to widen the search."
+      "noMatchesHint": "Try clearing a filter or two to widen the search.",
+      "errorTitle": "Couldn't load data",
+      "errorHint": "We couldn't load this just now. Please try again.",
+      "retry": "Try again"
     }
   }
 }

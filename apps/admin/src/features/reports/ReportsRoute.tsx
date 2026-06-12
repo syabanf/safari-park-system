@@ -39,6 +39,29 @@ const statusVariant = {
   failing: 'destructive',
 } as const;
 
+// Build a CSV string from a header row + data rows, quoting every field so
+// commas/quotes inside values can't break the columns.
+function toCsv(headers: string[], rows: (string | number)[][]): string {
+  const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`;
+  return [headers, ...rows].map((r) => r.map(esc).join(',')).join('\r\n');
+}
+
+// Trigger a real client-side download of a CSV blob — no backend involved.
+function downloadCsv(filename: string, csv: string) {
+  const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+const slug = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'report';
+
 const quickReports: QuickReport[] = [
   {
     id: 'q-1',
@@ -128,10 +151,8 @@ export function AdminReportsRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Scheduled, on-demand, and archived operational reports
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.reports.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.reports.subtitle')}</p>
       </header>
 
       <Tabs defaultValue="scheduled">
@@ -193,11 +214,37 @@ export function AdminReportsRoute() {
                         To: {r.recipients.join(', ')}
                       </p>
                       <div className="mt-3 flex gap-2">
-                        <Button size="sm" variant="outline" className="text-xs">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs"
+                          onClick={() =>
+                            downloadCsv(
+                              `${slug(r.title)}-latest.csv`,
+                              toCsv(
+                                ['Field', 'Value'],
+                                [
+                                  ['Report', r.title],
+                                  ['Cadence', r.cadence],
+                                  ['Status', r.status],
+                                  ['Last run', formatter.format(new Date(r.lastRun))],
+                                  ['Next run', formatter.format(new Date(r.nextRun))],
+                                  ['Recipients', r.recipients.join('; ')],
+                                ],
+                              ),
+                            )
+                          }
+                        >
                           <Download className="h-3 w-3" />
                           Latest
                         </Button>
-                        <Button size="sm" variant="ghost" className="text-xs">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-xs"
+                          disabled
+                          title={t('admin.reports.demoBuild') as string}
+                        >
                           Configure
                         </Button>
                       </div>
@@ -235,7 +282,12 @@ export function AdminReportsRoute() {
                       <p className="mt-1 text-xs text-muted-foreground">{q.description}</p>
                     </div>
                     <p className="text-[11px] font-mono text-muted-foreground">{q.scope}</p>
-                    <Button size="sm" className="mt-auto w-full">
+                    <Button
+                      size="sm"
+                      className="mt-auto w-full"
+                      disabled
+                      title={t('admin.reports.demoBuild') as string}
+                    >
                       <Play className="h-3.5 w-3.5" />
                       Generate now
                     </Button>
@@ -283,7 +335,26 @@ export function AdminReportsRoute() {
                         {formatter.format(new Date(a.generatedAt))}
                       </td>
                       <td className="px-6 py-3 text-right">
-                        <Button size="sm" variant="outline" className="text-xs">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs"
+                          onClick={() =>
+                            downloadCsv(
+                              `${slug(a.title)}.csv`,
+                              toCsv(
+                                ['Field', 'Value'],
+                                [
+                                  ['Report', a.title],
+                                  ['Category', a.category],
+                                  ['Format', a.format],
+                                  ['Size (KB)', a.sizeKb],
+                                  ['Generated', formatter.format(new Date(a.generatedAt))],
+                                ],
+                              ),
+                            )
+                          }
+                        >
                           <Download className="h-3 w-3" />
                           Download
                         </Button>

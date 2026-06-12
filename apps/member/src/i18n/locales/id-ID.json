@@ -93,24 +93,50 @@
       "profile": "Profil"
     }
   },
+  "common": {
+    "errorTitle": "Gagal memuat",
+    "errorHint": "Kami tidak dapat memuat ini sekarang. Silakan coba lagi.",
+    "retry": "Coba lagi"
+  },
   "discover": {
     "title": "Jelajah",
     "subtitle": "Acara, perks, dan informasi taman",
     "events": "Acara",
+    "promotions": "Promosi",
     "perks": "Penawaran Member",
     "map": "Info & Lokasi",
-    "news": "Berita & Tips"
+    "news": "Berita & Tips",
+    "explore": "Jelajahi"
   },
   "events": {
     "title": "Acara",
     "subtitle": "Acara mendatang di taman",
     "empty": "Belum ada acara",
-    "emptyHint": "Acara seru akan segera hadir — pantau terus ya! 🦁"
+    "emptyHint": "Acara seru akan segera hadir — pantau terus ya! 🦁",
+    "detail": {
+      "back": "Kembali ke acara",
+      "schedule": "Rangkaian Acara",
+      "requirements": "Ketentuan",
+      "hostedBy": "Diselenggarakan oleh {{host}}",
+      "booked": "{{booked}} / {{capacity}} terdaftar",
+      "durationMin": "{{minutes}} mnt",
+      "rsvp": "Daftar — sisa {{count}} tempat",
+      "soldOut": "Penuh",
+      "going": "Kamu akan hadir 🎉"
+    }
   },
   "perks": {
     "title": "Penawaran Member",
     "subtitle": "Tunjukkan QR Anda untuk klaim",
-    "validUntil": "Berlaku sampai {{date}}"
+    "validUntil": "Berlaku sampai {{date}}",
+    "empty": "Belum ada penawaran"
+  },
+  "promotions": {
+    "back": "Kembali",
+    "title": "Promosi",
+    "subtitle": "Penawaran khusus member & promo musiman",
+    "until": "Hingga {{date}}",
+    "claimed": "Tersimpan ✓"
   },
   "map": {
     "title": "Lokasi Taman",

@@ -1,10 +1,11 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle, Input } from '@tsi/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState, Input } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { Briefcase, Search, UserCheck, UserCog, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface StaffMember {
   id: string;
@@ -41,7 +42,8 @@ const statusVariant = {
 
 export function StaffRoute() {
   const { t } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'staff'], queryFn: fetchStaff });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'staff'], queryFn: fetchStaff });
   const [query, setQuery] = useState('');
   const [dept, setDept] = useState<'all' | string>('all');
 
@@ -55,13 +57,22 @@ export function StaffRoute() {
     });
   }, [data, query, dept]);
 
+  if (isError)
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Staff</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Directory, roster, and gate coverage</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.staff.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.staff.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -153,7 +164,16 @@ export function StaffRoute() {
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.18, delay: Math.min(i * 0.012, 0.3) }}
-                  className="border-b last:border-0 hover:bg-muted/30"
+                  onClick={() => navigate(`/staff/${s.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/staff/${s.id}`);
+                    }
+                  }}
+                  className="cursor-pointer border-b last:border-0 transition-colors hover:bg-muted/30 focus:outline-none focus-visible:bg-muted/40"
                 >
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-3">

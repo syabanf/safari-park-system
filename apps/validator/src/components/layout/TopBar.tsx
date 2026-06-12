@@ -1,10 +1,12 @@
 import { useAuthStore } from '@/features/auth/store';
 import { useOnline } from '@/hooks/useOnline';
+import { useTranslation } from '@tsi/i18n';
 import { AppSwitcher } from '@tsi/ui';
 import { LogOut, Wifi, WifiOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function TopBar() {
+  const { t } = useTranslation();
   const online = useOnline();
   const navigate = useNavigate();
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -20,7 +22,7 @@ export function TopBar() {
           <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Validator
           </span>
-          <span className="mt-0.5 truncate text-sm font-bold text-brand-900">Gate Console</span>
+          <span className="mt-0.5 truncate text-sm font-bold text-brand-900">{t('validator.topbar.title')}</span>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
@@ -30,7 +32,7 @@ export function TopBar() {
           }`}
         >
           {online ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-          {online ? 'Online' : 'Offline'}
+          {online ? t('validator.common.online') : t('validator.common.offline')}
         </span>
         <AppSwitcher current="validator" />
         {accessToken ? (

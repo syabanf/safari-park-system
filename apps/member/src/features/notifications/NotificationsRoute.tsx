@@ -1,9 +1,10 @@
 import { fetchNotifications } from '@/features/home/queries';
-import { useQuery } from '@tanstack/react-query';
+import type { NotificationData } from '@/features/home/types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, EmptyState, Skeleton } from '@tsi/ui';
+import { Card, CardContent, EmptyState, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Bell, BellOff, CalendarDays, Gift, RefreshCw, Ticket } from 'lucide-react';
+import { Bell, BellOff, CalendarDays, CheckCheck, Gift, RefreshCw, Ticket } from 'lucide-react';
 
 const iconForCategory = {
   pass: Ticket,
@@ -21,7 +22,8 @@ const accentForCategory = {
 
 export function NotificationsRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({
+  const queryClient = useQueryClient();
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['notifications'],
     queryFn: fetchNotifications,
   });
@@ -32,6 +34,14 @@ export function NotificationsRoute() {
     timeStyle: 'short',
   });
 
+  // Optimistic, client-only: flip every notification to read. The same query
+  // key feeds the TopBar bell, so its unread badge clears in lockstep.
+  const markAllRead = () => {
+    queryClient.setQueryData<NotificationData[]>(['notifications'], (prev) =>
+      (prev ?? []).map((n) => (n.read ? n : { ...n, read: true })),
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -39,8 +49,8 @@ export function NotificationsRoute() {
       transition={{ duration: 0.3 }}
       className="space-y-5"
     >
-      <header className="flex items-start justify-between">
-        <div>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight">{t('notifications.title')}</h1>
           {unread > 0 ? (
             <p className="mt-1 text-xs font-medium text-brand-700">
@@ -48,9 +58,20 @@ export function NotificationsRoute() {
             </p>
           ) : null}
         </div>
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-100 text-brand-800">
-          <Bell className="h-5 w-5" />
-        </div>
+        {unread > 0 ? (
+          <button
+            type="button"
+            onClick={markAllRead}
+            className="mt-0.5 inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border/60 bg-white/80 px-3 py-1.5 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-50"
+          >
+            <CheckCheck className="h-3.5 w-3.5" />
+            {t('notifications.markAllRead')}
+          </button>
+        ) : (
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-100 text-brand-800">
+            <Bell className="h-5 w-5" />
+          </div>
+        )}
       </header>
 
       {isLoading ? (
@@ -59,6 +80,13 @@ export function NotificationsRoute() {
             <Skeleton key={i} className="h-20 w-full rounded-2xl" />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          title={t('common.errorTitle')}
+          description={t('common.errorHint')}
+          onRetry={() => refetch()}
+          retryLabel={t('common.retry')}
+        />
       ) : !data || data.length === 0 ? (
         <EmptyState
           icon={BellOff}

@@ -6,7 +6,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { endpoints } from '@tsi/api-client';
 import { useTranslation } from '@tsi/i18n';
 import { validatorDb } from '@tsi/offline-storage';
+import { ErrorState } from '@tsi/ui';
 import { decodeJws } from '@tsi/qr-core';
+import { HTTPError } from 'ky';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, DoorOpen, ShieldQuestion, Wifi, WifiOff, XCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -20,8 +22,24 @@ interface PendingResult {
   passId?: string;
   holderName?: string;
   jti?: string;
+  /** Raw reason code (e.g. 'expired', 'suspended'); translated at render time. */
   reason?: string;
   jws: string;
+}
+
+/** Parse the `{ status, reason }` body of a server 409 deny. */
+async function readDeny(
+  err: unknown,
+): Promise<{ reason: string } | null> {
+  if (!(err instanceof HTTPError) || err.response.status !== 409) return null;
+  try {
+    const body = (await err.response.clone().json()) as { status?: string; reason?: string };
+    if (body.status === 'denied') return { reason: body.reason ?? 'unknown' };
+  } catch {
+    // Non-JSON 409 — treat as a generic server deny rather than a network buffer.
+    return { reason: 'unknown' };
+  }
+  return { reason: 'unknown' };
 }
 
 interface ScanSummary {
@@ -49,6 +67,13 @@ export function ScanRoute() {
   const verification = useVerification();
   usePublicKeySync();
   const [result, setResult] = useState<PendingResult | null>(null);
+  // A deny returned by the server *after* commit (suspended / out-of-visits /
+  // wrong-gate). Shown as a red verdict; distinct from an offline buffer.
+  const [serverDeny, setServerDeny] = useState<{ passId?: string; reason: string } | null>(null);
+
+  /** Translate a raw verify/deny reason code to a localized string. */
+  const reasonText = (code?: string) =>
+    code ? t(`validator.result.reason.${code}`, { defaultValue: t('validator.result.reason.unknown') }) : undefined;
 
   const reportsQuery = useQuery({ queryKey: ['validator-reports'], queryFn: fetchSummary });
 
@@ -63,7 +88,7 @@ export function ScanRoute() {
 
     const decoded = decodeJws(value);
     if (!decoded) {
-      setResult({ status: 'deny', reason: 'malformed QR', jws: value });
+      setResult({ status: 'deny', reason: 'malformed', jws: value });
       return;
     }
 
@@ -73,7 +98,7 @@ export function ScanRoute() {
         jws: value,
         passId: decoded.payload.passId,
         jti: decoded.payload.jti,
-        reason: 'Keys not loaded yet',
+        reason: 'keys-not-loaded',
       });
       return;
     }
@@ -123,7 +148,25 @@ export function ScanRoute() {
         source: 'online',
       });
       track(verdict === 'allow' ? 'scan.allowed' : 'scan.denied', { online: true });
-    } catch {
+    } catch (err) {
+      // Server deny (HTTP 409) — record as a deny and surface a red verdict.
+      const deny = await readDeny(err);
+      if (deny) {
+        await validatorDb.recentScans.put({
+          id: `deny_${scannedAt}_${scanned.jti ?? 'manual'}`,
+          jti: submission.jti,
+          passId: submission.passId,
+          holderName: 'Pass holder',
+          scannedAt,
+          verdict: 'deny',
+          source: 'online',
+        });
+        track('scan.denied', { online: true, reason: deny.reason });
+        setServerDeny({ passId: submission.passId, reason: deny.reason });
+        setResult(null);
+        return;
+      }
+      // Genuine network failure — buffer for later sync (NOT a deny).
       const offlineId = `local_${scannedAt}_${scanned.jti ?? 'manual'}`;
       await validatorDb.pendingRedemptions.put({ id: offlineId, ...submission, syncedAt: null, attemptCount: 0 });
       await validatorDb.recentScans.put({
@@ -175,7 +218,7 @@ export function ScanRoute() {
             }`}
           >
             {online ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-            {online ? 'Online' : 'Offline'}
+            {online ? t('validator.common.online') : t('validator.common.offline')}
           </span>
         </div>
         {s ? (
@@ -194,17 +237,38 @@ export function ScanRoute() {
           <Tally icon={<Wifi className="h-3.5 w-3.5" />} label={t('validator.scan.today')} value={s.todayScans} tone="default" />
           <Tally icon={<CheckCircle2 className="h-3.5 w-3.5" />} label={t('validator.result.allow')} value={s.todayAllow} tone="ok" />
           <Tally icon={<XCircle className="h-3.5 w-3.5" />} label={t('validator.result.deny')} value={s.todayDeny} tone="bad" />
-          <Tally icon={<ShieldQuestion className="h-3.5 w-3.5" />} label="Manual" value={s.todayManual} tone="warn" />
+          <Tally icon={<ShieldQuestion className="h-3.5 w-3.5" />} label={t('validator.scan.manual')} value={s.todayManual} tone="warn" />
         </div>
       ) : null}
 
+      {reportsQuery.isError && !s ? (
+        <section className="rounded-2xl border border-border/50 bg-white shadow-sm">
+          <ErrorState
+            title={t('validator.common.error')}
+            description={t('validator.common.errorHint')}
+            retryLabel={t('validator.common.retry')}
+            onRetry={() => void reportsQuery.refetch()}
+          />
+        </section>
+      ) : null}
+
       {/* Scanner / result */}
-      {result ? (
+      {serverDeny ? (
+        <ScanResult
+          status="deny"
+          passId={serverDeny.passId}
+          reason={reasonText(serverDeny.reason)}
+          offline={false}
+          onAllow={() => setServerDeny(null)}
+          onDeny={() => setServerDeny(null)}
+          onNext={() => setServerDeny(null)}
+        />
+      ) : result ? (
         <ScanResult
           status={result.status}
           passId={result.passId}
           holderName={result.holderName}
-          reason={result.reason}
+          reason={reasonText(result.reason)}
           offline={!online}
           onAllow={() => commit('allow')}
           onDeny={() => commit('deny')}

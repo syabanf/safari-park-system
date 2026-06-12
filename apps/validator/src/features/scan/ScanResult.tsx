@@ -77,7 +77,7 @@ export function ScanResult({
       <div className="space-y-3 p-5">
         {passId ? (
           <div className="flex items-center justify-between rounded-xl bg-muted/60 px-3 py-2.5 text-sm">
-            <span className="text-muted-foreground">Pass ID</span>
+            <span className="text-muted-foreground">{t('validator.result.passId')}</span>
             <span className="font-mono font-semibold">{passId}</span>
           </div>
         ) : null}

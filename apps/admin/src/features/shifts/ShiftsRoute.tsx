@@ -84,8 +84,8 @@ export function ShiftsRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Shift management</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Weekly roster, swap requests, coverage health</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.shifts.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.shifts.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">

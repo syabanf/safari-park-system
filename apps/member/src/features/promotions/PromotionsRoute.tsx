@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, Skeleton } from '@tsi/ui';
+import { Card, CardContent, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 interface Promotion {
@@ -39,8 +40,12 @@ const accentOverlay = {
 };
 
 export function PromotionsRoute() {
-  const { i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['promotions'], queryFn: fetchPromotions });
+  const { t, i18n } = useTranslation();
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['promotions'],
+    queryFn: fetchPromotions,
+  });
+  const [claimed, setClaimed] = useState<Record<string, boolean>>({});
 
   const dateFormatter = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' });
 
@@ -56,14 +61,12 @@ export function PromotionsRoute() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3 w-3" />
-        Back
+        {t('promotions.back')}
       </Link>
 
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Promotions</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Member-only offers and seasonal deals
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('promotions.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('promotions.subtitle')}</p>
       </header>
 
       {isLoading ? (
@@ -72,6 +75,13 @@ export function PromotionsRoute() {
             <Skeleton key={i} className="h-44 w-full rounded-2xl" />
           ))}
         </div>
+      ) : isError || !data ? (
+        <ErrorState
+          title={t('common.errorTitle')}
+          description={t('common.errorHint')}
+          onRetry={() => refetch()}
+          retryLabel={t('common.retry')}
+        />
       ) : data ? (
         <div className="space-y-3 pb-6">
           {data.map((p, i) => (
@@ -104,13 +114,21 @@ export function PromotionsRoute() {
                   <p className="text-sm leading-relaxed text-foreground/90">{p.description}</p>
                   <div className="mt-3 flex items-center justify-between">
                     <span className="text-[11px] text-muted-foreground">
-                      Until {dateFormatter.format(new Date(p.validUntil))}
+                      {t('promotions.until', {
+                        date: dateFormatter.format(new Date(p.validUntil)),
+                      })}
                     </span>
                     <button
                       type="button"
-                      className={`rounded-full px-3 py-1.5 text-xs font-semibold ${accentText[p.accent]} bg-white shadow-sm ring-1 ring-border hover:shadow`}
+                      disabled={claimed[p.id]}
+                      onClick={() => setClaimed((prev) => ({ ...prev, [p.id]: true }))}
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold shadow-sm ring-1 ring-border ${
+                        claimed[p.id]
+                          ? 'bg-brand-50 text-brand-700'
+                          : `bg-white hover:shadow ${accentText[p.accent]}`
+                      }`}
                     >
-                      {p.ctaLabel}
+                      {claimed[p.id] ? t('promotions.claimed') : p.ctaLabel}
                     </button>
                   </div>
                 </CardContent>

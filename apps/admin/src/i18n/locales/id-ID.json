@@ -79,6 +79,16 @@
     "passes": {
       "title": "Annual Pass",
       "subtitle": "Status dan distribusi pass",
+      "search": "Cari pemegang, ID pass, atau email",
+      "listTitle": "Semua pass",
+      "columns": {
+        "holder": "Pemegang",
+        "passId": "ID Pass",
+        "tier": "Tier",
+        "status": "Status",
+        "validUntil": "Berlaku sampai",
+        "entries": "Kunjungan"
+      },
       "detail": {
         "title": "Detail Pass",
         "renewals": "Riwayat perpanjangan",
@@ -88,6 +98,65 @@
     "redemptions": {
       "title": "Redemption",
       "subtitle": "Riwayat scan gerbang"
+    },
+    "staff": {
+      "title": "Staf",
+      "subtitle": "Direktori, jadwal, dan cakupan gerbang"
+    },
+    "bookings": {
+      "title": "Reservasi",
+      "subtitle": "Tur grup, acara privat, kunjungan sekolah"
+    },
+    "vendors": {
+      "title": "Vendor & Pengadaan",
+      "subtitle": "Direktori pemasok dan purchase order"
+    },
+    "marketing": {
+      "title": "Marketing",
+      "subtitle": "Performa kampanye, push, email, dan perk"
+    },
+    "compliance": {
+      "title": "Kepatuhan",
+      "subtitle": "Pelacakan izin, lisensi, dan masa berlaku dokumen"
+    },
+    "safety": {
+      "title": "Keselamatan",
+      "subtitle": "Laporan insiden, catatan near-miss, dan simulasi"
+    },
+    "inventory": {
+      "title": "Inventaris",
+      "subtitle": "F&B, merchandise, pakan satwa, suku cadang, medis"
+    },
+    "animals": {
+      "title": "Satwa",
+      "subtitle": "Catatan kesejahteraan, status konservasi, kandang"
+    },
+    "maintenance": {
+      "title": "Pemeliharaan",
+      "subtitle": "Tiket lapangan, jadwal preventif, dan kesehatan perangkat gerbang"
+    },
+    "shifts": {
+      "title": "Manajemen Shift",
+      "subtitle": "Jadwal mingguan, permintaan tukar, kesehatan cakupan"
+    },
+    "masterData": {
+      "title": "Data Master",
+      "subtitle": "Data referensi — dirujuk oleh setiap modul lain"
+    },
+    "finance": {
+      "title": "Keuangan",
+      "subtitle": "Pendapatan, pembayaran, dan refund — 30 hari terakhir"
+    },
+    "cms": {
+      "title": "Konten (CMS)",
+      "subtitle": "Kelola semua yang tampil di aplikasi Member — banner, promosi, acara, perk, notifikasi push, status taman hari ini",
+      "toolbarHint": "Klik kartu untuk pratinjau · pengeditan dinonaktifkan di build demo",
+      "demoBuild": "Build demo"
+    },
+    "reports": {
+      "title": "Laporan",
+      "subtitle": "Laporan operasional terjadwal, sesuai permintaan, dan arsip",
+      "demoBuild": "Build demo"
     },
     "analytics": {
       "title": "Analitik",
@@ -178,7 +247,10 @@
       "thisWeek": "Minggu ini",
       "thisMonth": "Bulan ini",
       "noMatches": "Belum ada yang cocok",
-      "noMatchesHint": "Coba hapus satu-dua filter untuk memperluas pencarian."
+      "noMatchesHint": "Coba hapus satu-dua filter untuk memperluas pencarian.",
+      "errorTitle": "Gagal memuat data",
+      "errorHint": "Kami tidak dapat memuat ini sekarang. Silakan coba lagi.",
+      "retry": "Coba lagi"
     }
   }
 }

@@ -121,8 +121,33 @@ export const handlers = [
 
   http.get(`${API}/keys/active`, () => HttpResponse.json({ keys: [makePublicKey()] })),
 
+  // Redemption. Most pass ids are accepted, but a small set of SEEDED ids
+  // return an HTTP 409 deny so suspended / out-of-visits / wrong-gate flows are
+  // demoable via manual entry (just type the id) or a QR encoding the id.
+  //
+  //   Demo deny ids:
+  //     p_suspended  -> 409 { status: 'denied', reason: 'suspended' }
+  //     p_exhausted  -> 409 { status: 'denied', reason: 'visits-exhausted' }
+  //     p_wronggate  -> 409 { status: 'denied', reason: 'wrong-gate' }
+  //
+  // A 409 is a *server* deny (distinct from a thrown network error, which the
+  // client buffers offline). Everything else stays `accepted`.
   http.post(`${API}/redemptions`, async ({ request }) => {
     const body = (await request.json()) as { passId: string };
+
+    const denyReasons: Record<string, 'suspended' | 'visits-exhausted' | 'wrong-gate'> = {
+      p_suspended: 'suspended',
+      p_exhausted: 'visits-exhausted',
+      p_wronggate: 'wrong-gate',
+    };
+    const denyReason = denyReasons[body.passId];
+    if (denyReason) {
+      return HttpResponse.json(
+        { status: 'denied', reason: denyReason, passId: body.passId },
+        { status: 409 },
+      );
+    }
+
     return HttpResponse.json({
       id: `r_${Math.floor(Date.now() / 1000)}`,
       status: 'accepted',

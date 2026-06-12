@@ -1,6 +1,7 @@
 import { Navigate, createBrowserRouter, createHashRouter } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
 import { LoginRoute } from './features/auth/LoginRoute';
+import { RequireAuth } from './features/auth/RequireAuth';
 import { DiscoverRoute } from './features/discover/DiscoverRoute';
 import { EnrolmentRoute } from './features/enrolment/EnrolmentRoute';
 import { EventDetailRoute } from './features/event-detail/EventDetailRoute';
@@ -31,7 +32,11 @@ export const router = factory(
   { path: '/login', element: <LoginRoute /> },
   { path: '/enrol', element: <EnrolmentRoute /> },
   {
-    element: <AppShell />,
+    element: (
+      <RequireAuth>
+        <AppShell />
+      </RequireAuth>
+    ),
     children: [
       { path: '/home', element: <HomeRoute /> },
       { path: '/qr', element: <QrRoute /> },

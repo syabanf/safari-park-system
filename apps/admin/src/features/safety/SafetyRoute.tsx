@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { Activity, AlertTriangle, Calendar, Clock, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Incident {
   id: string;
@@ -44,8 +45,18 @@ const statusVariant = {
 
 export function SafetyRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'safety'], queryFn: fetchSafety });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'safety'], queryFn: fetchSafety });
 
+  if (isError)
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   const fmt = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' });
@@ -53,8 +64,8 @@ export function SafetyRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Safety</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Incident reports, near-miss logs, drills</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.safety.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.safety.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -87,7 +98,16 @@ export function SafetyRoute() {
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: i * 0.04 }}
-                  className="border-b last:border-0 hover:bg-muted/30"
+                  onClick={() => navigate(`/safety/${inc.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/safety/${inc.id}`);
+                    }
+                  }}
+                  className="cursor-pointer border-b last:border-0 transition-colors hover:bg-muted/30 focus:outline-none focus-visible:bg-muted/40"
                 >
                   <td className="px-6 py-3">
                     <div className="font-medium">{inc.title}</div>

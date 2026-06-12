@@ -18,6 +18,7 @@ export { StatusBadge } from './components/status-badge';
 export { Skeleton } from './components/skeleton';
 export { Banner, type BannerAccent } from './components/banner';
 export { EmptyState } from './components/empty-state';
+export { ErrorState } from './components/error-state';
 export { QuickAction } from './components/quick-action';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/tabs';
 export {

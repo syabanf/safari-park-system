@@ -1,7 +1,7 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { ArrowDownRight, ArrowUpRight, BanknoteIcon, TrendingUp, Wallet, type LucideIcon } from 'lucide-react';
 import {
@@ -63,6 +63,17 @@ export function FinanceRoute() {
   const summaryQ = useQuery({ queryKey: ['admin', 'finance-summary'], queryFn: fetchSummary });
   const txQ = useQuery({ queryKey: ['admin', 'finance-tx'], queryFn: fetchTx });
 
+  if (summaryQ.isError) {
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => summaryQ.refetch()}
+      />
+    );
+  }
+
   if (summaryQ.isLoading || !summaryQ.data) {
     return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
   }
@@ -76,10 +87,8 @@ export function FinanceRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Finance</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Revenue, payouts, and refunds — last 30 days
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.finance.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.finance.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -174,7 +183,14 @@ export function FinanceRoute() {
             <CardTitle className="text-base">Recent transactions</CardTitle>
           </CardHeader>
           <CardContent className="overflow-x-auto p-0">
-            {txQ.isLoading || !txQ.data ? (
+            {txQ.isError ? (
+              <ErrorState
+                title={t('admin.common.errorTitle')}
+                description={t('admin.common.errorHint')}
+                retryLabel={t('admin.common.retry')}
+                onRetry={() => txQ.refetch()}
+              />
+            ) : txQ.isLoading || !txQ.data ? (
               <p className="p-4 text-sm text-muted-foreground">{t('admin.common.loading')}</p>
             ) : (
               <table className="min-w-full text-sm">

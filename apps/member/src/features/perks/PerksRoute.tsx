@@ -1,13 +1,13 @@
 import { fetchPerks } from '@/features/home/queries';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, Skeleton } from '@tsi/ui';
+import { Card, CardContent, ErrorState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { Gift, Sparkles } from 'lucide-react';
 
 export function PerksRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['perks'], queryFn: fetchPerks });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['perks'], queryFn: fetchPerks });
 
   return (
     <motion.div
@@ -27,8 +27,15 @@ export function PerksRoute() {
             <Skeleton key={i} className="h-32 w-full rounded-2xl" />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          title={t('common.errorTitle')}
+          description={t('common.errorHint')}
+          onRetry={() => refetch()}
+          retryLabel={t('common.retry')}
+        />
       ) : !data || data.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No perks available.</p>
+        <p className="text-sm text-muted-foreground">{t('perks.empty')}</p>
       ) : (
         <div className="space-y-3">
           {data.map((p, i) => (

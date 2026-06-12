@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { Star, Truck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Vendor {
   id: string;
@@ -42,8 +43,18 @@ const statusVariant = {
 
 export function VendorsRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'vendors'], queryFn: fetchVendors });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'vendors'], queryFn: fetchVendors });
 
+  if (isError)
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   const fmt = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' });
@@ -55,8 +66,8 @@ export function VendorsRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Vendors & Procurement</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Supplier directory and purchase orders</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.vendors.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.vendors.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -77,7 +88,16 @@ export function VendorsRoute() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.04 }}
-              className="rounded-2xl border border-border bg-white/85 p-4 transition-shadow hover:shadow-md"
+              onClick={() => navigate(`/vendors/${v.id}`)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(`/vendors/${v.id}`);
+                }
+              }}
+              className="cursor-pointer rounded-2xl border border-border bg-white/85 p-4 transition-shadow hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="flex items-start justify-between gap-2">
                 <div>

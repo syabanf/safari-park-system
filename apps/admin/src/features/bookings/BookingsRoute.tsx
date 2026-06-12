@@ -1,8 +1,9 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Bar,
   BarChart,
@@ -45,8 +46,18 @@ const statusVariant = {
 
 export function BookingsRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'bookings'], queryFn: fetchBookings });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'bookings'], queryFn: fetchBookings });
 
+  if (isError)
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   const totalRevenue = data.bookings.reduce((s, b) => s + (b.status !== 'cancelled' ? b.revenueIdr : 0), 0);
@@ -59,8 +70,8 @@ export function BookingsRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Bookings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Group tours, private events, school visits</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.bookings.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.bookings.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -111,7 +122,16 @@ export function BookingsRoute() {
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.18, delay: Math.min(i * 0.015, 0.3) }}
-                  className="border-b last:border-0 hover:bg-muted/30"
+                  onClick={() => navigate(`/bookings/${b.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/bookings/${b.id}`);
+                    }
+                  }}
+                  className="cursor-pointer border-b last:border-0 transition-colors hover:bg-muted/30 focus:outline-none focus-visible:bg-muted/40"
                 >
                   <td className="px-6 py-3">
                     <div className="font-medium">{b.customer}</div>

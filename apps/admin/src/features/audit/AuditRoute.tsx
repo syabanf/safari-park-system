@@ -1,7 +1,7 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { AdvancedFilters, Card, CardContent } from '@tsi/ui';
+import { AdvancedFilters, Card, CardContent, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { useMemo, useState } from 'react';
 
@@ -28,7 +28,7 @@ const levelColors = {
 
 export function AuditRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'audit'], queryFn: fetchAudit });
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'audit'], queryFn: fetchAudit });
 
   const [query, setQuery] = useState('');
   const [levelSelected, setLevelSelected] = useState<string[]>([]);
@@ -110,7 +110,14 @@ export function AuditRoute() {
 
       <Card>
         <CardContent className="overflow-x-auto p-0">
-          {isLoading || !data ? (
+          {isError ? (
+            <ErrorState
+              title={t('admin.common.errorTitle')}
+              description={t('admin.common.errorHint')}
+              retryLabel={t('admin.common.retry')}
+              onRetry={() => refetch()}
+            />
+          ) : isLoading || !data ? (
             <div className="p-6 text-sm text-muted-foreground">{t('admin.common.loading')}</div>
           ) : (
             <table className="min-w-full text-sm">

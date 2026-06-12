@@ -153,10 +153,8 @@ export function CmsRoute() {
     <div className="space-y-6">
       <header className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Content (CMS)</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage everything shown in the Member app — banners, promotions, events, perks, push notifications, today's park status
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('admin.cms.title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('admin.cms.subtitle')}</p>
         </div>
         <div className="relative w-full sm:w-auto">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -189,7 +187,7 @@ export function CmsRoute() {
         </TabsList>
 
         <TabsContent value="banners">
-          <ContentToolbar onCreate={() => alert('New banner — stub')} createLabel="New banner" />
+          <ContentToolbar createLabel="New banner" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filterFn(data.banners).map((b, i) => (
               <CmsTile
@@ -205,15 +203,13 @@ export function CmsRoute() {
                   `${num.format(b.impressions)} impressions · ${num.format(b.clicks)} clicks (${b.impressions > 0 ? Math.round((b.clicks / b.impressions) * 1000) / 10 : 0}% CTR)`,
                   `CTA: ${b.ctaLabel} → ${b.ctaTarget}`,
                 ]}
-                onEdit={() => alert(`Edit ${b.id} — stub`)}
-                onDelete={() => alert(`Delete ${b.id} — stub`)}
               />
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="promotions">
-          <ContentToolbar onCreate={() => alert('New promotion — stub')} createLabel="New promotion" />
+          <ContentToolbar createLabel="New promotion" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filterFn(data.promotions).map((p, i) => (
               <CmsTile
@@ -229,15 +225,13 @@ export function CmsRoute() {
                   `Valid until ${fmtDate.format(new Date(p.validUntil))}`,
                   `${num.format(p.claims)} claims`,
                 ]}
-                onEdit={() => alert(`Edit ${p.id} — stub`)}
-                onDelete={() => alert(`Delete ${p.id} — stub`)}
               />
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="events">
-          <ContentToolbar onCreate={() => alert('New event — stub')} createLabel="New event" />
+          <ContentToolbar createLabel="New event" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filterFn(data.events).map((e, i) => {
               const pct = Math.round((e.booked / e.capacity) * 100);
@@ -255,8 +249,6 @@ export function CmsRoute() {
                     `${num.format(e.booked)} / ${num.format(e.capacity)} booked (${pct}%)`,
                   ]}
                   progressPct={pct}
-                  onEdit={() => alert(`Edit ${e.id} — stub`)}
-                  onDelete={() => alert(`Delete ${e.id} — stub`)}
                 />
               );
             })}
@@ -264,7 +256,7 @@ export function CmsRoute() {
         </TabsContent>
 
         <TabsContent value="perks">
-          <ContentToolbar onCreate={() => alert('New perk — stub')} createLabel="New perk" />
+          <ContentToolbar createLabel="New perk" />
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filterFn(data.perks).map((p, i) => (
               <CmsTile
@@ -279,8 +271,6 @@ export function CmsRoute() {
                   `Valid until ${fmtDate.format(new Date(p.validUntil))}`,
                   `${num.format(p.redeemed)} redemptions`,
                 ]}
-                onEdit={() => alert(`Edit ${p.id} — stub`)}
-                onDelete={() => alert(`Delete ${p.id} — stub`)}
               />
             ))}
           </div>
@@ -326,11 +316,12 @@ function StatTile({
   );
 }
 
-function ContentToolbar({ onCreate, createLabel }: { onCreate: () => void; createLabel: string }) {
+function ContentToolbar({ createLabel }: { createLabel: string }) {
+  const { t } = useTranslation();
   return (
     <div className="mb-3 flex items-center justify-between">
-      <p className="text-xs text-muted-foreground">Click a card to preview · changes apply to the Member app instantly</p>
-      <Button size="sm" onClick={onCreate} className="gap-1.5">
+      <p className="text-xs text-muted-foreground">{t('admin.cms.toolbarHint')}</p>
+      <Button size="sm" className="gap-1.5" disabled title={t('admin.cms.demoBuild') as string}>
         <Plus className="h-3.5 w-3.5" />
         {createLabel}
       </Button>
@@ -348,8 +339,6 @@ function CmsTile({
   status,
   metaLines,
   progressPct,
-  onEdit,
-  onDelete,
 }: {
   index: number;
   image: string;
@@ -360,9 +349,8 @@ function CmsTile({
   status: string;
   metaLines: string[];
   progressPct?: number;
-  onEdit: () => void;
-  onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -404,7 +392,13 @@ function CmsTile({
             ))}
           </ul>
           <div className="mt-3 flex items-center gap-2">
-            <Button size="sm" variant="outline" className="h-8 flex-1 gap-1.5" onClick={onEdit}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 flex-1 gap-1.5"
+              disabled
+              title={t('admin.cms.demoBuild') as string}
+            >
               <Edit3 className="h-3 w-3" />
               Edit
             </Button>
@@ -412,7 +406,8 @@ function CmsTile({
               size="sm"
               variant="outline"
               className="h-8 gap-1.5 text-rose-700 hover:bg-rose-50"
-              onClick={onDelete}
+              disabled
+              title={t('admin.cms.demoBuild') as string}
               aria-label="Delete"
             >
               <Trash2 className="h-3 w-3" />
@@ -431,9 +426,10 @@ function NotificationsPanel({
   items: NotificationItem[];
   fmtDateTime: Intl.DateTimeFormat;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-3">
-      <ContentToolbar onCreate={() => alert('Compose push — stub')} createLabel="Compose push" />
+      <ContentToolbar createLabel="Compose push" />
       <Card>
         <CardContent className="overflow-x-auto p-0">
           <table className="min-w-full text-sm">
@@ -497,7 +493,13 @@ function NotificationsPanel({
                       )}
                     </td>
                     <td className="px-6 py-3 text-right">
-                      <Button size="sm" variant="outline" className="h-8 gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5"
+                        disabled
+                        title={t('admin.cms.demoBuild') as string}
+                      >
                         <Edit3 className="h-3 w-3" />
                         Edit
                       </Button>
@@ -520,12 +522,24 @@ function ParkStatusPanel({
   status: ParkStatus;
   fmtDateTime: Intl.DateTimeFormat;
 }) {
+  const { t } = useTranslation();
   const [tempC, setTempC] = useState(status.weather.tempC);
   const [condition, setCondition] = useState(status.weather.conditionEn);
   const [crowd, setCrowd] = useState<ParkStatus['crowdLevel']>(status.crowdLevel);
   const [featuredTitle, setFeaturedTitle] = useState(status.featuredEvent.title);
   const [featuredLocation, setFeaturedLocation] = useState(status.featuredEvent.location);
   const [open, setOpen] = useState(status.status === 'open');
+
+  // Revert is honest, purely client-side: restore the editable fields to the
+  // values that came from the server. Save is disabled in this demo build.
+  const revert = () => {
+    setTempC(status.weather.tempC);
+    setCondition(status.weather.conditionEn);
+    setCrowd(status.crowdLevel);
+    setFeaturedTitle(status.featuredEvent.title);
+    setFeaturedLocation(status.featuredEvent.location);
+    setOpen(status.status === 'open');
+  };
 
   const crowdOpts: ParkStatus['crowdLevel'][] = ['low', 'moderate', 'high'];
 
@@ -605,8 +619,8 @@ function ParkStatusPanel({
           </div>
 
           <div className="flex items-center justify-end gap-2 border-t pt-4">
-            <Button variant="outline">Revert</Button>
-            <Button onClick={() => alert('Saved (stub)')}>Save & publish</Button>
+            <Button variant="outline" onClick={revert}>Revert</Button>
+            <Button disabled title={t('admin.cms.demoBuild') as string}>Save & publish</Button>
           </div>
         </CardContent>
       </Card>

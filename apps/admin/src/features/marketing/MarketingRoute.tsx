@@ -1,9 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Badge, Card, CardContent, CardHeader, CardTitle, ErrorState } from '@tsi/ui';
 import { motion } from 'framer-motion';
 import { MailOpen, MousePointer, Send, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   Area,
   AreaChart,
@@ -53,8 +54,18 @@ const statusVariant = {
 
 export function MarketingRoute() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'marketing'], queryFn: fetchMarketing });
+  const navigate = useNavigate();
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'marketing'], queryFn: fetchMarketing });
 
+  if (isError)
+    return (
+      <ErrorState
+        title={t('admin.common.errorTitle')}
+        description={t('admin.common.errorHint')}
+        retryLabel={t('admin.common.retry')}
+        onRetry={() => refetch()}
+      />
+    );
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
 
   const fmt = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' });
@@ -62,8 +73,8 @@ export function MarketingRoute() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Marketing</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Campaigns, push, email, perks performance</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('admin.marketing.title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t('admin.marketing.subtitle')}</p>
       </header>
 
       <div className="grid gap-3 md:grid-cols-4">
@@ -128,7 +139,16 @@ export function MarketingRoute() {
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: i * 0.04 }}
-                  className="border-b last:border-0 hover:bg-muted/30"
+                  onClick={() => navigate(`/marketing/${c.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/marketing/${c.id}`);
+                    }
+                  }}
+                  className="cursor-pointer border-b last:border-0 transition-colors hover:bg-muted/30 focus:outline-none focus-visible:bg-muted/40"
                 >
                   <td className="px-6 py-3">
                     <div className="font-medium">{c.name}</div>
