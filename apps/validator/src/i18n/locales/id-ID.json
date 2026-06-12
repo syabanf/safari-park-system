@@ -11,7 +11,12 @@
       "title": "Pemindai Kode",
       "hint": "Arahkan kamera ke kode QR pengunjung",
       "grantCamera": "Izinkan kamera",
-      "cameraDenied": "Akses kamera ditolak. Aktifkan di pengaturan."
+      "cameraDenied": "Akses kamera ditolak. Aktifkan di pengaturan.",
+      "ready": "Siap Memindai",
+      "console": "Konsol Gerbang",
+      "shift": "Shift",
+      "today": "Hari ini",
+      "gate": "Gerbang"
     },
     "result": {
       "allowTitle": "Diizinkan",

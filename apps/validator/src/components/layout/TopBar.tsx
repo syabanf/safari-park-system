@@ -7,54 +7,31 @@ import { useNavigate } from 'react-router-dom';
 export function TopBar() {
   const online = useOnline();
   const navigate = useNavigate();
-  const storeGateId = useAuthStore((s) => s.gateId);
-  const displayName = useAuthStore((s) => s.displayName);
-  const role = useAuthStore((s) => s.role);
   const accessToken = useAuthStore((s) => s.accessToken);
   const clear = useAuthStore((s) => s.clear);
 
-  const gateId = storeGateId ?? import.meta.env.VITE_GATE_ID ?? 'gate-unknown';
-  const initials = (displayName ?? 'GV')
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border/50 bg-background/80 px-4 py-3 backdrop-blur-md">
+    <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-3 border-b border-border/50 bg-background/80 px-4 backdrop-blur-md">
       <div className="flex min-w-0 items-center gap-2.5">
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-700 to-brand-900 text-xs font-bold text-white shadow-md shadow-brand-900/20">
-          {initials}
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-700 to-brand-900 text-[11px] font-bold text-white shadow-md shadow-brand-900/20">
+          GV
         </div>
-        <div className="flex min-w-0 flex-col leading-tight">
-          {displayName ? (
-            <>
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                {role ?? 'Validator'}
-              </span>
-              <span className="truncate text-sm font-semibold">{displayName}</span>
-            </>
-          ) : (
-            <>
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Validator</span>
-              <span className="text-sm font-semibold">Gate Console</span>
-            </>
-          )}
+        <div className="flex min-w-0 flex-col leading-none">
+          <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Validator
+          </span>
+          <span className="mt-0.5 truncate text-sm font-bold text-brand-900">Gate Console</span>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-2 text-xs">
-        <span className="hidden rounded-full bg-muted/60 px-2.5 py-1 font-mono text-[10px] text-muted-foreground sm:inline">
-          {gateId}
-        </span>
-        <div
-          className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-medium ${
+      <div className="flex shrink-0 items-center gap-2">
+        <span
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
             online ? 'bg-brand-100 text-brand-800' : 'bg-earth-100 text-earth-800'
           }`}
         >
           {online ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-          <span>{online ? 'Online' : 'Offline'}</span>
-        </div>
+          {online ? 'Online' : 'Offline'}
+        </span>
         <AppSwitcher current="validator" />
         {accessToken ? (
           <button
@@ -64,9 +41,9 @@ export function TopBar() {
               clear();
               navigate('/login');
             }}
-            className="grid h-8 w-8 place-items-center rounded-full border border-border/60 bg-white/80 text-muted-foreground transition-colors hover:text-foreground"
+            className="grid h-9 w-9 place-items-center rounded-full border border-border/60 bg-white/80 text-muted-foreground transition-colors hover:text-foreground"
           >
-            <LogOut className="h-3.5 w-3.5" />
+            <LogOut className="h-4 w-4" />
           </button>
         ) : null}
       </div>

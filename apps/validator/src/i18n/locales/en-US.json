@@ -11,7 +11,12 @@
       "title": "Scanner",
       "hint": "Point the camera at the visitor's QR code",
       "grantCamera": "Allow camera",
-      "cameraDenied": "Camera access denied. Enable it in settings."
+      "cameraDenied": "Camera access denied. Enable it in settings.",
+      "ready": "Ready to Scan",
+      "console": "Gate Console",
+      "shift": "Shift",
+      "today": "Today",
+      "gate": "Gate"
     },
     "result": {
       "allowTitle": "Allowed",
