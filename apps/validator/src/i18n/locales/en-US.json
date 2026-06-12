@@ -63,7 +63,10 @@
       "trend14d": "Last 14 days",
       "topReasons": "Top manual/deny reasons",
       "yourShift": "Your shift",
-      "exportCsv": "Export CSV"
+      "exportCsv": "Export CSV",
+      "greet": "Hi",
+      "narrative": "{{allow}} of {{total}} scans allowed today — nice work. 👏",
+      "narrativeQuiet": "Quiet day — not many scans so far."
     },
     "profile": {
       "title": "Profile",

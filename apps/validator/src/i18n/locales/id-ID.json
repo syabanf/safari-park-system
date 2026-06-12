@@ -63,7 +63,10 @@
       "trend14d": "14 hari terakhir",
       "topReasons": "Alasan terbanyak",
       "yourShift": "Shift Anda",
-      "exportCsv": "Ekspor CSV"
+      "exportCsv": "Ekspor CSV",
+      "greet": "Halo",
+      "narrative": "{{allow}} dari {{total}} scan diizinkan hari ini — kerja bagus. 👏",
+      "narrativeQuiet": "Hari yang tenang — belum banyak scan sejauh ini."
     },
     "profile": {
       "title": "Profil",

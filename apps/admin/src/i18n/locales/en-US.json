@@ -26,6 +26,17 @@
     "overview": {
       "title": "Welcome back",
       "subtitle": "Annual Pass performance — {{date}}",
+      "greetMorning": "Good morning",
+      "greetAfternoon": "Good afternoon",
+      "greetEvening": "Good evening",
+      "greetNight": "Working late",
+      "greetGeneric": "Hello",
+      "narrativeLead": "{{members}} active members, and {{entries}} visitors have come through today.",
+      "narrativeUp": "Revenue is up {{pct}}% this week — nice work. ✨",
+      "narrativeFlat": "Things are holding steady — a calm day at the park.",
+      "narrativeDown": "Revenue dipped {{pct}}% this week — worth a look.",
+      "queueClear": "Nothing waiting in the offline queue. All caught up. 👍",
+      "queuePending": "{{count}} offline validations are waiting to sync.",
       "kpi": {
         "activeMembers": "Active members",
         "todaysEntries": "Today's entries",

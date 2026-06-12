@@ -26,6 +26,17 @@
     "overview": {
       "title": "Selamat datang kembali",
       "subtitle": "Ringkasan performa Annual Pass — {{date}}",
+      "greetMorning": "Selamat pagi",
+      "greetAfternoon": "Selamat siang",
+      "greetEvening": "Selamat sore",
+      "greetNight": "Masih semangat malam ini",
+      "greetGeneric": "Halo",
+      "narrativeLead": "{{members}} anggota aktif, dan {{entries}} pengunjung sudah masuk hari ini.",
+      "narrativeUp": "Pendapatan minggu ini naik {{pct}}% — kerja bagus. ✨",
+      "narrativeFlat": "Semuanya stabil — hari yang tenang di taman.",
+      "narrativeDown": "Pendapatan minggu ini turun {{pct}}% — perlu diperhatikan.",
+      "queueClear": "Tidak ada antrian offline yang tertunda. Semua beres. 👍",
+      "queuePending": "{{count}} validasi offline menunggu sinkronisasi.",
       "kpi": {
         "activeMembers": "Anggota aktif",
         "todaysEntries": "Masuk hari ini",

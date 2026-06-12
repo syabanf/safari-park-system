@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/features/auth/store';
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
@@ -37,6 +38,7 @@ async function fetchReports(): Promise<ValidatorReports> {
 export function ReportsRoute() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({ queryKey: ['validator-reports'], queryFn: fetchReports });
+  const displayName = useAuthStore((s) => s.displayName);
 
   if (isLoading || !data) {
     return (
@@ -62,8 +64,19 @@ export function ReportsRoute() {
       className="space-y-5"
     >
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">{t('validator.reports.title')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('validator.reports.subtitle')}</p>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {displayName
+            ? `${t('validator.reports.greet')}, ${displayName.split(' ')[0]} 👋`
+            : t('validator.reports.title')}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {data.summary.todayScans > 5
+            ? t('validator.reports.narrative', {
+                allow: data.summary.todayAllow,
+                total: data.summary.todayScans,
+              })
+            : t('validator.reports.narrativeQuiet')}
+        </p>
       </header>
 
       <Card className="border-border/60 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 text-white">

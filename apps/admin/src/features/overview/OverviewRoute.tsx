@@ -16,6 +16,7 @@ import {
   YAxis,
 } from 'recharts';
 import { StatCard } from '@/components/charts/StatCard';
+import { useAuthStore } from '@/features/auth/store';
 import { api } from '@/lib/api';
 
 interface OverviewData {
@@ -46,6 +47,7 @@ const tierColors = ['#287338', '#5bac6a', '#b08754', '#d4be96'];
 export function OverviewRoute() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'overview'], queryFn: fetchOverview });
+  const displayName = useAuthStore((s) => s.displayName);
 
   if (isLoading || !data) {
     return <p className="text-sm text-muted-foreground">{t('admin.common.loading')}</p>;
@@ -53,17 +55,57 @@ export function OverviewRoute() {
 
   const today = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' }).format(new Date());
 
+  // Time-aware greeting + a warm, data-driven summary so the dashboard
+  // reads like a colleague catching you up rather than a wall of metrics.
+  const hour = new Date().getHours();
+  const greetKey =
+    hour < 11 ? 'greetMorning' : hour < 15 ? 'greetAfternoon' : hour < 19 ? 'greetEvening' : 'greetNight';
+  const greeting = displayName
+    ? `${t(`admin.overview.${greetKey}`)}, ${displayName} 👋`
+    : `${t(`admin.overview.${greetKey}`)} 👋`;
+  const initial = (displayName ?? 'A').slice(0, 1).toUpperCase();
+
+  const lead = t('admin.overview.narrativeLead', {
+    members: data.activeMembers.toLocaleString(i18n.language),
+    entries: data.todaysEntries.toLocaleString(i18n.language),
+  });
+  const rev =
+    data.weekRevenueTrendPct > 1
+      ? t('admin.overview.narrativeUp', { pct: data.weekRevenueTrendPct })
+      : data.weekRevenueTrendPct < -1
+        ? t('admin.overview.narrativeDown', { pct: Math.abs(data.weekRevenueTrendPct) })
+        : t('admin.overview.narrativeFlat');
+  const queueLine =
+    data.offlinePending === 0
+      ? t('admin.overview.queueClear')
+      : t('admin.overview.queuePending', { count: data.offlinePending });
+
   return (
     <div className="space-y-5 lg:space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        className="flex items-start gap-3.5"
       >
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-          {t('admin.overview.subtitle', { date: today })}
-        </p>
-        <h1 className="mt-1 text-xl font-bold tracking-tight lg:text-2xl">{t('admin.overview.title')}</h1>
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 text-lg font-bold text-white shadow-md shadow-brand-900/15">
+          {initial}
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{today}</p>
+          <h1 className="mt-0.5 text-xl font-bold tracking-tight lg:text-2xl">{greeting}</h1>
+          <p className="mt-1.5 max-w-2xl text-sm leading-snug text-muted-foreground">
+            {lead} {rev}
+          </p>
+          <p
+            className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${
+              data.offlinePending === 0 ? 'bg-brand-100 text-brand-800' : 'bg-amber-100 text-amber-800'
+            }`}
+          >
+            <AlertCircle className="h-3 w-3" />
+            {queueLine}
+          </p>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-3 lg:gap-4 xl:grid-cols-4">
