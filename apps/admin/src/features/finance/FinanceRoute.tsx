@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
@@ -59,10 +60,9 @@ async function fetchTx(): Promise<Transaction[]> {
   return json.transactions;
 }
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function FinanceRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const summaryQ = useQuery({ queryKey: ['admin', 'finance-summary'], queryFn: fetchSummary });
   const txQ = useQuery({ queryKey: ['admin', 'finance-tx'], queryFn: fetchTx });
 
@@ -242,7 +242,7 @@ export function FinanceRoute() {
                         onChange: setChannelSelected,
                         options: [...txCounts.channel.keys()].map((value) => ({
                           value,
-                          label: humanize(value),
+                          label: valueLabel(value),
                           count: txCounts.channel.get(value),
                         })),
                       },
@@ -253,7 +253,7 @@ export function FinanceRoute() {
                         onChange: setStatusSelected,
                         options: [...txCounts.status.keys()].map((value) => ({
                           value,
-                          label: humanize(value),
+                          label: valueLabel(value),
                           count: txCounts.status.get(value),
                         })),
                       },

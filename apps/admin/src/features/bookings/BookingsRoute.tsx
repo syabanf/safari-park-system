@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
@@ -46,10 +47,9 @@ const statusVariant = {
   cancelled: 'destructive',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function BookingsRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'bookings'], queryFn: fetchBookings });
   const [query, setQuery] = useState('');
@@ -143,7 +143,7 @@ export function BookingsRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.status.get(v),
             })),
           },
@@ -154,7 +154,7 @@ export function BookingsRoute() {
             onChange: setTypeSelected,
             options: [...counts.type.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.type.get(v),
             })),
           },

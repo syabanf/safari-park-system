@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
@@ -40,10 +41,9 @@ const statusVariant = {
   sick: 'destructive',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function StaffRoute() {
   const { t } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'staff'], queryFn: fetchStaff });
   const [query, setQuery] = useState('');
@@ -153,7 +153,7 @@ export function StaffRoute() {
             onChange: setDeptSelected,
             options: [...counts.department.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.department.get(v),
             })),
           },
@@ -164,7 +164,7 @@ export function StaffRoute() {
             onChange: setRoleSelected,
             options: [...counts.role.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.role.get(v),
             })),
           },
@@ -175,7 +175,7 @@ export function StaffRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.status.get(v),
             })),
           },

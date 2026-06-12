@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
@@ -37,12 +38,11 @@ const idrShort = (v: number) => (Math.abs(v) >= 1_000_000 ? `Rp ${(v / 1_000_000
 
 const categoryColors = ['#287338', '#5bac6a', '#b08754', '#d4be96', '#9a3a3a'];
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 const stockStateOf = (it: InventoryItem) => (it.needsReorder ? 'reorder' : 'in-stock');
 
 export function InventoryRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'inventory'], queryFn: fetchInventory });
 
@@ -142,7 +142,7 @@ export function InventoryRoute() {
             onChange: setCategorySelected,
             options: [...counts.category.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.category.get(value),
             })),
           },
@@ -153,7 +153,7 @@ export function InventoryRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.status.get(value),
             })),
           },

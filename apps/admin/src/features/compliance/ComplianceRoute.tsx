@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, EmptyState, ErrorState } from '@tsi/ui';
@@ -36,10 +37,9 @@ function daysUntil(date: string) {
   return Math.round((new Date(date).getTime() - Date.now()) / 86_400_000);
 }
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function ComplianceRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'compliance'], queryFn: fetchCompliance });
 
@@ -111,7 +111,7 @@ export function ComplianceRoute() {
             onChange: setStatusSelected,
             options: Array.from(counts.status.entries()).map(([value, count]) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count,
             })),
           },
@@ -122,7 +122,7 @@ export function ComplianceRoute() {
             onChange: setCategorySelected,
             options: Array.from(counts.category.entries()).map(([value, count]) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count,
             })),
           },

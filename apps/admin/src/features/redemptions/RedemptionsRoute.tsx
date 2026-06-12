@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, EmptyState, ErrorState } from '@tsi/ui';
@@ -30,6 +31,7 @@ const verdictVariant: Record<AdminRedemption['verdict'], 'success' | 'destructiv
 
 export function RedemptionsRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'redemptions'], queryFn: fetchRedemptions });
 
@@ -75,8 +77,8 @@ export function RedemptionsRoute() {
   }, [data, gateSelected, verdictSelected, sourceSelected, dateRange, query]);
 
   const gateOptions = useMemo(
-    () => Array.from(counts.gate.entries()).map(([value, count]) => ({ value, label: value, count })),
-    [counts],
+    () => Array.from(counts.gate.entries()).map(([value, count]) => ({ value, label: valueLabel(value), count })),
+    [counts, valueLabel],
   );
 
   return (
@@ -98,7 +100,7 @@ export function RedemptionsRoute() {
             onChange: setVerdictSelected,
             options: ['allow', 'deny', 'manual'].map((v) => ({
               value: v,
-              label: v,
+              label: valueLabel(v),
               count: counts.verdict.get(v),
             })),
           },
@@ -109,7 +111,7 @@ export function RedemptionsRoute() {
             onChange: setSourceSelected,
             options: ['online', 'offline', 'manual'].map((v) => ({
               value: v,
-              label: v,
+              label: valueLabel(v),
               count: counts.source.get(v),
             })),
           },

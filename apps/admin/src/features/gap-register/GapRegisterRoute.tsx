@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { SearchX } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 
 interface GapEntry {
   id: string;
@@ -25,10 +26,9 @@ const statusVariant = {
   mitigated: 'success',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function GapRegisterRoute() {
   const { t } = useTranslation();
+  const valueLabel = useValueLabel();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'gap-register'], queryFn: fetchGaps });
   const [query, setQuery] = useState('');
   const [statusSelected, setStatusSelected] = useState<string[]>([]);
@@ -75,7 +75,7 @@ export function GapRegisterRoute() {
             onChange: setStatusSelected,
             options: [...statusCounts.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: statusCounts.get(value),
             })),
           },

@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState } from '@tsi/ui';
@@ -38,10 +39,9 @@ const statusVariant: Record<MaintenanceTicket['status'], 'secondary' | 'warning'
   resolved: 'success',
 };
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function MaintenanceRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'maintenance'],
     queryFn: fetchTickets,
@@ -118,7 +118,7 @@ export function MaintenanceRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.status.get(value),
             })),
           },
@@ -129,7 +129,7 @@ export function MaintenanceRoute() {
             onChange: setSeveritySelected,
             options: [...counts.severity.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.severity.get(value),
             })),
           },

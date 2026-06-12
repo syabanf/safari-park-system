@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, EmptyState } from '@tsi/ui';
@@ -36,10 +37,9 @@ const conservationVariant: Record<string, 'destructive' | 'warning' | 'secondary
   'Near Threatened': 'secondary',
 };
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function AnimalsRoute() {
   const { t } = useTranslation();
+  const valueLabel = useValueLabel();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'animals'], queryFn: fetchAnimals });
 
   const [query, setQuery] = useState('');
@@ -109,7 +109,7 @@ export function AnimalsRoute() {
             onChange: setSpeciesSelected,
             options: Array.from(counts.species.entries()).map(([value, count]) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count,
             })),
           },
@@ -120,7 +120,7 @@ export function AnimalsRoute() {
             onChange: setStatusSelected,
             options: Array.from(counts.status.entries()).map(([value, count]) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count,
             })),
           },
@@ -131,7 +131,7 @@ export function AnimalsRoute() {
             onChange: setLocationSelected,
             options: Array.from(counts.location.entries()).map(([value, count]) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count,
             })),
           },

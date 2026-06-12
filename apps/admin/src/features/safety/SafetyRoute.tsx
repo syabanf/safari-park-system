@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
@@ -44,10 +45,9 @@ const statusVariant = {
   closed: 'success',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function SafetyRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'safety'], queryFn: fetchSafety });
   const [query, setQuery] = useState('');
@@ -121,7 +121,7 @@ export function SafetyRoute() {
             onChange: setSeveritySelected,
             options: [...counts.severity.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.severity.get(v),
             })),
           },
@@ -132,7 +132,7 @@ export function SafetyRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.status.get(v),
             })),
           },
@@ -143,7 +143,7 @@ export function SafetyRoute() {
             onChange: setTypeSelected,
             options: [...counts.type.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.type.get(v),
             })),
           },

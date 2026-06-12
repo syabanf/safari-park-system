@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, Tabs, TabsContent, TabsList, TabsTrigger } from '@tsi/ui';
@@ -65,10 +66,9 @@ const swapVariant = {
   completed: 'secondary',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function ShiftsRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const rosterQ = useQuery({ queryKey: ['admin', 'shifts', 'roster'], queryFn: fetchRoster });
   const swapsQ = useQuery({ queryKey: ['admin', 'shifts', 'swaps'], queryFn: fetchSwaps });
   const coverageQ = useQuery({ queryKey: ['admin', 'shifts', 'coverage'], queryFn: fetchCoverage });
@@ -167,7 +167,7 @@ export function ShiftsRoute() {
                     onChange: setRoleSelected,
                     options: [...counts.role.keys()].map((v) => ({
                       value: v,
-                      label: humanize(v),
+                      label: valueLabel(v),
                       count: counts.role.get(v),
                     })),
                   },
@@ -178,7 +178,7 @@ export function ShiftsRoute() {
                     onChange: setGateSelected,
                     options: [...counts.gate.keys()].map((v) => ({
                       value: v,
-                      label: humanize(v),
+                      label: valueLabel(v),
                       count: counts.gate.get(v),
                     })),
                   },

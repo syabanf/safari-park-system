@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState } from '@tsi/ui';
@@ -45,10 +46,9 @@ const statusVariant = {
   resolved: 'success',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function ReconciliationRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'reconciliation'],
     queryFn: fetchReconciliation,
@@ -135,7 +135,7 @@ export function ReconciliationRoute() {
             onChange: setSeveritySelected,
             options: [...counts.severity.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.severity.get(v),
             })),
           },
@@ -146,7 +146,7 @@ export function ReconciliationRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((v) => ({
               value: v,
-              label: humanize(v),
+              label: valueLabel(v),
               count: counts.status.get(v),
             })),
           },

@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
@@ -53,10 +54,9 @@ const statusVariant = {
   completed: 'secondary',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function MarketingRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'marketing'], queryFn: fetchMarketing });
 
@@ -160,7 +160,7 @@ export function MarketingRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.status.get(value),
             })),
           },
@@ -171,7 +171,7 @@ export function MarketingRoute() {
             onChange: setChannelSelected,
             options: [...counts.channel.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.channel.get(value),
             })),
           },

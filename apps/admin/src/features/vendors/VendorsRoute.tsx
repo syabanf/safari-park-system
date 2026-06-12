@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Badge, Card, CardContent, CardHeader, CardTitle, EmptyState, ErrorState } from '@tsi/ui';
@@ -42,12 +43,11 @@ const statusVariant = {
   closed: 'success',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 const onTimeTierOf = (v: Vendor) => (v.onTimePct >= 95 ? 'excellent' : v.onTimePct >= 85 ? 'on-track' : 'at-risk');
 
 export function VendorsRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'vendors'], queryFn: fetchVendors });
 
@@ -122,7 +122,7 @@ export function VendorsRoute() {
             onChange: setCategorySelected,
             options: [...counts.category.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.category.get(value),
             })),
           },
@@ -133,7 +133,7 @@ export function VendorsRoute() {
             onChange: setStatusSelected,
             options: [...counts.status.keys()].map((value) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count: counts.status.get(value),
             })),
           },

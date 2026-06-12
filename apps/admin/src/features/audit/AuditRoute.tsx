@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
 import { AdvancedFilters, Card, CardContent, ErrorState } from '@tsi/ui';
@@ -28,6 +29,7 @@ const levelColors = {
 
 export function AuditRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'audit'], queryFn: fetchAudit });
 
   const [query, setQuery] = useState('');
@@ -70,8 +72,8 @@ export function AuditRoute() {
   }, [data, levelSelected, actorSelected, dateRange, query]);
 
   const actorOptions = useMemo(
-    () => Array.from(counts.actor.entries()).map(([value, count]) => ({ value, label: value, count })),
-    [counts],
+    () => Array.from(counts.actor.entries()).map(([value, count]) => ({ value, label: valueLabel(value), count })),
+    [counts, valueLabel],
   );
 
   return (
@@ -93,7 +95,7 @@ export function AuditRoute() {
             onChange: setLevelSelected,
             options: ['info', 'warn', 'error'].map((v) => ({
               value: v,
-              label: v.toUpperCase(),
+              label: valueLabel(v),
               count: counts.level.get(v),
             })),
           },

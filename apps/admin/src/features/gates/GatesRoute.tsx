@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GateMap } from '@/features/gate-map/GateMap';
 import { api } from '@/lib/api';
+import { useValueLabel } from '@/lib/filterValues';
 
 interface AdminGate {
   id: string;
@@ -34,10 +35,9 @@ const statusVariant = {
   degraded: 'warning',
 } as const;
 
-const humanize = (s: string) => s.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-
 export function GatesRoute() {
   const { t, i18n } = useTranslation();
+  const valueLabel = useValueLabel();
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'gates'], queryFn: fetchGates });
 
   const [query, setQuery] = useState('');
@@ -85,7 +85,7 @@ export function GatesRoute() {
             onChange: setStatusSelected,
             options: Array.from(counts.status.entries()).map(([value, count]) => ({
               value,
-              label: humanize(value),
+              label: valueLabel(value),
               count,
             })),
           },
