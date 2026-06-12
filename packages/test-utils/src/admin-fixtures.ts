@@ -167,5 +167,40 @@ export function makeGapRegister() {
       phase2: 'Self-serve in admin dashboard',
       status: 'documented' as const,
     },
+    {
+      id: 'gap-006',
+      gap: 'No partial-refund support',
+      impact: 'Refunds handled manually at finance desk',
+      phase2: 'WIT payments engine supports partial refunds',
+      status: 'open' as const,
+    },
+    {
+      id: 'gap-007',
+      gap: 'STG environment lags production',
+      impact: 'New products invisible in test until annual sync',
+      phase2: 'Continuously-synced WIT sandbox',
+      status: 'documented' as const,
+    },
+    {
+      id: 'gap-008',
+      gap: 'No customer identity API',
+      impact: 'Cannot query "all passes for member X" upstream',
+      phase2: 'WIT owns the member record natively',
+      status: 'mitigated' as const,
+    },
+    {
+      id: 'gap-009',
+      gap: 'Token TTL fixed at 24h',
+      impact: 'Forces a rotation job to avoid mid-call expiry',
+      phase2: 'Configurable token lifetimes in WIT auth',
+      status: 'documented' as const,
+    },
+    {
+      id: 'gap-010',
+      gap: 'No gate-level entitlement override',
+      impact: 'VIP / staff entries need manual allow at the gate',
+      phase2: 'Per-gate rules engine in WIT validation',
+      status: 'open' as const,
+    },
   ];
 }

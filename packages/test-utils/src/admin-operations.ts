@@ -108,10 +108,10 @@ export function makeReconciliation() {
   return {
     summary: {
       totalToday: 412,
-      matched: 410,
-      mismatched: 1,
-      pending: 1,
-      accuracyPct: 99.51,
+      matched: 404,
+      mismatched: 6,
+      pending: 2,
+      accuracyPct: 98.06,
     },
     mismatches: [
       {
@@ -147,12 +147,67 @@ export function makeReconciliation() {
         severity: 'low' as const,
         status: 'resolved' as const,
       },
+      {
+        id: 'mm-004',
+        passId: 'p_2351',
+        holderName: 'Dewi Hartono',
+        gateId: 'gate-bgr-02',
+        witTimestamp: pastHours(11),
+        globaltixTimestamp: null,
+        delta: 'GlobalTix booking not created (503 retry exhausted)',
+        severity: 'high' as const,
+        status: 'investigating' as const,
+      },
+      {
+        id: 'mm-005',
+        passId: 'p_2419',
+        holderName: 'Eka Setiawan',
+        gateId: 'gate-prg-02',
+        witTimestamp: pastHours(13),
+        globaltixTimestamp: pastHours(13.4),
+        delta: 'Timestamp drift > 5 min',
+        severity: 'low' as const,
+        status: 'resolved' as const,
+      },
+      {
+        id: 'mm-006',
+        passId: 'p_2502',
+        holderName: 'Farhan Kusuma',
+        gateId: 'gate-bgr-01',
+        witTimestamp: pastHours(16),
+        globaltixTimestamp: pastHours(16.02),
+        delta: 'Product option deactivated mid-sync',
+        severity: 'medium' as const,
+        status: 'open' as const,
+      },
+      {
+        id: 'mm-007',
+        passId: 'p_2588',
+        holderName: 'Gita Permata',
+        gateId: 'gate-bli-01',
+        witTimestamp: pastHours(20),
+        globaltixTimestamp: pastHours(20.1),
+        delta: 'Reference number collision',
+        severity: 'medium' as const,
+        status: 'investigating' as const,
+      },
+      {
+        id: 'mm-008',
+        passId: 'p_2631',
+        holderName: 'Hasan Mahendra',
+        gateId: 'gate-prg-01',
+        witTimestamp: pastHours(22),
+        globaltixTimestamp: pastHours(22.05),
+        delta: 'Token rotated mid-flight (401)',
+        severity: 'low' as const,
+        status: 'resolved' as const,
+      },
     ],
     sources,
   };
 }
 
-export function makeAuditLog(count = 24) {
+export function makeAuditLog(count = 40) {
   const levels = ['info', 'warn', 'error', 'info', 'info', 'warn'] as const;
   const actors = ['system', 'staff:gate-bgr-01', 'admin:syaban@wit.id', 'system', 'staff:gate-prg-02'];
   const verbs = [
