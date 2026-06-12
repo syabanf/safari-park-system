@@ -176,7 +176,9 @@
       "filter": "Filter",
       "today": "Today",
       "thisWeek": "This week",
-      "thisMonth": "This month"
+      "thisMonth": "This month",
+      "noMatches": "Nothing matches yet",
+      "noMatchesHint": "Try clearing a filter or two to widen the search."
     }
   }
 }

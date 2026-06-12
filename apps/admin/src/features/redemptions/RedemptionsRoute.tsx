@@ -1,8 +1,9 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { AdvancedFilters, Badge, Card, CardContent } from '@tsi/ui';
+import { AdvancedFilters, Badge, Card, CardContent, EmptyState } from '@tsi/ui';
 import { motion } from 'framer-motion';
+import { SearchX } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 interface AdminRedemption {
@@ -127,7 +128,11 @@ export function RedemptionsRoute() {
           {isLoading || !data ? (
             <div className="p-6 text-sm text-muted-foreground">{t('admin.common.loading')}</div>
           ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-sm text-muted-foreground">No redemptions match the filters.</div>
+            <EmptyState
+              icon={SearchX}
+              title={t('admin.common.noMatches')}
+              description={t('admin.common.noMatchesHint')}
+            />
           ) : (
             <table className="min-w-full text-sm">
               <thead>

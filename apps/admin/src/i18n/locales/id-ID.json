@@ -176,7 +176,9 @@
       "filter": "Filter",
       "today": "Hari ini",
       "thisWeek": "Minggu ini",
-      "thisMonth": "Bulan ini"
+      "thisMonth": "Bulan ini",
+      "noMatches": "Belum ada yang cocok",
+      "noMatchesHint": "Coba hapus satu-dua filter untuk memperluas pencarian."
     }
   }
 }
