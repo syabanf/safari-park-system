@@ -87,9 +87,9 @@ export function BusinessFlowSelector({ flows, initialFlowKey, highlightStageKey 
         <CardContent className="space-y-3 p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold">All business flows</p>
+              <p className="text-sm font-semibold">Business processes</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Every process where this vendor touches the business. Pick one to see its pipeline.
+                Each part of the business this partner touches. Pick one to see how it works, step by step.
               </p>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${meta.tone}`}>
@@ -133,7 +133,7 @@ export function BusinessFlowSelector({ flows, initialFlowKey, highlightStageKey 
       {/* Selected flow meta strip */}
       <Card>
         <CardContent className="grid grid-cols-2 gap-3 p-4 md:grid-cols-4">
-          <Meta icon={<Activity className="h-3.5 w-3.5" />} label="Today" value={num.format(flow.todayVolume)} hint="runs" />
+          <Meta icon={<Activity className="h-3.5 w-3.5" />} label="Today" value={num.format(flow.todayVolume)} hint="times today" />
           <Meta
             icon={<Wallet className="h-3.5 w-3.5" />}
             label="Success rate"

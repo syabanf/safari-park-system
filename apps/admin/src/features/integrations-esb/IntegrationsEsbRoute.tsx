@@ -15,17 +15,18 @@ import { motion } from 'framer-motion';
 import {
   CheckCircle2,
   Clock,
-  GitBranch,
   Heart,
   HelpCircle,
   ListChecks,
   MapPin,
   Plug,
+  Server,
   Sparkles,
   Store,
   Ticket,
   Utensils,
   Workflow,
+  Wrench,
 } from 'lucide-react';
 import {
   BusinessFlowSelector,
@@ -121,6 +122,12 @@ const mappingStatusTone: Record<PerkMapping['status'], string> = {
   pending: 'bg-amber-100 text-amber-800',
 };
 
+const mappingStatusLabel: Record<PerkMapping['status'], string> = {
+  mapped: 'Ready',
+  'n/a': 'Not F&B',
+  pending: 'Pending',
+};
+
 const outletStatusTone: Record<Outlet['status'], string> = {
   live: 'bg-brand-100 text-brand-800',
   pending: 'bg-amber-100 text-amber-800',
@@ -137,6 +144,11 @@ const severityTone: Record<OpenQuestion['severity'], string> = {
   high: 'bg-rose-100 text-rose-800',
   medium: 'bg-amber-100 text-amber-800',
   low: 'bg-muted text-muted-foreground',
+};
+const priorityLabel: Record<OpenQuestion['severity'], string> = {
+  high: 'Blocker',
+  medium: 'Soon',
+  low: 'Low',
 };
 
 const num = new Intl.NumberFormat('id-ID');
@@ -164,13 +176,15 @@ export function IntegrationsEsbRoute() {
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight lg:text-2xl">{data.displayName}</h1>
-            <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{data.subtitle}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+              Restaurant &amp; café tills — turns member perks into real discounts at the counter
+            </p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-widest text-amber-800">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-600 animate-pulse" />
-            {data.status}
+            Not connected yet
           </span>
         </div>
       </header>
@@ -181,13 +195,11 @@ export function IntegrationsEsbRoute() {
             <Plug className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-amber-900">Provisional integration — credentials pending</p>
-            <p className="mt-1 text-xs text-amber-900/80">
-              Phase 1.5 / Phase 2 prep. F&B is out of scope for Phase 1; this page sketches the integration contract
-              now so the perks story has a credible landing once ESB OMS credentials are received from TSI.
-            </p>
-            <p className="mt-2 text-xs text-amber-900">
-              <span className="font-semibold">Model:</span> {data.integrationModel}
+            <p className="text-sm font-semibold text-amber-900">Not connected yet — waiting on access from ESB</p>
+            <p className="mt-1 text-xs leading-relaxed text-amber-900/80">
+              Food &amp; drink perks arrive in a later phase. We've already mapped out exactly how it will
+              work, so the moment ESB grants access the member perks switch on with no surprises. The
+              numbers below are projections of what to expect.
             </p>
           </div>
         </div>
@@ -196,28 +208,28 @@ export function IntegrationsEsbRoute() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
           icon={<Sparkles className="h-4 w-4" />}
-          label="Perks defined"
+          label="Member perks"
           primary={String(data.summary.perksDefined)}
-          hint="3 mapped to ESB, 3 not F&B"
+          hint="3 apply at F&B counters"
         />
         <StatTile
           icon={<Ticket className="h-4 w-4" />}
           label="Vouchers · 30d"
           primary={num.format(data.summary.vouchersIssuedThisMonth)}
-          hint={`${num.format(data.summary.vouchersRedeemedThisMonth)} redeemed`}
+          hint={`${num.format(data.summary.vouchersRedeemedThisMonth)} used`}
         />
         <StatTile
           icon={<CheckCircle2 className="h-4 w-4" />}
-          label="Redemption rate"
+          label="Members who used them"
           primary={`${data.summary.redemptionRatePct}%`}
-          hint="member voucher usage"
+          hint="of vouchers issued"
           tone="ok"
         />
         <StatTile
           icon={<Store className="h-4 w-4" />}
-          label="Outlets"
+          label="Outlets ready"
           primary={`${data.summary.outletsConfigured}/${data.summary.outletsExpected}`}
-          hint="configured / expected"
+          hint="set up so far"
           tone="warn"
         />
       </div>
@@ -228,10 +240,10 @@ export function IntegrationsEsbRoute() {
             Overview
           </TabsTrigger>
           <TabsTrigger value="pipeline" icon={<Workflow className="h-3.5 w-3.5" />} count={data.pipelines.length}>
-            Business flow
+            Processes
           </TabsTrigger>
-          <TabsTrigger value="mapping" icon={<GitBranch className="h-3.5 w-3.5" />} count={data.perkMapping.length}>
-            Perk mapping
+          <TabsTrigger value="mapping" icon={<Utensils className="h-3.5 w-3.5" />} count={data.perkMapping.length}>
+            Perks at the counter
           </TabsTrigger>
           <TabsTrigger value="outlets" icon={<Store className="h-3.5 w-3.5" />} count={data.outlets.length}>
             Outlets
@@ -239,49 +251,38 @@ export function IntegrationsEsbRoute() {
           <TabsTrigger value="vouchers" icon={<Ticket className="h-3.5 w-3.5" />} count={data.recentVoucherActivity.length}>
             Vouchers
           </TabsTrigger>
-          <TabsTrigger value="blackbox" icon={<Heart className="h-3.5 w-3.5" />} count={data.blackbox.recentCalls.length}>
-            Blackbox
-          </TabsTrigger>
           <TabsTrigger value="questions" icon={<HelpCircle className="h-3.5 w-3.5" />} count={data.openQuestions.length}>
             Open questions
           </TabsTrigger>
           <TabsTrigger value="roadmap" icon={<ListChecks className="h-3.5 w-3.5" />} count={data.nextSteps.length}>
             Next steps
           </TabsTrigger>
+          <TabsTrigger value="technical" icon={<Wrench className="h-3.5 w-3.5" />}>
+            Technical
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
           <div className="space-y-4">
             <BusinessFlowSelector flows={data.pipelines} />
-          <Card>
-            <CardContent className="p-5">
-              <p className="text-sm font-semibold">ESB product surfaces</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                ESB ships five API products; only OMS is the integration target for AP perks.
-              </p>
-              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {data.products.map((p, i) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: Math.min(i * 0.04, 0.32) }}
-                  >
-                    <div className="h-full rounded-2xl border border-border/60 bg-white p-4">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold">{p.name}</p>
-                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${productStatusTone[p.status]}`}>
-                          {p.status === 'not-applicable' ? 'N/A' : p.status === 'maybe-phase-2' ? 'P2?' : 'Target'}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">{p.purpose}</p>
-                      <p className="mt-2 text-xs text-foreground">{p.note}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-earth-100 text-earth-800">
+                    <Utensils className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">Where this plugs in</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      ESB runs the tills at our restaurants and cafés. We connect to one part of it — the
+                      order system — so a member's perk becomes a real discount the moment they pay. ESB's
+                      other products (online ordering, branded apps) aren't part of this; the full list is
+                      under <span className="font-medium text-foreground">Technical</span>.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
@@ -290,14 +291,17 @@ export function IntegrationsEsbRoute() {
         </TabsContent>
 
         <TabsContent value="mapping">
+          <p className="mb-3 text-xs text-muted-foreground">
+            Which member perks apply at the F&amp;B counter, and what happens at the till for each one.
+          </p>
           <Card>
             <CardContent className="overflow-x-auto p-0">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
                     <th className="px-6 py-3 font-medium">Perk</th>
-                    <th className="px-6 py-3 font-medium">Mapping</th>
-                    <th className="px-6 py-3 font-medium">Voucher type</th>
+                    <th className="px-6 py-3 font-medium">What happens at the till</th>
+                    <th className="px-6 py-3 font-medium">Voucher</th>
                     <th className="px-6 py-3 font-medium">Status</th>
                   </tr>
                 </thead>
@@ -308,7 +312,9 @@ export function IntegrationsEsbRoute() {
                         <p className="font-medium">{m.title}</p>
                         <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">{m.perkId}</p>
                       </td>
-                      <td className="px-6 py-3 text-xs text-foreground">{m.mapping}</td>
+                      <td className={`px-6 py-3 text-xs ${m.status === 'n/a' ? 'text-muted-foreground' : 'text-foreground'}`}>
+                        {m.status === 'n/a' ? 'Not a food & drink perk — handled elsewhere' : m.mapping}
+                      </td>
                       <td className="px-6 py-3 text-xs">
                         {m.voucherType === '—' ? (
                           <span className="text-muted-foreground">—</span>
@@ -318,7 +324,7 @@ export function IntegrationsEsbRoute() {
                       </td>
                       <td className="px-6 py-3">
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${mappingStatusTone[m.status]}`}>
-                          {m.status}
+                          {mappingStatusLabel[m.status]}
                         </span>
                       </td>
                     </Row>
@@ -330,6 +336,9 @@ export function IntegrationsEsbRoute() {
         </TabsContent>
 
         <TabsContent value="outlets">
+          <p className="mb-3 text-xs text-muted-foreground">
+            The restaurants and cafés where members will be able to use their perks.
+          </p>
           <Card>
             <CardContent className="overflow-x-auto p-0">
               <table className="min-w-full text-sm">
@@ -356,7 +365,7 @@ export function IntegrationsEsbRoute() {
                       </td>
                       <td className="px-6 py-3">
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${outletStatusTone[o.status]}`}>
-                          {o.status}
+                          {o.status === 'pending' ? 'Not set up' : o.status === 'live' ? 'Live' : 'Paused'}
                         </span>
                       </td>
                       <td className="px-6 py-3 text-right">
@@ -374,6 +383,9 @@ export function IntegrationsEsbRoute() {
         </TabsContent>
 
         <TabsContent value="vouchers">
+          <p className="mb-3 text-xs text-muted-foreground">
+            Recent member vouchers — issued, used, or expired.
+          </p>
           <Card>
             <CardContent className="overflow-x-auto p-0">
               <table className="min-w-full text-sm">
@@ -384,8 +396,8 @@ export function IntegrationsEsbRoute() {
                     <th className="px-6 py-3 font-medium">Outlet</th>
                     <th className="px-6 py-3 font-medium">Value</th>
                     <th className="px-6 py-3 font-medium">Issued</th>
-                    <th className="px-6 py-3 font-medium">Redeemed</th>
-                    <th className="px-6 py-3 font-medium">State</th>
+                    <th className="px-6 py-3 font-medium">Used</th>
+                    <th className="px-6 py-3 font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -401,7 +413,7 @@ export function IntegrationsEsbRoute() {
                       </td>
                       <td className="px-6 py-3">
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${voucherStateTone[v.state]}`}>
-                          {v.state}
+                          {v.state === 'redeemed' ? 'Used' : v.state === 'issued' ? 'Issued' : 'Expired'}
                         </span>
                       </td>
                     </Row>
@@ -412,11 +424,10 @@ export function IntegrationsEsbRoute() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="blackbox">
-          <BlackboxPanel data={data.blackbox} pending />
-        </TabsContent>
-
         <TabsContent value="questions">
+          <p className="mb-3 text-xs text-muted-foreground">
+            What we still need to confirm with ESB before the connection can be built.
+          </p>
           <div className="space-y-3">
             {data.openQuestions.map((q, i) => (
               <motion.div
@@ -434,13 +445,10 @@ export function IntegrationsEsbRoute() {
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${severityTone[q.severity]}`}>
-                            {q.severity}
+                            {priorityLabel[q.severity]}
                           </span>
                           <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                            Owner: {q.owner}
-                          </span>
-                          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                            · {q.status}
+                            Waiting on {q.owner}
                           </span>
                         </div>
                         <p className="mt-1.5 text-sm text-foreground">{q.question}</p>
@@ -454,6 +462,9 @@ export function IntegrationsEsbRoute() {
         </TabsContent>
 
         <TabsContent value="roadmap">
+          <p className="mb-3 text-xs text-muted-foreground">
+            The path to switching on F&amp;B perks, and who owns each step.
+          </p>
           <Card>
             <CardContent className="p-5">
               <ol className="relative space-y-4 border-l-2 border-brand-200 pl-5">
@@ -480,6 +491,54 @@ export function IntegrationsEsbRoute() {
               </ol>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="technical">
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border/60 bg-muted/40 p-3 text-xs text-muted-foreground">
+              <span className="font-semibold text-foreground">For engineers.</span> Which ESB systems we
+              use, connection details, and the live connection monitor. Day-to-day operations don't need
+              this tab.
+            </div>
+
+            <TechSection icon={<Server className="h-4 w-4" />} title="Connection">
+              <ConfigRow label="How this connection will work" value={data.integrationModel} />
+              <ConfigRow label="Base URL" value={data.baseUrl} mono />
+              <ConfigRow label="Auth method" value={data.authMethod} />
+              <ConfigRow label="Environment" value={data.environment === 'unset' ? 'Not set' : data.environment} />
+            </TechSection>
+
+            <TechSection icon={<Plug className="h-4 w-4" />} title="ESB product surfaces" count={data.products.length}>
+              <p className="mb-3 text-xs text-muted-foreground">
+                ESB ships five API products; only OMS is the integration target for member perks.
+              </p>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {data.products.map((p, i) => (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: Math.min(i * 0.04, 0.32) }}
+                  >
+                    <div className="h-full rounded-2xl border border-border/60 bg-white p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold">{p.name}</p>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${productStatusTone[p.status]}`}>
+                          {p.status === 'not-applicable' ? 'N/A' : p.status === 'maybe-phase-2' ? 'P2?' : 'Target'}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">{p.purpose}</p>
+                      <p className="mt-2 text-xs text-foreground">{p.note}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </TechSection>
+
+            <TechSection icon={<Heart className="h-4 w-4" />} title="Live connection monitor">
+              <BlackboxPanel data={data.blackbox} pending />
+            </TechSection>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
@@ -515,6 +574,46 @@ function StatTile({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function TechSection({
+  icon,
+  title,
+  count,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  count?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card>
+      <CardContent className="p-4 sm:p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+            {icon}
+          </span>
+          <p className="text-sm font-semibold">{title}</p>
+          {count !== undefined ? (
+            <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+              {count}
+            </span>
+          ) : null}
+        </div>
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ConfigRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="flex flex-col gap-1 border-b border-border/50 pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground sm:w-48">{label}</p>
+      <p className={`text-sm ${mono ? 'font-mono text-xs' : ''} text-foreground sm:flex-1 sm:text-right`}>{value}</p>
+    </div>
   );
 }
 
