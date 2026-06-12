@@ -1,4 +1,5 @@
 export { cn } from './lib/utils';
+export { AnnualPassArt } from './components/annual-pass-art';
 export { AppSwitcher, type AppId } from './components/app-switcher';
 export { Button, buttonVariants, type ButtonProps } from './components/button';
 export {

@@ -30,7 +30,30 @@
       "promotions": "Promosi & info",
       "memberPerks": "Keuntungan member",
       "upcomingEvents": "Acara mendatang",
-      "viewAll": "Lihat semua"
+      "viewAll": "Lihat semua",
+      "heroLead": "Nikmati Petualangan",
+      "heroAccent": "Tanpa Batas!",
+      "heroSubtitle": "Dengan Annual Pass, setiap kunjungan jadi lebih seru.",
+      "heroCta": "Lihat Annual Pass",
+      "myPass": "Annual Pass Saya",
+      "myPassActive": "Aktifkan atau beli Annual Pass untuk pengalaman terbaik!",
+      "activateBuy": "Aktivasi / Beli Sekarang",
+      "explore": "Jelajahi",
+      "benefitsTitle": "Keuntungan Annual Pass",
+      "qa": {
+        "buyPass": "Beli Pass",
+        "myTickets": "Tiket Saya",
+        "planner": "Perencana Kunjungan",
+        "memberPerks": "Member Perks"
+      },
+      "explore1": "Animal Encounters",
+      "explore2": "Safari Malam",
+      "explore3": "Wahana & Atraksi",
+      "explore4": "Penginapan",
+      "benefit1": "Kunjungan Berkali-kali",
+      "benefit2": "Hemat Hingga 30%",
+      "benefit3": "Event Spesial Member",
+      "benefit4": "Parkir Gratis"
     },
     "qr": {
       "title": "Kode QR Anda",
@@ -41,7 +64,18 @@
       "name": "Nama",
       "email": "Email",
       "memberId": "ID Anggota",
-      "signOut": "Keluar"
+      "signOut": "Keluar",
+      "validUntil": "Berlaku hingga",
+      "statVisits": "Kunjungan Tahun Ini",
+      "statRemaining": "Sisa Hak Kunjungan",
+      "statPerks": "Perk Benefit",
+      "statSaved": "Total Hemat",
+      "unitTimes": "kali",
+      "unitActive": "aktif",
+      "recentVisits": "Riwayat Kunjungan Terbaru",
+      "activePerks": "Perk & Benefit Aktif",
+      "renew": "Perpanjang Annual Pass",
+      "account": "Akun & Pengaturan"
     },
     "renewal": {
       "title": "Perpanjangan",

@@ -279,3 +279,44 @@ export function makeParkInfo() {
     ],
   };
 }
+
+// Profile-screen extras: member stats, visit history, active perks.
+// Powers the redesigned Akun/Profile screen.
+export function makeMemberProfileExtras() {
+  return {
+    stats: {
+      visitsThisYear: 6,
+      remainingVisits: 6,
+      activePerks: 5,
+      totalSavedIdr: 652_000,
+    },
+    recentVisits: [
+      {
+        id: 'visit-001',
+        park: 'Taman Safari Bogor',
+        activity: 'Safari Siang',
+        date: inDays(-25),
+        image: memberImagery.lion,
+      },
+      {
+        id: 'visit-002',
+        park: 'Taman Safari Bogor',
+        activity: 'Safari Malam',
+        date: inDays(-40),
+        image: memberImagery.night,
+      },
+      {
+        id: 'visit-003',
+        park: 'Taman Safari Bogor',
+        activity: 'Istana Burung',
+        date: inDays(-59),
+        image: memberImagery.giraffe,
+      },
+    ],
+    activePerks: [
+      { id: 'ap-001', title: 'Diskon F&B 10%', icon: 'percent', validUntil: inDays(135) },
+      { id: 'ap-002', title: 'Diskon Merchandise 10%', icon: 'bag', validUntil: inDays(135) },
+      { id: 'ap-003', title: 'Gratis Foto Digital', icon: 'camera', validUntil: inDays(135) },
+    ],
+  };
+}

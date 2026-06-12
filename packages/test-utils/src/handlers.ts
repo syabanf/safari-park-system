@@ -66,6 +66,7 @@ import {
 import {
   makeBanners,
   makeEvents,
+  makeMemberProfileExtras,
   makeNotifications,
   makeParkInfo,
   makeParkStatus,
@@ -93,6 +94,7 @@ export const handlers = [
   http.post(`${API}/auth/logout`, () => HttpResponse.json({ ok: true })),
 
   http.get(`${API}/members/me`, () => HttpResponse.json(makeMember())),
+  http.get(`${API}/members/me/extras`, () => HttpResponse.json(makeMemberProfileExtras())),
   http.post(`${API}/members`, async ({ request }) => {
     const body = (await request.json()) as { email: string; fullName: string };
     return HttpResponse.json(makeMember({ email: body.email, fullName: body.fullName }), {

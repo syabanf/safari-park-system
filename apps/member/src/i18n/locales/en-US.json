@@ -30,7 +30,30 @@
       "promotions": "Promotions & news",
       "memberPerks": "Member perks",
       "upcomingEvents": "Upcoming events",
-      "viewAll": "View all"
+      "viewAll": "View all",
+      "heroLead": "Enjoy Adventure",
+      "heroAccent": "Without Limits!",
+      "heroSubtitle": "With an Annual Pass, every visit is more exciting.",
+      "heroCta": "View Annual Pass",
+      "myPass": "My Annual Pass",
+      "myPassActive": "Activate or buy an Annual Pass for the best experience!",
+      "activateBuy": "Activate / Buy now",
+      "explore": "Explore",
+      "benefitsTitle": "Annual Pass Benefits",
+      "qa": {
+        "buyPass": "Buy Pass",
+        "myTickets": "My Tickets",
+        "planner": "Visit Planner",
+        "memberPerks": "Member Perks"
+      },
+      "explore1": "Animal Encounters",
+      "explore2": "Night Safari",
+      "explore3": "Rides & Attractions",
+      "explore4": "Stays",
+      "benefit1": "Unlimited visits",
+      "benefit2": "Save up to 30%",
+      "benefit3": "Member events",
+      "benefit4": "Free parking"
     },
     "qr": {
       "title": "Your QR code",
@@ -41,7 +64,18 @@
       "name": "Name",
       "email": "Email",
       "memberId": "Member ID",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "validUntil": "Valid until",
+      "statVisits": "Visits this year",
+      "statRemaining": "Remaining visits",
+      "statPerks": "Active perks",
+      "statSaved": "Total saved",
+      "unitTimes": "visits",
+      "unitActive": "active",
+      "recentVisits": "Recent visits",
+      "activePerks": "Active perks & benefits",
+      "renew": "Renew Annual Pass",
+      "account": "Account & settings"
     },
     "renewal": {
       "title": "Renewal",
