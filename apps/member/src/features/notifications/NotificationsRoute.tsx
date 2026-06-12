@@ -1,9 +1,9 @@
 import { fetchNotifications } from '@/features/home/queries';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, Skeleton } from '@tsi/ui';
+import { Card, CardContent, EmptyState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Bell, CalendarDays, Gift, RefreshCw, Ticket } from 'lucide-react';
+import { Bell, BellOff, CalendarDays, Gift, RefreshCw, Ticket } from 'lucide-react';
 
 const iconForCategory = {
   pass: Ticket,
@@ -60,7 +60,11 @@ export function NotificationsRoute() {
           ))}
         </div>
       ) : !data || data.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('notifications.empty')}</p>
+        <EmptyState
+          icon={BellOff}
+          title={t('notifications.empty')}
+          description={t('notifications.emptyHint')}
+        />
       ) : (
         <div className="space-y-2">
           {data.map((n, i) => {

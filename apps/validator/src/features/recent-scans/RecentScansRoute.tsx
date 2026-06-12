@@ -1,7 +1,8 @@
 import { useTranslation } from '@tsi/i18n';
 import { validatorDb } from '@tsi/offline-storage';
-import { Card, CardContent, CardHeader, CardTitle } from '@tsi/ui';
+import { Card, CardContent, CardHeader, CardTitle, EmptyState } from '@tsi/ui';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { ScanLine } from 'lucide-react';
 
 export function RecentScansRoute() {
   const { t, i18n } = useTranslation();
@@ -17,7 +18,11 @@ export function RecentScansRoute() {
       </CardHeader>
       <CardContent>
         {!scans || scans.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('validator.recent.empty')}</p>
+          <EmptyState
+            icon={ScanLine}
+            title={t('validator.recent.empty')}
+            description={t('validator.recent.emptyHint')}
+          />
         ) : (
           <ul className="space-y-2">
             {scans.map((scan) => (

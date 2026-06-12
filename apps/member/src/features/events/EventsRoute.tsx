@@ -1,9 +1,9 @@
 import { fetchEvents } from '@/features/home/queries';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Card, CardContent, Skeleton } from '@tsi/ui';
+import { Card, CardContent, EmptyState, Skeleton } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { CalendarDays, MapPin } from 'lucide-react';
+import { CalendarDays, CalendarX, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function EventsRoute() {
@@ -37,7 +37,7 @@ export function EventsRoute() {
           ))}
         </div>
       ) : !data || data.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('events.empty')}</p>
+        <EmptyState icon={CalendarX} title={t('events.empty')} description={t('events.emptyHint')} />
       ) : (
         <div className="space-y-3">
           {data.map((e, i) => (

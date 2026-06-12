@@ -31,6 +31,10 @@
       "memberPerks": "Keuntungan member",
       "upcomingEvents": "Acara mendatang",
       "viewAll": "Lihat semua",
+      "greetMorning": "Selamat pagi",
+      "greetAfternoon": "Selamat siang",
+      "greetEvening": "Selamat sore",
+      "greetNight": "Selamat malam",
       "heroLead": "Nikmati Petualangan",
       "heroAccent": "Tanpa Batas!",
       "heroSubtitle": "Dengan Annual Pass, setiap kunjungan jadi lebih seru.",
@@ -100,7 +104,8 @@
   "events": {
     "title": "Acara",
     "subtitle": "Acara mendatang di taman",
-    "empty": "Belum ada acara"
+    "empty": "Belum ada acara",
+    "emptyHint": "Acara seru akan segera hadir — pantau terus ya! 🦁"
   },
   "perks": {
     "title": "Penawaran Member",
@@ -115,7 +120,8 @@
   },
   "notifications": {
     "title": "Notifikasi",
-    "empty": "Tidak ada notifikasi",
+    "empty": "Semua sudah dibaca",
+    "emptyHint": "Kami akan memberi tahu saat ada kabar baru. ✨",
     "unread": "{{count}} belum dibaca",
     "markAllRead": "Tandai semua dibaca"
   }

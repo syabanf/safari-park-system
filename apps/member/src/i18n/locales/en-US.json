@@ -31,6 +31,10 @@
       "memberPerks": "Member perks",
       "upcomingEvents": "Upcoming events",
       "viewAll": "View all",
+      "greetMorning": "Good morning",
+      "greetAfternoon": "Good afternoon",
+      "greetEvening": "Good evening",
+      "greetNight": "Good evening",
       "heroLead": "Enjoy Adventure",
       "heroAccent": "Without Limits!",
       "heroSubtitle": "With an Annual Pass, every visit is more exciting.",
@@ -100,7 +104,8 @@
   "events": {
     "title": "Events",
     "subtitle": "Upcoming events at the park",
-    "empty": "No events yet"
+    "empty": "No events yet",
+    "emptyHint": "Exciting events are on the way — stay tuned! 🦁"
   },
   "perks": {
     "title": "Member Perks",
@@ -115,7 +120,8 @@
   },
   "notifications": {
     "title": "Notifications",
-    "empty": "No notifications",
+    "empty": "You're all caught up",
+    "emptyHint": "We'll let you know when something comes up. ✨",
     "unread": "{{count}} unread",
     "markAllRead": "Mark all read"
   }

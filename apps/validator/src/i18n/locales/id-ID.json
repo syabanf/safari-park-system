@@ -35,7 +35,8 @@
     },
     "recent": {
       "title": "Pindaian Terkini",
-      "empty": "Belum ada pindaian"
+      "empty": "Belum ada pindaian",
+      "emptyHint": "Pindaian akan muncul di sini saat Anda mulai bertugas."
     },
     "queue": {
       "title": "Antrian Offline",

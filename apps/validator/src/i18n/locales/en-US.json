@@ -35,7 +35,8 @@
     },
     "recent": {
       "title": "Recent scans",
-      "empty": "No scans yet"
+      "empty": "No scans yet",
+      "emptyHint": "Scans will show up here once you start your shift."
     },
     "queue": {
       "title": "Offline queue",

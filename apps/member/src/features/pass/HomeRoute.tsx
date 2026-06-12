@@ -1,4 +1,5 @@
 import { api } from '@/lib/api';
+import { useAuthStore } from '@/features/auth/store';
 import { useQuery } from '@tanstack/react-query';
 import { endpoints, queryKeys } from '@tsi/api-client';
 import { useTranslation } from '@tsi/i18n';
@@ -21,6 +22,7 @@ import {
 
 export function HomeRoute() {
   const { t, i18n } = useTranslation();
+  const displayName = useAuthStore((s) => s.displayName);
 
   const passQuery = useQuery({
     queryKey: queryKeys.pass.mine(),
@@ -55,6 +57,11 @@ export function HomeRoute() {
     new Date(pass.validUntil),
   );
 
+  const hour = new Date().getHours();
+  const greetKey =
+    hour < 11 ? 'greetMorning' : hour < 15 ? 'greetAfternoon' : hour < 19 ? 'greetEvening' : 'greetNight';
+  const firstName = (displayName ?? member.fullName).split(' ')[0];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -80,7 +87,10 @@ export function HomeRoute() {
           <div className="absolute inset-0 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-900/55 to-brand-900/25" />
-        <div className="relative px-5 pb-7 pt-10">
+        <div className="relative px-5 pb-7 pt-8">
+          <p className="mb-2.5 text-sm font-semibold text-lime-300 drop-shadow">
+            {t(`member.home.${greetKey}`)}, {firstName} 👋
+          </p>
           <h1 className="text-[28px] font-extrabold leading-[1.05] tracking-tight text-white drop-shadow-lg">
             {t('member.home.heroLead')}
             <br />
