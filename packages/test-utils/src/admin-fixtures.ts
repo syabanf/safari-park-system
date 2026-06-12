@@ -19,7 +19,7 @@ function makeName(seed: number): string {
   return `${pick(ID_FIRST, seed)} ${pick(ID_LAST, Math.floor(seed / 3))}`;
 }
 
-export function makeAdminMembers(count = 42) {
+export function makeAdminMembers(count = 64) {
   const now = Date.now();
   return Array.from({ length: count }, (_, i) => {
     const tier = pick(TIERS, i);
@@ -84,7 +84,7 @@ export function makePassesBreakdown() {
   };
 }
 
-export function makeAdminRedemptions(count = 30) {
+export function makeAdminRedemptions(count = 48) {
   const now = Date.now();
   return Array.from({ length: count }, (_, i) => {
     const verdict = (['allow', 'allow', 'allow', 'allow', 'manual', 'deny'] as const)[i % 6] as 'allow' | 'deny' | 'manual';
