@@ -1,10 +1,10 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@tsi/i18n';
-import { Badge, Button, Card, CardContent, ErrorState, Tabs, TabsContent, TabsList, TabsTrigger } from '@tsi/ui';
+import { Badge, Button, Card, CardContent, ErrorState, Input, Tabs, TabsContent, TabsList, TabsTrigger, cn } from '@tsi/ui';
 import { motion } from 'framer-motion';
-import { Archive, Calendar, Check, Clock, Download, FileText, Play, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { Archive, Calendar, Check, Clock, Download, FileText, Play, Plus, Sparkles, X, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface OpsReport {
   id: string;
@@ -199,9 +199,12 @@ function downloadCsv(filename: string, csv: string) {
 const slug = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'report';
 
-/** Build a populated report CSV (header block + data table) and download it. */
-function downloadReport(title: string, opts: { category?: Category; scope?: string; generatedAt?: string }) {
-  const { headers, rows } = reportData(reportKind(title, opts.category));
+/** Build a populated report CSV string (header block + data table). */
+function buildReportCsv(
+  title: string,
+  opts: { category?: Category; scope?: string; generatedAt?: string; kind?: ReportKind },
+): string {
+  const { headers, rows } = reportData(opts.kind ?? reportKind(title, opts.category));
   const meta = toCsv(
     ['Field', 'Value'],
     [
@@ -211,9 +214,29 @@ function downloadReport(title: string, opts: { category?: Category; scope?: stri
       ['Source', 'Taman Safari Annual Pass · admin console'],
     ],
   );
-  const csv = `${meta}\r\n\r\n${toCsv(headers, rows)}`;
-  downloadCsv(`${slug(title)}.csv`, csv);
+  return `${meta}\r\n\r\n${toCsv(headers, rows)}`;
 }
+
+/** Build a populated report CSV and trigger its download. */
+function downloadReport(title: string, opts: { category?: Category; scope?: string; generatedAt?: string; kind?: ReportKind }) {
+  downloadCsv(`${slug(title)}.csv`, buildReportCsv(title, opts));
+}
+
+// Report-builder choices.
+type ScopeKey = 'today' | 'last7' | 'month' | 'quarter';
+const TEMPLATE_KINDS: ReportKind[] = ['gate', 'membership', 'finance', 'campaign', 'compliance', 'reconciliation', 'kpi', 'incidents', 'attendance'];
+const SCOPES: ScopeKey[] = ['today', 'last7', 'month', 'quarter'];
+const kindCategory: Record<ReportKind, Category> = {
+  gate: 'operational',
+  membership: 'operational',
+  finance: 'finance',
+  campaign: 'marketing',
+  compliance: 'compliance',
+  reconciliation: 'operational',
+  kpi: 'operational',
+  incidents: 'operational',
+  attendance: 'operational',
+};
 
 async function fetchScheduledReports(): Promise<OpsReport[]> {
   const json = (await api.http.get('admin/reports').json()) as { reports: OpsReport[] };
@@ -254,13 +277,41 @@ export function AdminReportsRoute() {
     queryFn: fetchScheduledReports,
   });
   const [generatedId, setGeneratedId] = useState<string | null>(null);
+  const [tab, setTab] = useState('scheduled');
+
+  // Report builder ("New report").
+  const [builderOpen, setBuilderOpen] = useState(false);
+  const [kind, setKind] = useState<ReportKind>('gate');
+  const [scope, setScope] = useState<ScopeKey>('last7');
+  const [name, setName] = useState('');
+  const [created, setCreated] = useState<ArchivedReport[]>([]);
+  const [justCreatedId, setJustCreatedId] = useState<string | null>(null);
 
   const formatter = new Intl.DateTimeFormat(i18n.language, {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
+  const numberFmt = new Intl.NumberFormat(i18n.language);
 
   const catLabel = (c: Category) => t(`admin.reports.categories.${c}`);
+  const tplLabel = (k: ReportKind) => t(`admin.reports.templates.${k}`);
+  const scopeLabel = (s: ScopeKey) => t(`admin.reports.scopes.${s}`);
+
+  // Default the report name from the chosen template + scope.
+  useEffect(() => {
+    setName(`${tplLabel(kind)} — ${scopeLabel(scope)}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kind, scope, i18n.language]);
+
+  // Close the builder on Escape.
+  useEffect(() => {
+    if (!builderOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setBuilderOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [builderOpen]);
 
   function generate(q: QuickReport) {
     downloadReport(q.title, { category: q.category, scope: q.scope });
@@ -268,14 +319,42 @@ export function AdminReportsRoute() {
     window.setTimeout(() => setGeneratedId((v) => (v === q.id ? null : v)), 2200);
   }
 
+  function createReport() {
+    const title = name.trim() || `${tplLabel(kind)} — ${scopeLabel(scope)}`;
+    const csv = buildReportCsv(title, { kind, scope: scopeLabel(scope) });
+    downloadCsv(`${slug(title)}.csv`, csv);
+    const id = `created-${Date.now()}`;
+    const entry: ArchivedReport = {
+      id,
+      title,
+      generatedAt: new Date().toISOString(),
+      format: 'csv',
+      sizeKb: Math.max(1, Math.round((csv.length + 1) / 1024)),
+      category: kindCategory[kind],
+    };
+    setCreated((prev) => [entry, ...prev]);
+    setJustCreatedId(id);
+    setBuilderOpen(false);
+    setTab('archive');
+  }
+
+  const allArchive = [...created, ...archive];
+  const preview = reportData(kind);
+
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">{t('admin.reports.title')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('admin.reports.subtitle')}</p>
+      <header className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{t('admin.reports.title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('admin.reports.subtitle')}</p>
+        </div>
+        <Button size="sm" className="shrink-0 gap-1.5" onClick={() => setBuilderOpen(true)}>
+          <Plus className="h-4 w-4" />
+          {t('admin.reports.new')}
+        </Button>
       </header>
 
-      <Tabs defaultValue="scheduled">
+      <Tabs defaultValue="scheduled" value={tab} onValueChange={setTab}>
         <TabsList>
           <TabsTrigger value="scheduled" icon={<Clock className="h-3.5 w-3.5" />} count={scheduled?.length}>
             {t('admin.reports.tabs.scheduled')}
@@ -283,7 +362,7 @@ export function AdminReportsRoute() {
           <TabsTrigger value="quick" icon={<Zap className="h-3.5 w-3.5" />} count={quickReports.length}>
             {t('admin.reports.tabs.quick')}
           </TabsTrigger>
-          <TabsTrigger value="archive" icon={<Archive className="h-3.5 w-3.5" />} count={archive.length}>
+          <TabsTrigger value="archive" icon={<Archive className="h-3.5 w-3.5" />} count={allArchive.length}>
             {t('admin.reports.tabs.archive')}
           </TabsTrigger>
         </TabsList>
@@ -428,15 +507,25 @@ export function AdminReportsRoute() {
                   </tr>
                 </thead>
                 <tbody>
-                  {archive.map((a, i) => (
+                  {allArchive.map((a, i) => (
                     <motion.tr
                       key={a.id}
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2, delay: i * 0.03 }}
-                      className="border-b last:border-0 hover:bg-muted/30"
+                      className={cn(
+                        'border-b last:border-0 hover:bg-muted/30',
+                        a.id === justCreatedId && 'bg-brand-50/70',
+                      )}
                     >
-                      <td className="px-6 py-3 font-medium">{a.title}</td>
+                      <td className="px-6 py-3 font-medium">
+                        {a.title}
+                        {created.some((c) => c.id === a.id) ? (
+                          <span className="ml-2 rounded-full bg-brand-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-brand-800">
+                            {t('admin.reports.builder.newBadge')}
+                          </span>
+                        ) : null}
+                      </td>
                       <td className="px-6 py-3">
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest ${categoryAccent[a.category]}`}>
                           {catLabel(a.category)}
@@ -468,6 +557,143 @@ export function AdminReportsRoute() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {builderOpen ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4"
+          onClick={() => setBuilderOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-2xl sm:rounded-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold">{t('admin.reports.builder.title')}</p>
+                  <p className="text-xs text-muted-foreground">{t('admin.reports.builder.subtitle')}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setBuilderOpen(false)}
+                aria-label={t('admin.reports.builder.cancel') as string}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {t('admin.reports.builder.type')}
+                </p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {TEMPLATE_KINDS.map((k) => (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => setKind(k)}
+                      className={cn(
+                        'rounded-xl border p-2.5 text-left text-xs font-semibold transition-colors',
+                        kind === k
+                          ? 'border-brand-400 bg-brand-50 text-brand-900 ring-1 ring-brand-300'
+                          : 'border-border text-foreground hover:bg-muted/50',
+                      )}
+                    >
+                      {tplLabel(k)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {t('admin.reports.builder.scope')}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {SCOPES.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setScope(s)}
+                      className={cn(
+                        'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                        scope === s
+                          ? 'border-brand-400 bg-brand-100 text-brand-800'
+                          : 'border-border text-muted-foreground hover:bg-muted/50',
+                      )}
+                    >
+                      {scopeLabel(s)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="report-name" className="mb-2 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {t('admin.reports.builder.name')}
+                </label>
+                <Input id="report-name" value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {t('admin.reports.builder.preview')}
+                </p>
+                <div className="overflow-x-auto rounded-xl border border-border">
+                  <table className="min-w-full text-xs">
+                    <thead>
+                      <tr className="border-b bg-muted/40 text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {preview.headers.map((h) => (
+                          <th key={h} className="whitespace-nowrap px-3 py-2 font-medium">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {preview.rows.slice(0, 4).map((row, ri) => (
+                        <tr key={ri} className="border-b last:border-0">
+                          {row.map((c, ci) => (
+                            <td key={ci} className="whitespace-nowrap px-3 py-1.5 font-mono text-[11px]">
+                              {typeof c === 'number' ? numberFmt.format(c) : c}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  {t('admin.reports.builder.previewNote', { n: Math.min(4, preview.rows.length), total: preview.rows.length })}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setBuilderOpen(false)}>
+                {t('admin.reports.builder.cancel')}
+              </Button>
+              <Button size="sm" className="gap-1.5" onClick={createReport} disabled={!name.trim()}>
+                <FileText className="h-3.5 w-3.5" />
+                {t('admin.reports.builder.create')}
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
     </div>
   );
 }

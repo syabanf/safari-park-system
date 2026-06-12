@@ -189,6 +189,36 @@
         "finance": "Keuangan",
         "marketing": "Pemasaran",
         "compliance": "Kepatuhan"
+      },
+      "new": "Laporan baru",
+      "builder": {
+        "title": "Buat laporan baru",
+        "subtitle": "Pilih jenis dan rentang waktu, lalu buat.",
+        "type": "Jenis laporan",
+        "scope": "Rentang waktu",
+        "name": "Nama laporan",
+        "preview": "Pratinjau",
+        "previewNote": "Menampilkan {{n}} dari {{total}} baris",
+        "create": "Buat laporan",
+        "cancel": "Batal",
+        "newBadge": "Baru"
+      },
+      "templates": {
+        "gate": "Operasi gerbang",
+        "membership": "Kohort keanggotaan",
+        "finance": "Tutup buku keuangan",
+        "campaign": "ROI kampanye",
+        "compliance": "Ringkasan kepatuhan",
+        "reconciliation": "Rekonsiliasi GlobalTix",
+        "kpi": "KPI mingguan",
+        "incidents": "Insiden & pemeliharaan",
+        "attendance": "Kehadiran staf"
+      },
+      "scopes": {
+        "today": "Hari ini",
+        "last7": "7 hari terakhir",
+        "month": "Bulan ini",
+        "quarter": "Kuartal ini"
       }
     },
     "analytics": {

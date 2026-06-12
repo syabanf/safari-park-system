@@ -189,6 +189,36 @@
         "finance": "Finance",
         "marketing": "Marketing",
         "compliance": "Compliance"
+      },
+      "new": "New report",
+      "builder": {
+        "title": "Create a new report",
+        "subtitle": "Pick a type and time range, then create.",
+        "type": "Report type",
+        "scope": "Time range",
+        "name": "Report name",
+        "preview": "Preview",
+        "previewNote": "Showing {{n}} of {{total}} rows",
+        "create": "Create report",
+        "cancel": "Cancel",
+        "newBadge": "New"
+      },
+      "templates": {
+        "gate": "Gate operations",
+        "membership": "Membership cohort",
+        "finance": "Finance close",
+        "campaign": "Campaign ROI",
+        "compliance": "Compliance digest",
+        "reconciliation": "GlobalTix reconciliation",
+        "kpi": "Weekly KPI",
+        "incidents": "Incidents & maintenance",
+        "attendance": "Staff attendance"
+      },
+      "scopes": {
+        "today": "Today",
+        "last7": "Last 7 days",
+        "month": "This month",
+        "quarter": "This quarter"
       }
     },
     "analytics": {
